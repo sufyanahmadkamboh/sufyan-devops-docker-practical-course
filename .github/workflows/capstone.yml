@@ -1,0 +1,75 @@
+# The capstone's pipeline (module 19, step 11 of the capstone):
+#   build the three images → start the whole stack → smoke-test it through the proxy → push to GHCR (main only)
+# The registry login uses the workflow's own short-lived GITHUB_TOKEN: no password is stored anywhere.
+name: capstone-images
+
+on:
+  push:
+    branches: [main]
+    paths: ["22-capstone/app/**", ".github/workflows/capstone.yml"]
+  pull_request:
+    paths: ["22-capstone/app/**", ".github/workflows/capstone.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  APP_VERSION: 1.0.${{ github.run_number }}
+  REGISTRY: ghcr.io/${{ github.repository_owner }}/docker-course
+
+jobs:
+  build-test-push:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write          # push to ghcr.io with GITHUB_TOKEN
+    defaults:
+      run:
+        working-directory: 22-capstone/app
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Docker Hub pulls through a mirror (anonymous pulls are rate-limited)
+        working-directory: .
+        run: |
+          echo '{"registry-mirrors": ["https://mirror.gcr.io"]}' | sudo tee /etc/docker/daemon.json
+          sudo systemctl restart docker
+      - name: Configuration and a throw-away secret for this run
+        run: |
+          cp .env.example .env
+          ./make-secret.sh
+      - name: Build
+        run: docker compose build
+      - name: Start the stack and wait until every service is healthy
+        run: docker compose up -d --wait
+      - name: Smoke tests through the proxy
+        run: |
+          set -euo pipefail
+          curl -fsS http://localhost:8080/api/health | grep '"status":"ok"'
+          curl -fsS -X POST -H "Content-Type: application/json" -d '{"item": "ci order"}' http://localhost:8080/api/orders
+          curl -fsS http://localhost:8080/api/orders | grep "ci order"
+          curl -fsS http://localhost:8080/ | grep "<title>Cafe orders</title>"
+      - name: Security properties
+        run: |
+          set -euo pipefail
+          for s in proxy frontend api db; do
+            ro=$(docker inspect --format '{{.HostConfig.ReadonlyRootfs}}' "$(docker compose ps -q $s)")
+            [ "$ro" = true ] || { echo "$s: root file system is writable"; exit 1; }
+          done
+          [ "$(docker inspect --format '{{.Config.User}}' "$(docker compose ps -q api)")" = "nonroot:nonroot" ]
+      - name: Logs on failure
+        if: failure()
+        run: docker compose logs --no-color
+      - name: Log in to GHCR
+        if: github.ref == 'refs/heads/main'
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Push
+        if: github.ref == 'refs/heads/main'
+        run: docker compose push
+      - name: Stop
+        if: always()
+        run: docker compose down -v

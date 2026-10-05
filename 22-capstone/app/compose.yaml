@@ -1,0 +1,98 @@
+# The capstone stack.
+#
+#   browser ──▶ proxy :8080 ──┬──▶ frontend :8080          network "edge"
+#                             └──▶ api :8080 ──▶ db :5432  network "backend" (internal: no way out, no way in)
+#
+# Configuration: .env (copy .env.example). The database password is a secret file, secrets/db_password.txt
+# (create it with ./make-secret.sh); it is never an environment variable and never part of an image.
+name: capstone
+
+x-hardening: &hardening
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options: { max-size: "10m", max-file: "3" }
+
+services:
+  proxy:
+    <<: *hardening
+    build: { context: ./proxy }
+    image: ${REGISTRY:-localhost:5000}/capstone/proxy:${APP_VERSION:-1.0.0}
+    ports: ["${PROXY_PORT:-8080}:8080"]
+    tmpfs: [/tmp]
+    networks: [edge]
+    depends_on:
+      frontend: { condition: service_healthy }
+      api: { condition: service_healthy }
+    deploy:
+      resources:
+        limits: { cpus: "0.50", memory: 64M, pids: 100 }
+
+  frontend:
+    <<: *hardening
+    build:
+      context: ./frontend
+      args: { APP_VERSION: "${APP_VERSION:-1.0.0}" }
+    image: ${REGISTRY:-localhost:5000}/capstone/frontend:${APP_VERSION:-1.0.0}
+    tmpfs: [/tmp]
+    networks: [edge]
+    deploy:
+      resources:
+        limits: { cpus: "0.25", memory: 32M, pids: 50 }
+
+  api:
+    <<: *hardening
+    build:
+      context: ./api
+      args: { APP_VERSION: "${APP_VERSION:-1.0.0}" }
+    image: ${REGISTRY:-localhost:5000}/capstone/api:${APP_VERSION:-1.0.0}
+    environment:
+      PGHOST: db
+      PGUSER: ${POSTGRES_USER:-orders}
+      PGDATABASE: ${POSTGRES_DB:-orders}
+      PGPASSWORD_FILE: /run/secrets/db_password
+    secrets: [db_password]
+    networks: [edge, backend]
+    depends_on:
+      db: { condition: service_healthy }
+    deploy:
+      resources:
+        limits: { cpus: "0.50", memory: 64M, pids: 100 }
+
+  db:
+    <<: *hardening
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-orders}
+      POSTGRES_DB: ${POSTGRES_DB:-orders}
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets: [db_password]
+    volumes: [pgdata:/var/lib/postgresql]
+    tmpfs: [/tmp, /var/run/postgresql]
+    # the entrypoint starts as root, prepares the data folder, then drops to the postgres user: it needs these
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
+    networks: [backend]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    deploy:
+      resources:
+        limits: { cpus: "1.0", memory: 256M, pids: 200 }
+
+networks:
+  edge: {}
+  backend:
+    internal: true
+
+volumes:
+  pgdata: {}
+
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt

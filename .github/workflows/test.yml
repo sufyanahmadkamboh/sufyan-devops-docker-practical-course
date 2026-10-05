@@ -1,0 +1,89 @@
+# Proves that every command in the course still works:
+#   static    links, generated lesson files and module pages up to date, scripts (ShellCheck)
+#   lessons   every lesson, assessment, troubleshooting problem, project, the capstone and the final exam, in course
+#             order, on a fresh Docker engine, in four parallel groups
+# Blocks that need a GitHub account (marked "github") run only when MDRUN_GITHUB=1 (on the author's computer).
+name: test-lessons
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 5 * * 1"     # weekly: catch changes in new Docker releases and base images
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  KIND_VERSION: v0.33.0
+  KUBECTL_VERSION: v1.37.1
+
+jobs:
+  static:
+    name: Static checks (links, lesson files, scripts)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Relative links in every Markdown file
+        run: python3 tests/check_links.py
+      - name: Generated lesson files (lab, challenge, solution, troubleshooting, commands) are up to date
+        run: python3 tools/lesson_files.py --check
+      - name: Module READMEs are up to date
+        run: python3 tools/module_readmes.py --check
+      - name: Command reference, labs and troubleshooting indexes are up to date
+        run: python3 tools/command_reference.py --check
+      - name: Scripts (ShellCheck)
+        run: shellcheck -S style scripts/*.sh tests/*.sh 22-capstone/app/make-secret.sh 22-capstone/final-exam/*.sh
+
+  lessons:
+    name: Lessons (${{ matrix.group }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [modules-01-06, modules-07-12, modules-13-20, troubleshooting-projects-capstone]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Docker engine with a pull-through mirror (anonymous Docker Hub pulls are rate-limited)
+        run: |
+          echo '{"registry-mirrors": ["https://mirror.gcr.io"]}' | sudo tee /etc/docker/daemon.json
+          sudo systemctl restart docker
+          docker version --format 'client {{.Client.Version}}, server {{.Server.Version}}'
+          docker info --format 'mirrors: {{.RegistryConfig.Mirrors}}'
+      - name: Kubernetes tools (kind, kubectl) for module 20 and the capstone
+        if: matrix.group == 'modules-13-20' || matrix.group == 'troubleshooting-projects-capstone'
+        run: |
+          curl -fsSLo kind "https://kind.sigs.k8s.io/dl/${KIND_VERSION}/kind-linux-amd64"
+          curl -fsSLo kubectl "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+          chmod +x kind kubectl && sudo mv kind kubectl /usr/local/bin/
+          kind version && kubectl version --client
+      - name: Course images
+        run: bash scripts/prefetch-images.sh
+      - name: Run the group, in course order
+        run: |
+          set -euo pipefail
+          lessons() { for m in "$@"; do ls "$m"-*/[0-9][0-9][0-9]-*/README.md; ls "$m"-*/assessment.md 2> /dev/null || true; done; }
+          case "${{ matrix.group }}" in
+            modules-01-06) files=$(lessons 01 02 03 04 05 06) ;;
+            modules-07-12) files=$(lessons 07 08 09 10 11 12) ;;
+            modules-13-20) files=$(lessons 13 14 15 16 18 19 20) ;;
+            troubleshooting-projects-capstone)
+              files="$(ls 17-troubleshooting/[0-9][0-9]-*/README.md) $(ls 21-projects/[0-9][0-9]-*/README.md)
+                     22-capstone/README.md 22-capstone/final-exam/README.md 22-capstone/final-exam/SOLUTION.md" ;;
+          esac
+          bash tests/run.sh --update --record tests/out --stop-on-failure $files
+      - name: Keep the real outputs and recordings
+        if: always()
+        run: git diff > tests/out/outputs.patch || true
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        if: always()
+        with:
+          name: run-${{ matrix.group }}
+          path: tests/out/
+          retention-days: 14

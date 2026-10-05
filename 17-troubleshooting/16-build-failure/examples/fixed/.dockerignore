@@ -1,0 +1,5 @@
+# keep notes, logs and local secrets out of the build context
+notes.txt
+*.log
+.env
+__pycache__/
