@@ -1,0 +1,17 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8080:5000"
+    environment:
+      REDIS_HOST: redis
+  redis:
+    image: redis:8-alpine
+  seed:                       # only with --profile seed: put test data into Redis
+    image: redis:8-alpine
+    profiles: [seed]
+    command: redis-cli -h redis SET visits 100
+  tools:                      # only with --profile debug: a shell for investigations
+    image: alpine:3.23
+    profiles: [debug]
+    command: sleep infinity

@@ -1,0 +1,10 @@
+# compose.yaml: the cafe API and its Redis cache
+services:                     # every container of the application is a service
+  api:                        # service name = DNS name on the project network
+    build: .                  # build the image from the Dockerfile in this folder
+    ports:
+      - "8080:5000"           # host port 8080 -> container port 5000
+    environment:
+      REDIS_HOST: redis       # the API finds Redis by its service name
+  redis:
+    image: redis:8-alpine     # use an existing image, no build

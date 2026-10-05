@@ -1,0 +1,15 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8080:5000"
+    environment:
+      REDIS_HOST: redis
+  redis:
+    image: redis:8-alpine
+    command: redis-server --appendonly yes   # write every change to /data
+    volumes:
+      - redis-data:/data                      # named volume -> /data in the container
+
+volumes:
+  redis-data:                                 # Compose creates it as lesson-066_redis-data

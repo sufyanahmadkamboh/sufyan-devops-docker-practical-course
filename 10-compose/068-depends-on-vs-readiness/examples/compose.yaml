@@ -1,0 +1,11 @@
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_PASSWORD: example-password-change-me   # a practice value, never a real password
+  migrate:                     # a one-off job: prepares the database, then exits
+    image: postgres:18-alpine
+    depends_on: [db]           # start db first ... but do not wait until it is ready
+    environment:
+      PGPASSWORD: example-password-change-me
+    command: psql -h db -U postgres -c "SELECT 'schema ready' AS status"

@@ -1,0 +1,15 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8080:5000"
+    environment:
+      REDIS_HOST: redis
+  redis:
+    image: redis:8-alpine
+  worker:                     # a background job that logs one line every 2 seconds
+    image: alpine:3.23
+    command:
+      - sh
+      - -c
+      - 'i=0; while true; do i=$$((i+1)); echo "worker: job $$i done"; sleep 2; done'

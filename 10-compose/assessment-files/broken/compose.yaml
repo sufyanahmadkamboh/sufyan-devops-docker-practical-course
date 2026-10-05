@@ -1,0 +1,14 @@
+# the team's stack: "it worked on my laptop"
+services:
+  api:
+    build: .
+    ports:
+      - "8080:5000"
+    environment:
+      REDIS_HOST: localhost
+    depends_on: [redis]
+  redis:
+    image: redis:8-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - cache-data:/data

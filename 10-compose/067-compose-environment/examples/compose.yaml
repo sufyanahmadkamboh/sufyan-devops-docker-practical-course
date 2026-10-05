@@ -1,0 +1,12 @@
+services:
+  api:
+    build: .
+    ports:
+      - "${API_PORT}:5000"            # ${…} is replaced from the shell or the .env file
+    environment:                      # variables set inside the container
+      REDIS_HOST: redis
+      GREETING: ${GREETING:-Hello from Compose}   # default when GREETING is not set
+    env_file:
+      - api.env                       # more variables for the container, from a file
+  redis:
+    image: redis:8-alpine

@@ -1,0 +1,5 @@
+# a "quick fix" a colleague committed: connect to Redis on localhost
+services:
+  api:
+    environment:
+      REDIS_HOST: localhost

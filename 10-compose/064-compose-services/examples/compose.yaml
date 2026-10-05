@@ -1,0 +1,12 @@
+services:
+  api:
+    build: .                        # built from the Dockerfile here
+    ports:
+      - "8080:5000"
+    environment:
+      REDIS_HOST: redis
+    restart: unless-stopped         # start it again if it stops, unless you stopped it
+  redis:
+    image: redis:8-alpine           # an existing image
+    command: redis-server --appendonly yes   # replaces the image's default command
+    restart: unless-stopped

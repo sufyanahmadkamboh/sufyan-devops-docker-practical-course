@@ -1,0 +1,7 @@
+services:
+  worker:                     # the same job, but it writes its log to a file
+    image: alpine:3.23
+    command:
+      - sh
+      - -c
+      - 'i=0; while true; do i=$$((i+1)); echo "worker: job $$i done" >> /var/log/worker.log; sleep 2; done'

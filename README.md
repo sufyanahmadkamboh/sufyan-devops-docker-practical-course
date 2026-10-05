@@ -115,7 +115,8 @@ cd ~/docker-practice/lesson-041
 ```
 
 Running the same `lab.sh` line again **resets** the lab: the folder is replaced with a clean copy. Each lesson's
-*Cleanup* section removes the containers, images, networks and volumes it created.
+*Cleanup* section removes the containers, images, networks and volumes it created. Every lesson starts in the course
+folder: after a lab, `cd` back to where you cloned the course before you start the next lesson.
 
 ## When something does not work
 

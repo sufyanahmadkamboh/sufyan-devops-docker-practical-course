@@ -1,0 +1,19 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8080:5000"
+    environment:
+      REDIS_HOST: redis
+    networks: [frontend, backend]   # reachable from the front, can reach the back
+  redis:
+    image: redis:8-alpine
+    networks: [backend]             # only services on "backend" can reach it
+  tools:
+    image: alpine:3.23
+    command: sleep infinity
+    networks: [frontend]            # stands in for a front-end component
+
+networks:
+  frontend:
+  backend:

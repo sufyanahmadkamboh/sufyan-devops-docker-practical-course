@@ -84,6 +84,11 @@ Rules:
   off, the Windows curl of Git Bash receives the literal path `/dev/null` and fails (exit status 23).
 - Blocks run with `bash -e`: `cmd; code=$?` stops at a failing `cmd`. Capture an exit code with
   `code=0; cmd || code=$?`.
+- Never pass `~/…` or `/c/…` paths as arguments to docker on Windows (`docker compose -f ~/x/compose.yaml`): with
+  path conversion off, docker.exe receives the POSIX path literally. `cd` into the folder instead.
+- Pin digests from the source repository (`nginx@sha256:…`): with the containerd image store, the digest entry of a
+  re-tagged name disappears when the tag moves.
+- In Compose files, write `command:` as a list; an unquoted `: ` inside a string value breaks the whole file.
 - Host commands must work in Git Bash, macOS and Linux: `curl`, `grep`, `sed`, `tr`, `head`, `tail`, `printf`. Avoid
   `jq`, `watch`, `timeout`, GNU-only flags; use `docker … --format` instead of parsing tables.
 - Never put real credentials in a lesson. Secrets in examples are obviously fake (`example-password-change-me`).

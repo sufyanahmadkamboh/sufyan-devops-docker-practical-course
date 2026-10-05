@@ -1,0 +1,9 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8080:5000"
+    environment:
+      REDIS_HOST: redis
+  redis:
+    image: redis:8-alpine

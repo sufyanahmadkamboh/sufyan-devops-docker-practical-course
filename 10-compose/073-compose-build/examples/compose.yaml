@@ -1,0 +1,14 @@
+services:
+  api:
+    build:
+      context: .                  # the folder sent to the builder (lesson 036)
+      dockerfile: Dockerfile      # relative to the context
+      args:
+        APP_VERSION: "1.4.0"      # value for ARG APP_VERSION in the Dockerfile
+    image: cafe-api:1.4.0         # name the built image (default: PROJECT-SERVICE)
+    ports:
+      - "8080:5000"
+    environment:
+      REDIS_HOST: redis
+  redis:
+    image: redis:8-alpine

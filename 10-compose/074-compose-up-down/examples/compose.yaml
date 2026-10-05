@@ -1,0 +1,17 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8080:5000"
+    environment:
+      REDIS_HOST: redis
+  redis:
+    image: redis:8-alpine
+    volumes:
+      - redis-data:/data
+  worker:
+    image: alpine:3.23
+    command: sleep infinity
+
+volumes:
+  redis-data:
