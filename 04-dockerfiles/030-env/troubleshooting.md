@@ -26,7 +26,7 @@ curl -s http://localhost:8082
 ```
 
 ```text
-{"message":"Hello from Node.js","hostname":"d6e73459d540","version":"dev"}
+{"message":"Hello from Node.js","hostname":"211012de846a","version":"dev"}
 ```
 
 The API reports `dev`, its fallback when `APP_VERSION` is not set.

@@ -7,10 +7,12 @@
 
 **Instructions.** Use `docker events` to list the OOM events of the `cache` container from the last few minutes.
 
-**Expected result.** At least one line `oom`, followed by `die`.
+**Expected result.** `die` (most engines also report an `oom` line before it), and `OOMKilled=true` in the
+container's state.
 
 **Verification.**
 
 ```bash
 docker events --since 5m --until "$(date +%s)" --filter container=cache --format '{{.Action}}' | grep -E '^(oom|die)'
+docker inspect cache --format 'OOMKilled={{.State.OOMKilled}}'
 ```

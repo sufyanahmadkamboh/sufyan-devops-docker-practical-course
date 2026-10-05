@@ -35,6 +35,7 @@ docker inspect --format 'exit={{.State.ExitCode}} oom={{.State.OOMKilled}}' kill
 
 ```bash
 docker events --since 5m --until "$(date +%s)" --filter container=cache --format '{{.Action}}' | grep -E '^(oom|die)'
+docker inspect cache --format 'OOMKilled={{.State.OOMKilled}}'
 ```
 
 ## Break it

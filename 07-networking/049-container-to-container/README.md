@@ -112,10 +112,9 @@ curl -s http://localhost:8081/health
 
 The API is up and healthy. Now the endpoint that needs Redis (`-m 10`: give up after 10 seconds):
 
-<!-- test: fail; contains=HTTP 000; output -->
+<!-- test: anyof=HTTP 000||HTTP 500; output -->
 ```bash
 curl -s -m 10 -w '\nHTTP %{http_code}\n' http://localhost:8081/visits | tail -1
-test "${PIPESTATUS[0]}" -eq 0
 ```
 
 ```text
@@ -124,11 +123,12 @@ HTTP 000
 
 ## Troubleshoot it
 
-`HTTP 000` after 10 seconds: no answer at all. `/health` works, so the container, the port mapping and the
-application are fine; only the part that talks to Redis hangs. Test the dependency from **inside** the failing
+`HTTP 000` after 10 seconds: no answer at all. (On a Linux engine the lookup usually fails at once instead, and you
+get `HTTP 500`: the same problem, reported faster.) `/health` works, so the container, the port mapping and the
+application are fine; only the part that talks to Redis fails. Test the dependency from **inside** the failing
 container, exactly as the application sees it:
 
-<!-- test: fail; contains=Name or service not known; output=tail:1 -->
+<!-- test: fail; anyof=Name or service not known||Temporary failure in name resolution; output=tail:1 -->
 ```bash
 docker exec api2 python -c "import os, socket; socket.getaddrinfo(os.environ['REDIS_HOST'], 6379)" 2>&1
 ```
@@ -138,7 +138,8 @@ docker exec api2 python -c "import os, socket; socket.getaddrinfo(os.environ['RE
 socket.gaierror: [Errno -2] Name or service not known
 ```
 
-`Name or service not known`: the name in `REDIS_HOST` cannot be resolved, and the Redis client keeps retrying, which
+`Name or service not known` (or `Temporary failure in name resolution`, depending on the host's DNS setup): the
+name in `REDIS_HOST` cannot be resolved, and the Redis client keeps retrying, which
 is why the request hung (gunicorn kills the stuck worker after 30 seconds: `WORKER TIMEOUT` in `docker logs api2`).
 Confirm which names exist on the network and what the container was configured with:
 
@@ -149,7 +150,7 @@ docker inspect api2 --format '{{range .Config.Env}}{{println .}}{{end}}' | grep 
 ```
 
 ```text
-api2 api redis 
+redis api2 api 
 REDIS_HOST=cache
 ```
 

@@ -36,9 +36,10 @@ No files are needed: this lesson uses `alpine` containers.
 
 ## Demonstration
 
-By default, a container may create as many processes as the host allows:
+By default, a container may create as many processes as the host allows: `max` (no limit of its own), or a limit
+that the host itself sets for its containers:
 
-<!-- test: contains=max; output -->
+<!-- test: output -->
 ```bash
 docker run --rm alpine:3.23 cat /sys/fs/cgroup/pids.max
 ```

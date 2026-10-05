@@ -11,7 +11,7 @@ Stop `search-1` and look up `search` again. What does DNS return now, and what d
 
 ```bash
 docker stop search-1 > /dev/null
-count=$(docker run --rm --network shop-net busybox:1.37 nslookup search 2>&1 | grep '^Address' | grep -vc 127.0.0.11)
+count=$(docker run --rm --network shop-net busybox:1.37 nslookup search. 2>&1 | grep '^Address' | grep -vc 127.0.0.11)
 [ "$count" -eq 1 ] && echo "one address: only the running search-2"
 ```
 

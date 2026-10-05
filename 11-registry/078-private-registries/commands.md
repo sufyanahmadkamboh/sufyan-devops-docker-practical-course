@@ -45,7 +45,7 @@ curl -s -u student:example-password-change-me localhost:5001/v2/_catalog
 ```
 
 ```bash
-grep -o '"localhost:5001": {[^}]*}' ~/.docker/config.json | sed 's/"auth": "[^"]*"/"auth": "…"/'
+tr -d ' \n\t' < ~/.docker/config.json | grep -o '"localhost:5001":{[^}]*}' | sed 's/"auth":"[^"]*"/"auth":"…"/'
 ```
 
 ## Hands-on lab

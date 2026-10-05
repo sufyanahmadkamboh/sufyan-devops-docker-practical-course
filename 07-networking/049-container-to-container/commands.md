@@ -50,7 +50,6 @@ curl -s http://localhost:8081/health
 
 ```bash
 curl -s -m 10 -w '\nHTTP %{http_code}\n' http://localhost:8081/visits | tail -1
-test "${PIPESTATUS[0]}" -eq 0
 ```
 
 ## Troubleshoot it

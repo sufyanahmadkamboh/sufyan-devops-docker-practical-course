@@ -94,13 +94,15 @@ exit=137 oom=false
 
 **Instructions.** Use `docker events` to list the OOM events of the `cache` container from the last few minutes.
 
-**Expected result.** At least one line `oom`, followed by `die`.
+**Expected result.** `die` (most engines also report an `oom` line before it), and `OOMKilled=true` in the
+container's state.
 
 **Verification.**
 
-<!-- test: contains=oom -->
+<!-- test: contains=die; contains=OOMKilled=true -->
 ```bash
 docker events --since 5m --until "$(date +%s)" --filter container=cache --format '{{.Action}}' | grep -E '^(oom|die)'
+docker inspect cache --format 'OOMKilled={{.State.OOMKilled}}'
 ```
 
 ## Break it
@@ -144,7 +146,7 @@ docker exec service cat /sys/fs/cgroup/memory.events
 ```text
 low 0
 high 0
-max 35
+max 20
 oom 1
 oom_kill 1
 oom_group_kill 0
@@ -186,7 +188,7 @@ docker stats --no-stream --format '{{.Name}} {{.MemUsage}}' service
 ```text
 cache holds 32 MB
 oom_kill 0
-service 36.16MiB / 64MiB
+service 36.13MiB / 64MiB
 ```
 
 ## Practice challenge

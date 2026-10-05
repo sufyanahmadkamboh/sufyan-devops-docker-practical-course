@@ -18,14 +18,14 @@ docker run --rm --network shop-net busybox:1.37 grep nameserver /etc/resolv.conf
 ```
 
 ```bash
-docker run --rm --network shop-net busybox:1.37 nslookup web 2>&1 | grep -A2 '^Name'
+docker run --rm --network shop-net busybox:1.37 nslookup web. 2>&1 | grep -A2 '^Name'
 echo "web's IP: $(docker inspect web --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')"
 ```
 
 ```bash
 docker run -d --name search-1 --network shop-net --network-alias search nginx:1.30-alpine > /dev/null
 docker run -d --name search-2 --network shop-net --network-alias search nginx:1.30-alpine > /dev/null
-docker run --rm --network shop-net busybox:1.37 nslookup search 2>&1 | grep '^Address' | grep -v 127.0.0.11 | sort
+docker run --rm --network shop-net busybox:1.37 nslookup search. 2>&1 | grep '^Address' | grep -v 127.0.0.11 | sort
 ```
 
 ## Hands-on lab
@@ -47,8 +47,8 @@ docker run --rm --network shop-net busybox:1.37 wget -qO /dev/null -T 5 http://a
 ## Troubleshoot it
 
 ```bash
-docker run --rm --network shop-net busybox:1.37 nslookup api 2>&1 | grep -m1 NXDOMAIN
-docker run --rm --network shop-net busybox:1.37 nslookup api-v2 2>&1 | grep -m1 -A1 '^Name'
+docker run --rm --network shop-net busybox:1.37 nslookup api. 2>&1 | grep -m1 NXDOMAIN
+docker run --rm --network shop-net busybox:1.37 nslookup api-v2. 2>&1 | grep -m1 -A1 '^Name'
 ```
 
 ```bash
@@ -67,7 +67,7 @@ docker run --rm --network shop-net busybox:1.37 wget -qO /dev/null -T 5 http://a
 
 ```bash
 docker stop search-1 > /dev/null
-count=$(docker run --rm --network shop-net busybox:1.37 nslookup search 2>&1 | grep '^Address' | grep -vc 127.0.0.11)
+count=$(docker run --rm --network shop-net busybox:1.37 nslookup search. 2>&1 | grep '^Address' | grep -vc 127.0.0.11)
 [ "$count" -eq 1 ] && echo "one address: only the running search-2"
 ```
 

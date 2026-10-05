@@ -40,7 +40,7 @@ docker exec service cat /sys/fs/cgroup/memory.events
 ```text
 low 0
 high 0
-max 35
+max 20
 oom 1
 oom_kill 1
 oom_group_kill 0
@@ -79,5 +79,5 @@ docker stats --no-stream --format '{{.Name}} {{.MemUsage}}' service
 ```text
 cache holds 32 MB
 oom_kill 0
-service 36.16MiB / 64MiB
+service 36.13MiB / 64MiB
 ```

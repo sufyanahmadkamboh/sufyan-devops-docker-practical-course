@@ -97,8 +97,8 @@ docker run -d --name cafe-api-4000 -e PORT=4000 -p 8083:4000 cafe-api:env > /dev
 ```
 
 ```bash
+curl -s http://localhost:8083 && echo
 docker logs cafe-api-4000
-curl -s http://localhost:8083
 ```
 
 ## Cleanup

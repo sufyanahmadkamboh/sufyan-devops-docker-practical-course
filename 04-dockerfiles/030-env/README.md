@@ -61,7 +61,7 @@ curl -s http://localhost:8080
 
 ```text
 node-api listening on port 3000
-{"message":"Hello from the cafe","hostname":"99bbaace5d32","version":"1.0.0"}
+{"message":"Hello from the cafe","hostname":"24b07bfda817","version":"1.0.0"}
 ```
 
 The `RUN` step saw the variables during the build, and the application reads them at run time. Override one for a
@@ -78,7 +78,7 @@ curl -s http://localhost:8081
 ```
 
 ```text
-{"message":"Hallo aus dem Café","hostname":"761cecd58a48","version":"1.0.0"}
+{"message":"Hallo aus dem Café","hostname":"c80a39b66057","version":"1.0.0"}
 ```
 
 ## Command breakdown
@@ -131,7 +131,7 @@ curl -s http://localhost:8082
 ```
 
 ```text
-{"message":"Hello from Node.js","hostname":"d6e73459d540","version":"dev"}
+{"message":"Hello from Node.js","hostname":"211012de846a","version":"dev"}
 ```
 
 The API reports `dev`, its fallback when `APP_VERSION` is not set.
@@ -186,13 +186,13 @@ docker run -d --name cafe-api-4000 -e PORT=4000 -p 8083:4000 cafe-api:env > /dev
 
 <!-- test: retry=10; contains=port 4000; contains=Hello from the cafe; output -->
 ```bash
+curl -s http://localhost:8083 && echo
 docker logs cafe-api-4000
-curl -s http://localhost:8083
 ```
 
 ```text
+{"message":"Hello from the cafe","hostname":"30e616f50ecc","version":"1.0.0"}
 node-api listening on port 4000
-{"message":"Hello from the cafe","hostname":"0405c16cc2ad","version":"1.0.0"}
 ```
 
 `-e PORT=4000` changes where the application listens; `-p 8083:4000` must then publish that port. The image's `ENV`

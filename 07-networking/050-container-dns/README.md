@@ -46,11 +46,13 @@ docker run --rm --network shop-net busybox:1.37 grep nameserver /etc/resolv.conf
 nameserver 127.0.0.11
 ```
 
-It resolves `web` to the container's address on this network:
+It resolves `web` to the container's address on this network. (The dot after `web.` marks the name as complete.
+Without it, BusyBox `nslookup` first tries the host's search domain, which cloud servers and CI machines have, and
+reports that name as not found. Applications resolve `web` without the dot.)
 
 <!-- test: contains=Address; output -->
 ```bash
-docker run --rm --network shop-net busybox:1.37 nslookup web 2>&1 | grep -A2 '^Name'
+docker run --rm --network shop-net busybox:1.37 nslookup web. 2>&1 | grep -A2 '^Name'
 echo "web's IP: $(docker inspect web --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')"
 ```
 
@@ -68,7 +70,7 @@ load spreading):
 ```bash
 docker run -d --name search-1 --network shop-net --network-alias search nginx:1.30-alpine > /dev/null
 docker run -d --name search-2 --network shop-net --network-alias search nginx:1.30-alpine > /dev/null
-docker run --rm --network shop-net busybox:1.37 nslookup search 2>&1 | grep '^Address' | grep -v 127.0.0.11 | sort
+docker run --rm --network shop-net busybox:1.37 nslookup search. 2>&1 | grep '^Address' | grep -v 127.0.0.11 | sort
 ```
 
 ```text
@@ -80,7 +82,7 @@ Address: 172.18.0.4
 
 | Command / flag | What it does |
 |---|---|
-| `nslookup NAME` | (BusyBox) ask the configured DNS server for NAME |
+| `nslookup NAME.` | (BusyBox) ask the configured DNS server for NAME; the final dot skips the search domains |
 | `/etc/resolv.conf` | the DNS configuration of the container (`127.0.0.11` on user-defined networks) |
 | `--network-alias NAME` | an extra DNS name for the container on that network; may be shared |
 | `docker inspect C --format '{{…DNSNames}}'` | the names Docker's DNS answers for C on each network |
@@ -125,12 +127,12 @@ wget: bad address 'api'
 
 <!-- test: contains=NXDOMAIN; output -->
 ```bash
-docker run --rm --network shop-net busybox:1.37 nslookup api 2>&1 | grep -m1 NXDOMAIN
-docker run --rm --network shop-net busybox:1.37 nslookup api-v2 2>&1 | grep -m1 -A1 '^Name'
+docker run --rm --network shop-net busybox:1.37 nslookup api. 2>&1 | grep -m1 NXDOMAIN
+docker run --rm --network shop-net busybox:1.37 nslookup api-v2. 2>&1 | grep -m1 -A1 '^Name'
 ```
 
 ```text
-** server can't find api: NXDOMAIN
+** server can't find api.: NXDOMAIN
 Name:	api-v2
 Address: 172.18.0.5
 ```
@@ -143,7 +145,7 @@ docker inspect api-v2 --format '{{range $net, $cfg := .NetworkSettings.Networks}
 ```
 
 ```text
-shop-net: [api-v2 84c474171932]
+shop-net: [api-v2 99ca0cb953f7]
 ```
 
 The container name and the short container ID, nothing else. The clients ask for a name that no container on the
@@ -173,7 +175,7 @@ Stop `search-1` and look up `search` again. What does DNS return now, and what d
 <!-- test: contains=one address; output -->
 ```bash
 docker stop search-1 > /dev/null
-count=$(docker run --rm --network shop-net busybox:1.37 nslookup search 2>&1 | grep '^Address' | grep -vc 127.0.0.11)
+count=$(docker run --rm --network shop-net busybox:1.37 nslookup search. 2>&1 | grep '^Address' | grep -vc 127.0.0.11)
 [ "$count" -eq 1 ] && echo "one address: only the running search-2"
 ```
 

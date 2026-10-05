@@ -45,7 +45,7 @@ cut -c1-20 auth/htpasswd
 ```
 
 ```text
-student:$2y$05$yig0j
+student:$2y$05$3NOba
 ```
 
 Start a registry that requires it, on port 5001:
@@ -112,11 +112,11 @@ Where did the login go? Look at the registry's entry in the client configuration
 
 <!-- test: contains=localhost:5001; output -->
 ```bash
-grep -o '"localhost:5001": {[^}]*}' ~/.docker/config.json | sed 's/"auth": "[^"]*"/"auth": "…"/'
+tr -d ' \n\t' < ~/.docker/config.json | grep -o '"localhost:5001":{[^}]*}' | sed 's/"auth":"[^"]*"/"auth":"…"/'
 ```
 
 ```text
-"localhost:5001": {}
+"localhost:5001":{}
 ```
 
 An empty entry `{}` means a **credential helper** holds the secret in the operating system's keychain (Docker Desktop

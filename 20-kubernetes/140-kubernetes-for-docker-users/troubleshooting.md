@@ -28,9 +28,9 @@ kubectl get pods -l app=go-api
 
 ```text
 NAME                      READY   STATUS    RESTARTS   AGE
-go-api-6b44c6f98-2r2z4    0/1     Running   0          40s
-go-api-79fcc74d5d-tlvtw   1/1     Running   0          41s
-go-api-79fcc74d5d-zwjmq   1/1     Running   0          41s
+go-api-6b44c6f98-dwzc9    0/1     Running   0          40s
+go-api-79fcc74d5d-dp95l   1/1     Running   0          42s
+go-api-79fcc74d5d-v4grl   1/1     Running   0          42s
 ```
 
 The new Pod is `Running` but `0/1` ready, and the old Pods are still there. Its events say why:
@@ -40,7 +40,7 @@ kubectl describe pod -l app=go-api | grep "Readiness probe failed" | tail -2
 ```
 
 ```text
-  Warning  Unhealthy  4s (x9 over 39s)  kubelet            Readiness probe failed: Get "http://10.244.0.10:9090/health": dial tcp 10.244.0.10:9090: connect: connection refused
+  Warning  Unhealthy  4s (x9 over 40s)  kubelet            Readiness probe failed: Get "http://10.244.0.10:9090/health": dial tcp 10.244.0.10:9090: connect: connection refused
 ```
 
 `connection refused` on port 9090: nothing listens there. Kubernetes behaves very differently from a Docker
