@@ -74,6 +74,10 @@ Rules:
 - Host ports: use 8080–8099 for lesson servers, 5000 for the local registry; publish to `127.0.0.1` only when a lesson
   is about that.
 - Bind mounts: `-v "$(pwd)/file:/path"`. The runner sets `MSYS_NO_PATHCONV=1` so this works in Git Bash on Windows.
+- `retry=N` reruns the **whole** block: a block with `retry` must be safe to run twice (`rm -f`, `|| true`), so
+  keep it to checks.
+- Discard curl's output with a redirect, `curl -s URL > /dev/null`, never `curl -o /dev/null`: with path conversion
+  off, the Windows curl of Git Bash receives the literal path `/dev/null` and fails (exit status 23).
 - Host commands must work in Git Bash, macOS and Linux: `curl`, `grep`, `sed`, `tr`, `head`, `tail`, `printf`. Avoid
   `jq`, `watch`, `timeout`, GNU-only flags; use `docker … --format` instead of parsing tables.
 - Never put real credentials in a lesson. Secrets in examples are obviously fake (`example-password-change-me`).
