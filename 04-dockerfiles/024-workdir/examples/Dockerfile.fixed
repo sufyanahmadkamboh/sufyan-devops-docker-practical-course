@@ -1,0 +1,5 @@
+# The menu service: prints the menu
+FROM alpine:3.23
+WORKDIR /app
+COPY menu.csv .
+CMD ["cat", "menu.csv"]

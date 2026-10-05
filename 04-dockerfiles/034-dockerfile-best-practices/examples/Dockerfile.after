@@ -1,0 +1,15 @@
+# The cafe API, production version
+# 1. a small, pinned base image
+FROM node:24-alpine
+ENV NODE_ENV=production
+WORKDIR /app
+# 2. dependencies first: this layer is rebuilt only when the dependency files change
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev && npm cache clean --force
+# 3. then the code (Dockerfile.after.dockerignore keeps everything else out of the context)
+COPY server.js ./
+# 4. a non-root user (provided by the node image)
+USER node
+EXPOSE 3000
+# 5. exec form: node is the main process and receives docker stop's signal
+CMD ["node", "server.js"]

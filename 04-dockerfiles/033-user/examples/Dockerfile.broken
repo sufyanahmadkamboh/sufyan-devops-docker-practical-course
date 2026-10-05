@@ -1,0 +1,7 @@
+# The order service, made to run as a normal user
+FROM alpine:3.23
+RUN addgroup -S cafe && adduser -S -G cafe -u 10001 appuser
+WORKDIR /app
+COPY --chmod=0755 take-order.sh .
+USER appuser
+ENTRYPOINT ["./take-order.sh"]

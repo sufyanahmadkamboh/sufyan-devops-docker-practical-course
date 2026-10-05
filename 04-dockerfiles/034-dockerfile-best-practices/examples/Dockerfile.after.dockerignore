@@ -1,0 +1,7 @@
+# Not part of the image: dependencies are installed in the build, the rest is not needed at run time
+node_modules
+npm-debug.log
+.git
+*.md
+Dockerfile*
+notes/

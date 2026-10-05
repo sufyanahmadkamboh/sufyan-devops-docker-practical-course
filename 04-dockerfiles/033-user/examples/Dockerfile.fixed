@@ -1,0 +1,10 @@
+# The order service, made to run as a normal user
+FROM alpine:3.23
+RUN addgroup -S cafe && adduser -S -G cafe -u 10001 appuser
+WORKDIR /app
+COPY --chmod=0755 take-order.sh .
+# the code stays owned by root (read-only for appuser); only the data folder is writable
+RUN mkdir /app/data && chown appuser:cafe /app/data
+ENV ORDER_LOG=/app/data/orders.log
+USER appuser
+ENTRYPOINT ["./take-order.sh"]
