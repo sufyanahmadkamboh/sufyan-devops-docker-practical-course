@@ -1,0 +1,28 @@
+# The Python API and its Redis, as one application.
+name: project03
+
+services:
+  api:
+    build: .
+    image: python-api:1.0
+    ports: ["8083:8000"]
+    environment:
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      GREETING: Hello from Gunicorn
+    depends_on:
+      redis: { condition: service_healthy }
+    restart: unless-stopped
+
+  redis:
+    image: redis:8-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes: [redis-data:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  redis-data: {}

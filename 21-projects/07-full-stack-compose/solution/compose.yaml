@@ -1,0 +1,49 @@
+# A full-stack application: Nginx (static files + reverse proxy) → Python API → PostgreSQL.
+#   network front: web, api            network back (internal): api, db
+name: project07
+
+services:
+  web:
+    build: ./web
+    image: project07-web:1.0
+    ports: ["${WEB_PORT:-8087}:8080"]
+    networks: [front]
+    depends_on:
+      api: { condition: service_healthy }
+    restart: unless-stopped
+
+  api:
+    build: ./api
+    image: project07-api:1.0
+    environment:
+      DB_HOST: db
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+    networks: [front, back]
+    depends_on:
+      db: { condition: service_healthy }
+    restart: unless-stopped
+
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes: [db-data:/var/lib/postgresql]
+    networks: [back]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+networks:
+  front: {}
+  back:
+    internal: true
+
+volumes:
+  db-data: {}

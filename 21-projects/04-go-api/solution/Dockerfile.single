@@ -1,0 +1,7 @@
+# For comparison: the same application, built and run in one stage.
+FROM golang:1.26-alpine
+WORKDIR /src
+COPY . .
+RUN go build -o /usr/local/bin/go-api .
+EXPOSE 8080
+CMD ["go-api"]

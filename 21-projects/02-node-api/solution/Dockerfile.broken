@@ -1,0 +1,8 @@
+# The same image with one change: the start command runs through a shell.
+FROM node:24-alpine
+ENV NODE_ENV=production PORT=3000
+WORKDIR /app
+COPY package.json server.js ./
+USER node
+EXPOSE 3000
+CMD ["sh", "-c", "node server.js || echo node-api crashed"]

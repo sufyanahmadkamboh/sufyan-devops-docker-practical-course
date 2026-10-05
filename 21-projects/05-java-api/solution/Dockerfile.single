@@ -1,0 +1,7 @@
+# For comparison: compile and run in the JDK image.
+FROM eclipse-temurin:25-jdk-alpine
+WORKDIR /src
+COPY src/ src/
+RUN javac -d out src/Main.java
+EXPOSE 8080
+CMD ["java", "-cp", "out", "Main"]

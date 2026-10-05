@@ -1,0 +1,42 @@
+# Four APIs in four languages behind one Nginx reverse proxy. Only the proxy publishes a port.
+name: project08
+
+x-limits: &limits
+  deploy:
+    resources:
+      limits: { cpus: "0.50", memory: 256M }
+  restart: unless-stopped
+
+services:
+  proxy:
+    <<: *limits
+    image: nginx:1.30-alpine
+    ports: ["8088:8080"]
+    # the folder, not the single file: an edited file is then visible in the container (nginx -s reload)
+    volumes: ["./proxy:/etc/nginx/conf.d:ro"]
+    depends_on:
+      go: { condition: service_healthy }
+      python: { condition: service_healthy }
+      node: { condition: service_healthy }
+      java: { condition: service_healthy }
+
+  go:
+    <<: *limits
+    build: ./go-api
+    image: project08-go:1.0
+
+  python:
+    <<: *limits
+    build: ./python-api
+    image: project08-python:1.0
+    environment: { GREETING: "Hello from Python, behind the proxy" }
+
+  node:
+    <<: *limits
+    build: ./node-api
+    image: project08-node:1.0
+
+  java:
+    <<: *limits
+    build: ./java-api
+    image: project08-java:1.0
