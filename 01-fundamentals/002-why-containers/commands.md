@@ -14,7 +14,7 @@ ls
 ## Demonstration
 
 ```bash
-docker run --rm -v "$(pwd):/app" -w /app python:3.14-slim python -c "import app" 2>&1 | tail -1
+docker run --rm -v "$(pwd):/app:ro" -w /app python:3.14-slim python -c "import app" 2>&1 | tail -1
 test "${PIPESTATUS[0]}" -eq 0
 ```
 

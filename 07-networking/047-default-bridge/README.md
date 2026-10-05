@@ -87,7 +87,7 @@ docker run --rm busybox:1.37 wget -qO- "http://$(docker inspect web --format '{{
 
 Use the container's name instead of its IP, as you would in an application's configuration:
 
-<!-- test: fail; contains=bad address; output -->
+<!-- test: fail; anyof=bad address||can't connect||timed out; output -->
 ```bash
 docker run --rm busybox:1.37 wget -qO- -T 5 http://web 2>&1
 ```
@@ -99,7 +99,9 @@ wget: bad address 'web'
 ## Troubleshoot it
 
 `bad address 'web'`: the name `web` could not be resolved. The container exists and is running, so it is not about
-`web` itself. Look at which DNS server the client uses and whether it knows `web`:
+`web` itself. (On some networks the host's DNS server answers for unknown names, and you see
+`can't connect to remote host (127.0.53.53)` or a timeout instead: the same problem, the name did not lead to the
+`web` container.) Look at which DNS server the client uses and whether it knows `web`:
 
 <!-- test: contains=nameserver; output -->
 ```bash

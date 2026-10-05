@@ -18,7 +18,9 @@ wget: bad address 'web'
 ## Troubleshoot it
 
 `bad address 'web'`: the name `web` could not be resolved. The container exists and is running, so it is not about
-`web` itself. Look at which DNS server the client uses and whether it knows `web`:
+`web` itself. (On some networks the host's DNS server answers for unknown names, and you see
+`can't connect to remote host (127.0.53.53)` or a timeout instead: the same problem, the name did not lead to the
+`web` container.) Look at which DNS server the client uses and whether it knows `web`:
 
 ```bash
 docker run --rm busybox:1.37 cat /etc/resolv.conf | grep nameserver

@@ -52,7 +52,7 @@ docker exec db pg_isready -h 127.0.0.1 -U postgres
 ```
 
 ```text
-db: Up 3 seconds
+db: Up 4 seconds
 127.0.0.1:5432 - accepting connections
 ```
 
@@ -65,13 +65,12 @@ container.
 <!-- test: contains=db; output -->
 ```bash
 docker network inspect shop --format '{{range .Containers}}{{.Name}} {{end}}'
-docker run --rm --network shop busybox:1.37 nslookup db 2>&1 | grep -A1 'Name:'
+docker run --rm --network shop alpine:3.23 getent hosts db
 ```
 
 ```text
 db 
-Name:	db
-Address: 172.18.0.2
+172.18.0.2        db  db
 ```
 
 ## Commands
@@ -80,7 +79,7 @@ Address: 172.18.0.2
 |---|---|
 | `docker exec DB pg_isready -h 127.0.0.1` | the server is up and accepts TCP connections |
 | `docker network inspect NET` | which containers can reach each other, by name |
-| `docker run --rm --network NET busybox:1.37 nslookup NAME` | whether a name resolves on that network |
+| `docker run --rm --network NET alpine:3.23 getent hosts NAME` | whether a name resolves on that network, the way an application resolves it |
 | `docker logs DB` | authentication failures and startup errors, seen from the server |
 
 ## Output interpretation
@@ -136,7 +135,7 @@ docker logs db 2>&1 | grep -m1 'password authentication failed'
 ```
 
 ```text
-2026-10-05 10:54:38.991 UTC [92] FATAL:  password authentication failed for user "postgres"
+2026-10-05 17:33:27.889 UTC [92] FATAL:  password authentication failed for user "postgres"
 ```
 
 ## Prevention

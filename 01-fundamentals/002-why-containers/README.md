@@ -37,7 +37,7 @@ On a "server" with the wrong stack, the application cannot even start. A bare Py
 
 <!-- test: fail; contains=ModuleNotFoundError; output -->
 ```bash
-docker run --rm -v "$(pwd):/app" -w /app python:3.14-slim python -c "import app" 2>&1 | tail -1
+docker run --rm -v "$(pwd):/app:ro" -w /app python:3.14-slim python -c "import app" 2>&1 | tail -1
 test "${PIPESTATUS[0]}" -eq 0
 ```
 
@@ -58,7 +58,7 @@ docker image ls cafe-api
 
 ```text
 IMAGE          ID             DISK USAGE   CONTENT SIZE   EXTRA
-cafe-api:1.0   2f7dc6aab9de        223MB         54.2MB        
+cafe-api:1.0   5508aca87d9f        223MB         54.2MB        
 ```
 
 <!-- test: contains=Hello from Python; output -->
@@ -67,7 +67,7 @@ docker run --rm cafe-api:1.0 python -c "import app; print(app.app.test_client().
 ```
 
 ```text
-{'hostname': '239db45959fa', 'message': 'Hello from Python'}
+{'hostname': '2d05f2a4d637', 'message': 'Hello from Python'}
 ```
 
 The image contains the code, Python 3.14 and the exact library versions: it runs the same on any machine with Docker.
@@ -76,7 +76,7 @@ The image contains the code, Python 3.14 and the exact library versions: it runs
 
 | Part | What it does |
 |---|---|
-| `-v "$(pwd):/app"` | make the current folder visible inside the container (a bind mount, lesson 054) |
+| `-v "$(pwd):/app:ro"` | make the current folder visible inside the container, read-only (a bind mount, lesson 054): the container cannot leave files in your folder |
 | `-w /app` | run the command in that folder |
 | `docker build -t NAME:TAG .` | package the folder's Dockerfile into an image (lesson 035) |
 | `docker run IMAGE COMMAND` | run a command in a new container of that image |

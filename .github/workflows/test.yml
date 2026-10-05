@@ -81,7 +81,7 @@ jobs:
               files="$(ls 17-troubleshooting/[0-9][0-9]-*/README.md) $(ls 21-projects/[0-9][0-9]-*/README.md)
                      22-capstone/README.md 22-capstone/final-exam/README.md 22-capstone/final-exam/SOLUTION.md" ;;
           esac
-          bash tests/run.sh --update --record tests/out --stop-on-failure $files
+          bash tests/run.sh --update --record tests/out $files
       - name: Keep the real outputs and recordings
         if: always()
         run: git diff > tests/out/outputs.patch || true

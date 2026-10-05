@@ -116,7 +116,7 @@ docker image inspect --format '{{.Os}}/{{.Architecture}}' cafe-hello:arm
 
 A colleague needs the image on a Raspberry Pi with a 32-bit operating system (`linux/arm/v7`):
 
-<!-- test: fail; anyof=does not provide the specified platform||no matching manifest||pull access denied; output -->
+<!-- test: fail; anyof=does not provide the specified platform||no matching manifest||pull access denied||cafe-hello:1.0: not found; output -->
 ```bash
 docker run --rm --platform linux/arm/v7 cafe-hello:1.0 2>&1
 ```
@@ -131,7 +131,8 @@ Run 'docker run --help' for more information
 ## Troubleshoot it
 
 The image index has no `arm/v7` variant. Docker found the tag locally, but nothing for that platform, so it tried to
-pull it from Docker Hub, where `cafe-hello` does not exist (`pull access denied`). List what the tag contains:
+pull it from Docker Hub, where `cafe-hello` does not exist (`pull access denied`, or `not found` when the engine pulls
+through a registry mirror). List what the tag contains:
 
 <!-- test: absent=arm/v7; output -->
 ```bash
