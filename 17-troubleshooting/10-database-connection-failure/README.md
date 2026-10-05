@@ -136,7 +136,7 @@ docker logs db 2>&1 | grep -m1 'password authentication failed'
 ```
 
 ```text
-2026-10-05 10:23:38.989 UTC [93] FATAL:  password authentication failed for user "postgres"
+2026-10-05 10:54:38.991 UTC [92] FATAL:  password authentication failed for user "postgres"
 ```
 
 ## Prevention

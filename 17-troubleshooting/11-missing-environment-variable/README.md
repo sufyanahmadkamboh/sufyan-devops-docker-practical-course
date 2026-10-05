@@ -121,7 +121,7 @@ docker logs billing
 ```text
 billing ok, currency EUR
 billing: starting with database db:5432/billing
-172.17.0.1 - - [05/Oct/2026 10:23:47] "GET / HTTP/1.1" 200 -
+172.17.0.1 - - [05/Oct/2026 10:54:48] "GET / HTTP/1.1" 200 -
 ```
 
 The log prints only the host part of the URL, never the password: keep secrets out of logs.

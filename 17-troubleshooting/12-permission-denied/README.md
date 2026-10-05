@@ -25,7 +25,7 @@ docker logs reports 2>&1 | tail -1
 ```
 
 ```text
-reports: Exited (1) 1 second ago
+reports: Exited (1) 2 seconds ago
 PermissionError: [Errno 13] Permission denied: 'settings.ini'
 ```
 
@@ -53,8 +53,8 @@ docker run --rm reports:broken ls -l /app
 
 ```text
 total 8
--rwxr-xr-x 1 root root 661 Oct  5 10:26 app.py
--rw------- 1 root root  40 Oct  5 10:26 settings.ini
+-rwxr-xr-x 1 root root 661 Oct  5 10:54 app.py
+-rw------- 1 root root  40 Oct  5 10:54 settings.ini
 ```
 
 **3. Confirm it as that user, and as root:**
@@ -126,7 +126,7 @@ docker exec reports id
 
 ```text
 Monthly sales reports: ok
--rw-r----- 1 root app 40 Oct  5 10:26 settings.ini
+-rw-r----- 1 root app 40 Oct  5 10:54 settings.ini
 uid=10001(app) gid=999(app) groups=999(app)
 ```
 

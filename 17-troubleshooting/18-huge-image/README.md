@@ -70,7 +70,7 @@ broken.Dockerfile
 fixed.Dockerfile
 go.mod
 main.go
--rwxr-xr-x    1 root     root       8624989 Oct  5 10:31 /usr/local/bin/api
+-rwxr-xr-x    1 root     root       8624989 Oct  5 10:56 /usr/local/bin/api
 ```
 
 ## Commands
@@ -138,7 +138,7 @@ curl -s http://localhost:8080
 ```
 
 ```text
-{"hostname":"d91d39361b3a","message":"Hello from Go"}
+{"hostname":"b4dfd0bca412","message":"Hello from Go"}
 ```
 
 <!-- test: fail; contains=executable file not found; output -->

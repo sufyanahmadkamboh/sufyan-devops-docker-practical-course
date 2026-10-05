@@ -45,8 +45,8 @@ docker logs menu 2>&1 | grep -E 'Configuration complete|nginx/|start worker proc
 10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
 10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
 /docker-entrypoint.sh: Configuration complete; ready for start up
-2026/10/05 10:22:53 [notice] 1#1: nginx/1.30.5
-2026/10/05 10:22:53 [notice] 30#30: start worker processes
+2026/10/05 10:53:46 [notice] 1#1: nginx/1.30.5
+2026/10/05 10:53:46 [notice] 30#30: start worker processes
 ```
 
 No error at all: Nginx started successfully.

@@ -40,8 +40,8 @@ docker run --rm uploads:broken sh -c 'id; ls -ld /app /app/data'
 
 ```text
 uid=10001(app) gid=999(app) groups=999(app)
-drwxr-xr-x 1 root root 4096 Oct  5 10:24 /app
-drwxr-xr-x 2 root root 4096 Oct  5 10:24 /app/data
+drwxr-xr-x 1 root root 4096 Oct  5 10:55 /app
+drwxr-xr-x 2 root root 4096 Oct  5 10:55 /app/data
 ```
 
 `data` was created by `RUN mkdir data`, which runs as root during the build: root owns it, mode `drwxr-xr-x` (only the
@@ -129,7 +129,7 @@ docker logs uploads
 ```text
 uploads ok, 2 visits recorded
 uploads: data directory is writable
-172.17.0.1 - - [05/Oct/2026 10:24:12] "GET / HTTP/1.1" 200 -
+172.17.0.1 - - [05/Oct/2026 10:55:14] "GET / HTTP/1.1" 200 -
 ```
 
 <!-- test: contains=true; output -->

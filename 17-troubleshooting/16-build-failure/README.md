@@ -28,9 +28,9 @@ docker build -t inventory:broken . 2>&1
    4 |     RUN pip install --no-cache-dir -r requirements.txt
    5 |     COPY app.py .
 --------------------
-ERROR: failed to build: failed to solve: failed to compute cache key: failed to calculate checksum of ref 3cd6gxh0d9ods5a51p5kfp9pm::n29kgvywostgjnnm5n99idtwp: "/requirements.txt": not found
+ERROR: failed to build: failed to solve: failed to compute cache key: failed to calculate checksum of ref 3cd6gxh0d9ods5a51p5kfp9pm::6h0cjem2611u00bn93yrgvf99: "/requirements.txt": not found
 
-View build details: docker-desktop://dashboard/build/default/default/rztbssxpyk8731ygjime52d1h
+View build details: docker-desktop://dashboard/build/default/default/aee5eoyt7qnnb8vz5chcw5lv3
 ```
 
 ## Investigation

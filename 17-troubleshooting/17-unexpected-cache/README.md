@@ -28,8 +28,8 @@ docker run --rm pricing:tuesday
 ```
 
 ```text
-exchange rates fetched at 10:27:28
-exchange rates fetched at 10:27:28
+exchange rates fetched at 10:55:54
+exchange rates fetched at 10:55:54
 ```
 
 The same time in both images: the "fresh" build contains the old download.
@@ -121,8 +121,8 @@ docker run --rm pricing:fixed
 ```
 
 ```text
-exchange rates fetched at 10:27:36 (rates version 2026-10-05)
-exchange rates fetched at 10:27:40 (rates version 2026-10-06)
+exchange rates fetched at 10:56:02 (rates version 2026-10-05)
+exchange rates fetched at 10:56:07 (rates version 2026-10-06)
 ```
 
 ## Prevention

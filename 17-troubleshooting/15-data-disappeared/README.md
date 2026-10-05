@@ -76,7 +76,7 @@ docker inspect --format '{{range .Mounts}}{{.Type}} {{.Name}} -> {{.Destination}
 ```
 
 ```text
-volume 68d0e62680b559d93a976232dcadb4005593c67baaf4a2c72d9579a214721399 -> /var/lib/postgresql
+volume 6c5e86f1babf5027047611781247687f55a3ebd6a72161e9309b3735bfd9746c -> /var/lib/postgresql
 ```
 
 A volume with a random 64-character name: an **anonymous volume**, created new for this container.
@@ -90,7 +90,7 @@ echo "volumes not used by any container: $(docker volume ls -q --filter dangling
 ```
 
 ```text
-478e266fa385
+5fd1edc7b7e3
 volumes not used by any container: 1
 ```
 
@@ -127,7 +127,7 @@ echo "copied $(echo "$old" | cut -c1-12)… into pgdata"
 ```
 
 ```text
-copied 478e266fa385… into pgdata
+copied 5fd1edc7b7e3… into pgdata
 ```
 
 <!-- test -->

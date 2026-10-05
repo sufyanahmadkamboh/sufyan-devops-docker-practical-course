@@ -38,8 +38,8 @@ docker ps --filter name=cache --filter name=api --format '{{.Names}}: {{.Status}
 ```
 
 ```text
-api: Up 18 seconds
-cache: Up 19 seconds
+api: Up 20 seconds
+cache: Up 21 seconds
 ```
 
 **2. Which networks is each container on?**
