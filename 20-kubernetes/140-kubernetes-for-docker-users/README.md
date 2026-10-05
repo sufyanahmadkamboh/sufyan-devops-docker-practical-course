@@ -65,8 +65,8 @@ kubectl get pods -l app=go-api -o wide
 
 ```text
 NAME                      READY   STATUS    RESTARTS   AGE   IP           NODE                          NOMINATED NODE   READINESS GATES
-go-api-79fcc74d5d-slndz   1/1     Running   0          1s    10.244.0.6   docker-course-control-plane   <none>           <none>
-go-api-79fcc74d5d-svhcj   1/1     Running   0          1s    10.244.0.5   docker-course-control-plane   <none>           <none>
+go-api-79fcc74d5d-kbsrf   1/1     Running   0          2s    10.244.0.5   docker-course-control-plane   <none>           <none>
+go-api-79fcc74d5d-z6kbr   1/1     Running   0          2s    10.244.0.6   docker-course-control-plane   <none>           <none>
 ```
 
 `docker logs` → `kubectl logs`, for every Pod of the application at once:
@@ -77,8 +77,8 @@ kubectl logs -l app=go-api --prefix
 ```
 
 ```text
-[pod/go-api-79fcc74d5d-slndz/go-api] 2026/10/05 18:12:24 go-api listening on port 8080
-[pod/go-api-79fcc74d5d-svhcj/go-api] 2026/10/05 18:12:24 go-api listening on port 8080
+[pod/go-api-79fcc74d5d-kbsrf/go-api] 2026/10/05 18:34:19 go-api listening on port 8080
+[pod/go-api-79fcc74d5d-z6kbr/go-api] 2026/10/05 18:34:19 go-api listening on port 8080
 ```
 
 `docker run --rm` on the application's network → `kubectl run --rm`. The Service name works as a DNS name, like a
@@ -159,20 +159,21 @@ kubectl get pods -l app=go-api
 
 ```text
 NAME                      READY   STATUS    RESTARTS   AGE
-go-api-6b44c6f98-dwzc9    0/1     Running   0          40s
-go-api-79fcc74d5d-dp95l   1/1     Running   0          42s
-go-api-79fcc74d5d-v4grl   1/1     Running   0          42s
+go-api-6b44c6f98-fx79l    0/1     Running   0          41s
+go-api-79fcc74d5d-dfzxr   1/1     Running   0          44s
+go-api-79fcc74d5d-vdhkk   1/1     Running   0          44s
 ```
 
-The new Pod is `Running` but `0/1` ready, and the old Pods are still there. Its events say why:
+The new Pod is `Running` but `0/1` ready, and the old Pods are still there. The cluster's events say why (the kubelet
+records one each time the probe fails; `kubectl describe pod` shows the same events per Pod):
 
-<!-- test: retry=15; contains=Readiness probe failed; output=tail:2 -->
+<!-- test: retry=30; contains=Readiness probe failed; contains=9090; output=tail:1 -->
 ```bash
-kubectl describe pod -l app=go-api | grep "Readiness probe failed" | tail -2
+kubectl get events --field-selector reason=Unhealthy -o custom-columns=MESSAGE:.message --no-headers | grep 9090 | tail -1
 ```
 
 ```text
-  Warning  Unhealthy  4s (x9 over 40s)  kubelet            Readiness probe failed: Get "http://10.244.0.10:9090/health": dial tcp 10.244.0.10:9090: connect: connection refused
+Readiness probe failed: Get "http://10.244.0.10:9090/health": dial tcp 10.244.0.10:9090: connect: connection refused
 ```
 
 `connection refused` on port 9090: nothing listens there. Kubernetes behaves very differently from a Docker

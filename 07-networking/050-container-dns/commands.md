@@ -47,7 +47,7 @@ docker run --rm --network shop-net busybox:1.37 wget -qO /dev/null -T 5 http://a
 ## Troubleshoot it
 
 ```bash
-docker run --rm --network shop-net busybox:1.37 nslookup api. 2>&1 | grep -m1 NXDOMAIN
+docker run --rm --network shop-net busybox:1.37 nslookup api. 2>&1 | grep -m1 -iE "NXDOMAIN|can't find|no answer"
 docker run --rm --network shop-net busybox:1.37 nslookup api-v2. 2>&1 | grep -m1 -A1 '^Name'
 ```
 

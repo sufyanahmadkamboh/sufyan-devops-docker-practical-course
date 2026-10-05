@@ -62,7 +62,7 @@ kubectl get pods -l app=go-api
 ```
 
 ```bash
-kubectl describe pod -l app=go-api | grep "Readiness probe failed" | tail -2
+kubectl get events --field-selector reason=Unhealthy -o custom-columns=MESSAGE:.message --no-headers | grep 9090 | tail -1
 ```
 
 ```bash

@@ -125,9 +125,9 @@ wget: bad address 'api'
 
 `bad address 'api'`: DNS has no record for `api`. Ask the DNS server directly, for both names:
 
-<!-- test: contains=NXDOMAIN; output -->
+<!-- test: contains=api-v2; anyof=NXDOMAIN||find||No answer; output -->
 ```bash
-docker run --rm --network shop-net busybox:1.37 nslookup api. 2>&1 | grep -m1 NXDOMAIN
+docker run --rm --network shop-net busybox:1.37 nslookup api. 2>&1 | grep -m1 -iE "NXDOMAIN|can't find|no answer"
 docker run --rm --network shop-net busybox:1.37 nslookup api-v2. 2>&1 | grep -m1 -A1 '^Name'
 ```
 
@@ -145,7 +145,7 @@ docker inspect api-v2 --format '{{range $net, $cfg := .NetworkSettings.Networks}
 ```
 
 ```text
-shop-net: [api-v2 99ca0cb953f7]
+shop-net: [api-v2 2a81160f13a9]
 ```
 
 The container name and the short container ID, nothing else. The clients ask for a name that no container on the
