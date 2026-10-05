@@ -108,7 +108,7 @@ h1{position:absolute;left:100px;right:420px;top:96px;font-size:56px;line-height:
 .bottom b{color:var(--ink)}
 .bar{flex:1;display:flex;gap:6px}
 .bar i{flex:1;height:8px;border-radius:4px;background:#22344f}
-.bar i.done{background:#b45309}.bar i.cur{background:var(--amber)}
+.bar i.done{background:#1d6fb8}.bar i.cur{background:var(--amber)}
 .chap{color:var(--amber);font-weight:800;max-width:560px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 """
 
