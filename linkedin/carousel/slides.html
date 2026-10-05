@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>LinkedIn carousel: Docker Practical Course</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#0b1420; --panel:#13233a; --line:#284468; --ink:#f1f6fc; --muted:#a9bbd2; --blue:#1d91e6; --sky:#8ec9ff;
+          --ok:#4cc286; --bad:#ff6b6b; --amber:#ffc94d; --violet:#b48cff; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body { width:1080px; height:1350px; overflow:hidden; }
+  body { background: radial-gradient(900px 600px at 100% 0%, rgba(29,145,230,.28), transparent 60%),
+         radial-gradient(700px 500px at 0% 100%, rgba(142,201,255,.10), transparent 60%), var(--bg);
+         font-family: Inter, "Segoe UI", sans-serif; color: var(--ink); position: relative; }
+  body::before { content:""; position:absolute; inset:0; background-image: linear-gradient(rgba(156,195,240,.05) 1px, transparent 1px),
+                 linear-gradient(90deg, rgba(156,195,240,.05) 1px, transparent 1px); background-size: 54px 54px; }
+  .slide { display:none; position:absolute; inset:0; padding: 74px 70px 118px; flex-direction: column; }
+  .slide.on { display:flex; }
+  .kicker { color: var(--sky); font-weight: 800; font-size: 28px; letter-spacing: 3px; text-transform: uppercase; }
+  h1 { font-size: 74px; line-height: 1.04; font-weight: 900; letter-spacing: -1.5px; margin: 16px 0 12px; }
+  h2 { font-size: 60px; line-height: 1.06; font-weight: 900; letter-spacing: -1px; margin: 14px 0 10px; }
+  .sub { font-size: 32px; color: var(--muted); line-height: 1.35; }
+  .visual { flex: 1; display:flex; flex-direction: column; align-items:stretch; justify-content:center; gap: 22px; }
+  .blue { color: var(--blue); } .ok { color: var(--ok); } .bad { color: var(--bad); } .amber { color: var(--amber); } .sky { color: var(--sky); }
+  .footer { position:absolute; left:70px; right:70px; bottom:42px; display:flex; justify-content:space-between; font-size:25px; color:var(--muted); }
+  .footer b { color: var(--ink); } .swipe { color: var(--sky); font-weight:700; }
+  .term { background:#0a0f18; border:3px solid var(--line); border-radius:22px; padding: 26px 30px; font: 600 25px/1.6 "JetBrains Mono", Consolas, monospace; color:#c9d6e6; white-space: pre-wrap; word-break: break-word; }
+  .term .c { color: var(--sky); } .term .bad { color:#ff8a8a; } .term .ok { color: var(--ok); } .term .d { color:#7d8ea6; }
+  .tiles { display:grid; grid-template-columns: 1fr 1fr; gap: 22px; width: 100%; }
+  .tile { background: var(--panel); border: 3px solid var(--line); border-top: 10px solid var(--tone); border-radius: 22px; padding: 22px 26px; }
+  .tile b { display:block; font-size: 62px; font-weight: 900; color: var(--tone); line-height: 1.05; }
+  .tile span { font-size: 26px; color: var(--muted); font-weight: 600; }
+  .row { display:flex; gap: 18px; align-items: stretch; }
+  .box { flex:1; background: var(--panel); border: 3px solid var(--tone, var(--line)); border-radius: 20px; padding: 20px 22px; }
+  .box b { display:block; font-size: 30px; color: var(--tone, var(--ink)); margin-bottom: 6px; }
+  .box span { font-size: 24px; color: var(--muted); line-height: 1.35; }
+  .steps { display:flex; flex-wrap: wrap; gap: 14px; }
+  .step { background: var(--panel); border: 3px solid var(--line); border-radius: 40px; padding: 12px 24px; font-size: 27px; font-weight: 800; }
+  .step.hot { border-color: var(--bad); color: #ffb3b3; }
+  .bar { display:flex; align-items:center; gap: 18px; font-size: 28px; font-weight: 700; }
+  .bar i { display:block; height: 54px; border-radius: 12px; background: var(--tone); }
+  .bar span { min-width: 260px; }
+  .qr { background:#fff; border-radius: 18px; padding: 18px; width: 300px; height: 300px; }
+  .layer { border-radius: 14px; padding: 14px 20px; font: 700 25px "JetBrains Mono", Consolas, monospace; background: var(--panel); border: 3px solid var(--tone); color: var(--tone); }
+</style>
+</head>
+<body>
+
+<!-- 1 · HOOK -->
+<section class="slide" data-n="1">
+  <div class="kicker">Free hands-on course · explained visually</div>
+  <h1>Docker, from beginner to advanced: <span class="blue">every command tested</span></h1>
+  <div class="sub">116 lessons where you run it, break it on purpose, read the real error and fix it.</div>
+  <div class="visual">
+    <div class="tiles">
+      <div class="tile" style="--tone:var(--blue)"><b>116</b><span>hands-on lessons</span></div>
+      <div class="tile" style="--tone:var(--bad)"><b>25</b><span>troubleshooting problems</span></div>
+      <div class="tile" style="--tone:var(--ok)"><b>1,777</b><span>code blocks tested in CI</span></div>
+      <div class="tile" style="--tone:var(--amber)"><b>8 + 1</b><span>projects + a capstone</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 · THE PAIN -->
+<section class="slide" data-n="2">
+  <div class="kicker">The real problem</div>
+  <h2>Tutorials end at <span class="blue">docker run</span>. Work starts with these:</h2>
+  <div class="visual">
+    <div class="term" style="font-size:23px"><span class="bad">Bind for 0.0.0.0:8080 failed: port is already allocated</span>
+<span class="bad">report: Exited (137) 2 seconds ago</span>
+<span class="d">exit code: 137, OOMKilled: true</span>
+<span class="bad">touch: cannot touch '/app/cache.tmp': Read-only file system</span>
+<span class="bad">wget: bad address 'api'</span>
+<span class="bad">menu-api: Up 4 seconds (unhealthy)</span>
+<span class="bad">exec: "pyhton": executable file not found in $PATH</span></div>
+    <div class="sub">Real errors from the course's lessons and troubleshooting problems. Each one is reproduced, investigated and fixed.</div>
+  </div>
+</section>
+
+<!-- 3 · THE METHOD -->
+<section class="slide" data-n="3">
+  <div class="kicker">The method</div>
+  <h2>Every concept, the same loop</h2>
+  <div class="visual">
+    <div class="steps">
+      <div class="step">Understand</div><div class="step">Visualize</div><div class="step">Implement</div>
+      <div class="step">Run</div><div class="step">Inspect</div><div class="step hot">Break</div>
+      <div class="step hot">Troubleshoot</div><div class="step hot">Fix</div><div class="step">Improve</div>
+      <div class="step">Practice</div><div class="step">Real world</div>
+    </div>
+    <div class="sub">Each lesson has a lab, an intentional failure with its real error output, the investigation, the fix,
+      a challenge with a separate solution, and a recap. Each module ends with an assessment.</div>
+  </div>
+</section>
+
+<!-- 4 · CONCEPT: LAYERS -->
+<section class="slide" data-n="4">
+  <div class="kicker">Concept · images are layers</div>
+  <h2>Order your Dockerfile for the cache</h2>
+  <div class="visual">
+    <div class="layer" style="--tone:var(--sky)">COPY . .                  ← changes often: last</div>
+    <div class="layer" style="--tone:var(--violet)">RUN npm ci                ← reused while package*.json is unchanged</div>
+    <div class="layer" style="--tone:var(--ok)">COPY package*.json ./</div>
+    <div class="layer" style="--tone:var(--ok)">WORKDIR /app</div>
+    <div class="layer" style="--tone:#7d8ea6">FROM node:24-alpine</div>
+    <div class="sub">A change invalidates its own layer and every layer above it. Code last, dependencies first.</div>
+  </div>
+</section>
+
+<!-- 5 · CONCEPT: MULTI-STAGE -->
+<section class="slide" data-n="5">
+  <div class="kicker">Concept · multi-stage builds</div>
+  <h2>The same Go API, measured</h2>
+  <div class="visual">
+    <div class="bar"><span>single stage</span><i style="--tone:var(--bad);width:500px"></i><b class="bad">98.0 MB</b></div>
+    <div class="bar"><span>distroless</span><i style="--tone:var(--blue);width:22px"></i><b class="sky">3.3 MB</b></div>
+    <div class="bar"><span>scratch</span><i style="--tone:var(--ok);width:16px"></i><b class="ok">2.5 MB</b></div>
+    <div class="sub">Compile in the toolchain image, ship only the binary: no compiler, no shell, no package manager to
+      patch or attack. (Content size, as a pull downloads it.)</div>
+  </div>
+</section>
+
+<!-- 6 · CONCEPT: NETWORKING -->
+<section class="slide" data-n="6">
+  <div class="kicker">Concept · networking</div>
+  <h2>Talk by name, publish only the front door</h2>
+  <div class="visual">
+    <div class="row">
+      <div class="box" style="--tone:var(--amber)"><b>host :8080</b><span>-p 8080:8080<br>only the proxy</span></div>
+      <div class="box" style="--tone:var(--ok)"><b>proxy → api</b><span>http://api:8080<br>Docker's DNS</span></div>
+      <div class="box" style="--tone:var(--violet)"><b>api → db</b><span>internal network<br>no way in, no way out</span></div>
+    </div>
+    <div class="term"><span class="c">$ docker compose exec proxy nslookup db</span>
+<span class="bad">** server can't find db: NXDOMAIN</span>
+<span class="d"># the proxy is not on the database's network: by design</span></div>
+  </div>
+</section>
+
+<!-- 7 · CONCEPT: SECURITY -->
+<section class="slide" data-n="7">
+  <div class="kicker">Concept · hardening, verified</div>
+  <h2>Not "should be secure": checked</h2>
+  <div class="visual">
+    <div class="term" style="font-size:21px"><span class="c">$ docker inspect … user / read-only / capabilities</span>
+<span class="ok">proxy: user=nginx read-only=true cap_drop=[ALL] cap_add=[]</span>
+<span class="ok">frontend: user=nginx read-only=true cap_drop=[ALL] cap_add=[]</span>
+<span class="ok">api: user=nonroot:nonroot read-only=true cap_drop=[ALL] cap_add=[]</span>
+<span class="c">$ docker compose exec proxy sh -c 'echo hacked > /usr/share/nginx/html/index.html'</span>
+<span class="bad">sh: can't create /usr/share/nginx/html/index.html: Read-only file system</span>
+<span class="c">$ docker compose exec api sh</span>
+<span class="bad">… exec: "sh": executable file not found in $PATH</span></div>
+    <div class="sub">From the capstone: non-root users, read-only file systems, no capabilities, no shell in the API, and the
+      database password as a secret file, never an environment variable.</div>
+  </div>
+</section>
+
+<!-- 8 · THE CAPSTONE -->
+<section class="slide" data-n="8">
+  <div class="kicker">The capstone</div>
+  <h2>A production-style stack, end to end</h2>
+  <div class="visual">
+    <div class="steps">
+      <div class="step">Nginx proxy</div><div class="step">frontend</div><div class="step">Go API</div><div class="step">PostgreSQL</div>
+      <div class="step">multi-stage</div><div class="step">healthchecks</div><div class="step">limits</div><div class="step">secrets</div>
+      <div class="step">internal network</div><div class="step">volume</div><div class="step">log rotation</div>
+    </div>
+    <div class="term"><span class="c">$ docker compose up -d --wait</span>
+<span class="ok">proxy: healthy</span>
+<span class="ok">frontend: healthy</span>
+<span class="ok">api: healthy</span>
+<span class="ok">db: healthy</span>
+<span class="c">$ docker compose stop db</span>
+<span class="bad">{"status":"database unavailable"}</span>
+<span class="c">$ docker compose start db</span>
+<span class="ok">{"status":"ok","version":"1.0.0"}</span></div>
+    <div class="sub">Then pushed to a registry and deployed by digest; a GitHub Actions pipeline builds, smoke-tests and
+      publishes the images to GHCR.</div>
+  </div>
+</section>
+
+<!-- 9 · WHAT IS INSIDE -->
+<section class="slide" data-n="9">
+  <div class="kicker">What is inside</div>
+  <h2>Everything to learn it, and prove it</h2>
+  <div class="visual">
+    <div class="tiles">
+      <div class="tile" style="--tone:var(--blue)"><b>19</b><span>module assessments</span></div>
+      <div class="tile" style="--tone:var(--bad)"><b>13</b><span>final exam tasks, auto-graded</span></div>
+      <div class="tile" style="--tone:var(--ok)"><b>21</b><span>videos, full + silent</span></div>
+      <div class="tile" style="--tone:var(--amber)"><b>152</b><span>page study guide PDF</span></div>
+    </div>
+    <div class="sub">Plus a command reference linked to the lessons, 12 diagrams, a glossary and 28 interview questions.</div>
+  </div>
+</section>
+
+<!-- 10 · TESTED -->
+<section class="slide" data-n="10">
+  <div class="kicker">Every command tested</div>
+  <h2>The lessons are the test suite</h2>
+  <div class="visual">
+    <div class="term"><span class="d">&lt;!-- test: fail; contains=port is already allocated; output --&gt;</span>
+<span class="c">```bash</span>
+docker run -d --name web-new -p 8080:80 nginx:1.30-alpine 2&gt;&amp;1
+<span class="c">```</span></div>
+    <div class="sub">A runner executes every block as a learner types it, in a sandbox, and writes the real output back into
+      the lesson. GitHub Actions runs all 1,777 blocks on a fresh Docker 29 engine, and the course also runs on Docker
+      Desktop.</div>
+  </div>
+</section>
+
+<!-- 11 · LINKS -->
+<section class="slide" data-n="11">
+  <div class="kicker">Free and open</div>
+  <h2>Start with lesson 001</h2>
+  <div class="visual">
+    <div class="row" style="justify-content:center;gap:60px">
+      <div style="text-align:center"><img class="qr" src="qr-repo.svg" alt="QR code to the course"><div class="sub" style="margin-top:14px">the course</div></div>
+      <div style="text-align:center"><img class="qr" src="qr-portfolio.svg" alt="QR code to the portfolio"><div class="sub" style="margin-top:14px">all my projects</div></div>
+    </div>
+    <div class="sub" style="text-align:center">Which Docker error cost you the most time?</div>
+  </div>
+</section>
+
+<div class="footer"><span><b>Sufyan Ahmad</b> · DevOps Engineer</span><span class="swipe" id="pg"></span></div>
+<script>
+  const n = +(new URLSearchParams(location.search).get("s") || 1);
+  document.querySelector(`.slide[data-n="${n}"]`).classList.add("on");
+  document.getElementById("pg").textContent = n < 11 ? `${n} / 11 · swipe →` : "11 / 11";
+  window.__ready = true;
+</script>
+</body>
+</html>

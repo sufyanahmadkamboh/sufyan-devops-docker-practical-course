@@ -1,0 +1,7 @@
+0:00 Lesson 080 · The attack surface of a container
+2:31 Lesson 081 · Running as a non-root user
+4:14 Lesson 082 · Image security: trusted, minimal, pinned, scanned
+6:33 Lesson 083 · Secrets in images
+8:46 Lesson 084 · Read-only file systems
+10:34 Lesson 085 · Linux capabilities
+13:06 Lesson 086 · Resource limits for security

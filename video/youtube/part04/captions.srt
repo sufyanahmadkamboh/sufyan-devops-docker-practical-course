@@ -1,0 +1,1407 @@
+1
+00:00:04,800 --> 00:00:07,764
+Can you show me your first Dockerfile?
+
+2
+00:00:08,300 --> 00:00:12,221
+A Dockerfile is a text file with the recipe for an image:
+
+3
+00:00:12,221 --> 00:00:17,862
+start from a base image, add files, run commands, and say what the container runs.
+
+4
+00:00:17,862 --> 00:00:22,472
+docker build follows the recipe step by step and produces an image.
+
+5
+00:00:22,472 --> 00:00:26,806
+Because the recipe is a file, it lives in Git next to the code:
+
+6
+00:00:26,806 --> 00:00:30,864
+every image can be rebuilt, reviewed and changed like code.
+
+7
+00:00:32,600 --> 00:00:36,559
+First, a fresh practice folder for this lesson.
+
+8
+00:00:37,100 --> 00:00:40,105
+Write the Dockerfile next to the website:
+
+9
+00:00:40,667 --> 00:00:41,407
+Build it.
+
+10
+00:00:41,407 --> 00:00:43,462
+-t names the image, and .
+
+11
+00:00:43,462 --> 00:00:45,188
+is the build context:
+
+12
+00:00:45,188 --> 00:00:49,216
+the folder whose files COPY can use (lesson 036):
+
+13
+00:00:49,216 --> 00:00:59,163
+Each #N is one step of the build (grep keeps only the step titles here; the full output also shows each step's progress).
+
+14
+00:00:59,163 --> 00:01:06,151
+[1/2] and [2/2] are the Dockerfile's FROM and COPY; EXPOSE and CMD only add metadata.
+
+15
+00:01:06,151 --> 00:01:08,781
+Run the image and open the site:
+
+16
+00:01:09,333 --> 00:01:18,909
+Each #N is one step of the build (grep keeps only the step titles here; the full output also shows each step's progress).
+
+17
+00:01:18,909 --> 00:01:25,635
+[1/2] and [2/2] are the Dockerfile's FROM and COPY; EXPOSE and CMD only add metadata.
+
+18
+00:01:25,635 --> 00:01:28,168
+Run the image and open the site:
+
+19
+00:01:29,933 --> 00:01:31,747
+Let me try something.
+
+20
+00:01:31,747 --> 00:01:34,598
+A typing error in an instruction:
+
+21
+00:01:35,133 --> 00:01:37,383
+dockerfile parse error on line 2:
+
+22
+00:01:37,383 --> 00:01:38,746
+unknown instruction:
+
+23
+00:01:38,746 --> 00:01:39,155
+COPPY:
+
+24
+00:01:39,155 --> 00:01:44,062
+the build stopped before running anything, while reading the Dockerfile.
+
+25
+00:01:44,062 --> 00:01:47,947
+The >>> marks the line, and Docker even suggests the fix.
+
+26
+00:01:47,947 --> 00:01:50,196
+Read build errors from the ERROR:
+
+27
+00:01:50,196 --> 00:01:51,083
+line upwards:
+
+28
+00:01:51,083 --> 00:01:54,218
+the line number, then the failing instruction.
+
+29
+00:01:55,967 --> 00:01:57,766
+Here is the fix.
+
+30
+00:01:59,500 --> 00:02:00,213
+Got it.
+
+31
+00:02:00,213 --> 00:02:02,965
+What do I need to remember?
+
+32
+00:02:03,500 --> 00:02:06,434
+A Dockerfile is the recipe of an image:
+
+33
+00:02:06,434 --> 00:02:11,700
+FROM, then instructions that add files, run commands and set metadata.
+
+34
+00:02:12,233 --> 00:02:14,860
+docker build -t NAME:TAG .
+
+35
+00:02:14,860 --> 00:02:16,072
+builds it; .
+
+36
+00:02:16,072 --> 00:02:18,193
+is the build context.
+
+37
+00:02:18,733 --> 00:02:24,553
+Parse errors name the line and the instruction; nothing is built until the file parses.
+
+38
+00:02:26,300 --> 00:02:28,584
+I keep hearing about FROM:
+
+39
+00:02:28,584 --> 00:02:30,516
+choosing a base image.
+
+40
+00:02:30,516 --> 00:02:32,184
+What is it, really?
+
+41
+00:02:32,733 --> 00:02:35,293
+Every Dockerfile starts with FROM:
+
+42
+00:02:35,293 --> 00:02:40,263
+the base image whose files become the bottom layers of your image.
+
+43
+00:02:40,263 --> 00:02:45,082
+The choice decides the image's size, which tools exist (a shell?
+
+44
+00:02:45,082 --> 00:02:45,459
+bash?
+
+45
+00:02:45,459 --> 00:02:49,299
+a package manager?), the C library (glibc or musl),
+
+46
+00:02:49,299 --> 00:02:54,042
+and how many packages, and therefore vulnerabilities, you ship.
+
+47
+00:02:54,042 --> 00:02:57,958
+Choose deliberately and always with an explicit tag.
+
+48
+00:02:59,700 --> 00:03:03,659
+First, a fresh practice folder for this lesson.
+
+49
+00:03:04,200 --> 00:03:07,289
+Compare the sizes of the bases you have:
+
+50
+00:03:07,833 --> 00:03:11,801
+The language images show the cost of a full distribution:
+
+51
+00:03:11,801 --> 00:03:14,028
+compare the two Python variants.
+
+52
+00:03:14,028 --> 00:03:17,648
+What each base contains matters as much as its size.
+
+53
+00:03:18,200 --> 00:03:22,033
+What each base contains matters as much as its size.
+
+54
+00:03:22,033 --> 00:03:25,350
+Look for common tools in three distributions:
+
+55
+00:03:25,350 --> 00:03:26,972
+None of them has curl:
+
+56
+00:03:26,972 --> 00:03:33,974
+base images are deliberately minimal, and you install what your application needs (lesson 026).
+
+57
+00:03:35,733 --> 00:03:37,477
+Let me try something.
+
+58
+00:03:37,477 --> 00:03:42,958
+A build step copied from a Debian-based Dockerfile, now on Alpine:
+
+59
+00:03:43,500 --> 00:03:50,095
+Exit code 127 always means "command not found", and the step's output names it:
+
+60
+00:03:50,095 --> 00:03:50,512
+bash:
+
+61
+00:03:50,512 --> 00:03:51,347
+not found.
+
+62
+00:03:51,347 --> 00:03:55,020
+The base image does not contain the program.
+
+63
+00:03:55,020 --> 00:03:57,524
+Check what the image provides:
+
+64
+00:03:59,267 --> 00:04:04,348
+Either write the step for the base you chose (POSIX sh is enough here),
+
+65
+00:04:04,348 --> 00:04:10,789
+or install the missing tool with the base's package manager (RUN apk add --no-cache bash),
+
+66
+00:04:10,789 --> 00:04:12,865
+or choose a base that has it.
+
+67
+00:04:12,865 --> 00:04:14,081
+The simplest fix:
+
+68
+00:04:15,833 --> 00:04:16,547
+Got it.
+
+69
+00:04:16,547 --> 00:04:19,298
+What do I need to remember?
+
+70
+00:04:19,833 --> 00:04:22,038
+FROM chooses the base image:
+
+71
+00:04:22,038 --> 00:04:26,448
+size, tools, C library and vulnerabilities come with it.
+
+72
+00:04:27,000 --> 00:04:27,982
+Alpine:
+
+73
+00:04:27,982 --> 00:04:34,013
+tiny, musl, apk, BusyBox sh; Debian/Ubuntu:
+
+74
+00:04:34,013 --> 00:04:38,642
+glibc, apt-get, bash; distroless:
+
+75
+00:04:38,642 --> 00:04:39,905
+no shell.
+
+76
+00:04:40,467 --> 00:04:43,059
+Exit code 127 / not found:
+
+77
+00:04:43,059 --> 00:04:47,546
+the base image does not contain that program.
+
+78
+00:04:49,300 --> 00:04:51,865
+How does WORKDIR work?
+
+79
+00:04:52,400 --> 00:04:58,224
+WORKDIR /app sets the working directory for every instruction after it (RUN,
+
+80
+00:04:58,224 --> 00:05:03,205
+COPY, CMD, ENTRYPOINT) and for the container that runs the image.
+
+81
+00:05:03,205 --> 00:05:06,729
+It creates the directory if it does not exist.
+
+82
+00:05:06,729 --> 00:05:14,316
+Without it, everything happens in /, and a cd in a RUN step is forgotten as soon as that step ends:
+
+83
+00:05:14,316 --> 00:05:16,615
+each RUN starts a fresh shell.
+
+84
+00:05:18,367 --> 00:05:22,326
+First, a fresh practice folder for this lesson.
+
+85
+00:05:22,867 --> 00:05:27,202
+WORKDIR creates the directory and every later step uses it:
+
+86
+00:05:27,202 --> 00:05:34,257
+The RUN pwd steps print /app and then /app/data (a relative WORKDIR builds on the previous one),
+
+87
+00:05:34,257 --> 00:05:37,564
+and the container starts in the last WORKDIR.
+
+88
+00:05:37,564 --> 00:05:47,926
+--progress=plain shows the output of each RUN step; --no-cache makes Docker run them again instead of reusing a previous result (lesson 039).
+
+89
+00:05:49,667 --> 00:05:51,420
+Let me try something.
+
+90
+00:05:51,420 --> 00:05:57,181
+A teammate wrote the menu service without WORKDIR, with a cd instead:
+
+91
+00:05:57,733 --> 00:05:59,291
+can't open 'menu.csv':
+
+92
+00:05:59,291 --> 00:06:04,815
+the file was copied, so the question is where the container is looking for it.
+
+93
+00:06:04,815 --> 00:06:09,418
+Check the image's working directory and where the file really is:
+
+94
+00:06:11,167 --> 00:06:16,061
+Replace the cd with WORKDIR, which is recorded in the image:
+
+95
+00:06:17,800 --> 00:06:18,513
+Got it.
+
+96
+00:06:18,513 --> 00:06:21,264
+What do I need to remember?
+
+97
+00:06:21,800 --> 00:06:28,350
+WORKDIR sets the directory for later instructions and for the container, creating it if needed.
+
+98
+00:06:28,900 --> 00:06:32,560
+A relative WORKDIR builds on the previous one.
+
+99
+00:06:33,100 --> 00:06:39,175
+RUN cd … only affects that one step; use WORKDIR instead.
+
+100
+00:06:40,933 --> 00:06:43,303
+Why would I need COPY and ADD?
+
+101
+00:06:43,867 --> 00:06:50,814
+COPY puts files from the build context (the folder you pass to docker build) into the image.
+
+102
+00:06:50,814 --> 00:06:53,759
+ADD does the same and two extra things:
+
+103
+00:06:53,759 --> 00:06:58,063
+it unpacks local .tar archives, and it can download URLs.
+
+104
+00:06:58,063 --> 00:07:02,443
+Because those extras can surprise you, the rule is simple:
+
+105
+00:07:02,443 --> 00:07:06,596
+use COPY, and ADD only when you want one of its extras.
+
+106
+00:07:08,333 --> 00:07:12,293
+First, a fresh practice folder for this lesson.
+
+107
+00:07:12,833 --> 00:07:15,184
+Copy a file, and a folder:
+
+108
+00:07:15,184 --> 00:07:21,514
+COPY public/ public/ copies the contents of public/ into /app/public/.
+
+109
+00:07:21,514 --> 00:07:27,663
+A destination ending in / is a directory; COPY creates it if needed.
+
+110
+00:07:28,200 --> 00:07:34,479
+COPY public/ public/ copies the contents of public/ into /app/public/.
+
+111
+00:07:34,479 --> 00:07:40,579
+A destination ending in / is a directory; COPY creates it if needed.
+
+112
+00:07:41,133 --> 00:07:44,214
+Now the difference with ADD:
+
+113
+00:07:44,214 --> 00:07:47,185
+give both the same archive.
+
+114
+00:07:47,185 --> 00:07:54,778
+ADD can also download a URL (ADD https://example.com/tool.tgz /tmp/).
+
+115
+00:07:56,533 --> 00:07:58,017
+Let me try something.
+
+116
+00:07:58,017 --> 00:08:04,448
+The service also needs the shared configuration file, which lives in the folder next to it:
+
+117
+00:08:04,000 --> 00:08:06,804
+"/shared/config.json":
+
+118
+00:08:06,804 --> 00:08:10,823
+not found, although the file exists on your disk.
+
+119
+00:08:10,823 --> 00:08:13,448
+Look at the path in the message:
+
+120
+00:08:13,448 --> 00:08:13,940
+the ..
+
+121
+00:08:13,940 --> 00:08:14,596
+is gone.
+
+122
+00:08:14,596 --> 00:08:18,697
+Paths in COPY are always inside the build context,
+
+123
+00:08:18,697 --> 00:08:25,914
+so ../shared is cut back to /shared within menu-service/, where there is no such folder.
+
+124
+00:08:27,667 --> 00:08:34,261
+Make the context the folder that contains everything the build needs, and point to the Dockerfile with -f:
+
+125
+00:08:36,000 --> 00:08:36,713
+Got it.
+
+126
+00:08:36,713 --> 00:08:39,464
+What do I need to remember?
+
+127
+00:08:40,000 --> 00:08:45,615
+COPY copies from the build context; a folder source copies its contents.
+
+128
+00:08:46,167 --> 00:08:50,261
+--chown and --chmod set ownership and permissions while copying.
+
+129
+00:08:50,800 --> 00:08:55,028
+ADD also unpacks local archives and downloads URLs:
+
+130
+00:08:55,028 --> 00:08:56,769
+use it only for that.
+
+131
+00:08:58,533 --> 00:09:00,798
+What should I know about RUN?
+
+132
+00:09:01,333 --> 00:09:04,800
+RUN executes a command while the image is built,
+
+133
+00:09:04,800 --> 00:09:11,229
+in a temporary container of the image so far, and saves the changed files as a new layer:
+
+134
+00:09:11,229 --> 00:09:14,985
+installing packages, creating users, compiling code.
+
+135
+00:09:14,985 --> 00:09:20,257
+If the command fails (exits with a status other than 0), the build stops.
+
+136
+00:09:20,257 --> 00:09:26,758
+How you write RUN steps decides how big, how reproducible and how debuggable the image is.
+
+137
+00:09:28,500 --> 00:09:32,459
+First, a fresh practice folder for this lesson.
+
+138
+00:09:32,000 --> 00:09:37,350
+Install a tool at build time and check it in the image:
+
+139
+00:09:37,350 --> 00:09:43,439
+The first curl line comes from the build (#5 0.786 is the step and the time),
+
+140
+00:09:43,439 --> 00:09:47,393
+the second from a container of the finished image.
+
+141
+00:09:47,393 --> 00:10:02,972
+--no-cache tells apk not to keep its package index in the image; on Debian and Ubuntu the same idea is apt-get update && apt-get install -y --no-install-recommends … && rm -rf /var/lib/apt/lists/*,
+
+142
+00:10:02,972 --> 00:10:07,954
+in one RUN (lesson 017 explains why a later rm would not help).
+
+143
+00:10:09,700 --> 00:10:11,561
+Let me try something.
+
+144
+00:10:11,561 --> 00:10:14,484
+A typing error in a package name:
+
+145
+00:10:15,033 --> 00:10:16,402
+Two kinds of lines:
+
+146
+00:10:16,402 --> 00:10:19,140
+the step's own output (#5 0.582 ERROR:
+
+147
+00:10:19,140 --> 00:10:21,013
+unable to select packages:
+
+148
+00:10:21,013 --> 00:10:29,948
+curll (no such package)), and Docker's summary (process "/bin/sh -c apk add --no-cache curll" did not complete successfully:
+
+149
+00:10:29,948 --> 00:10:30,668
+exit code:
+
+150
+00:10:30,668 --> 00:10:30,884
+1).
+
+151
+00:10:30,884 --> 00:10:37,945
+Docker only knows the command exited with 1; the reason is always in the step's output just above,
+
+152
+00:10:37,945 --> 00:10:42,052
+which is why --progress=plain matters when a build fails.
+
+153
+00:10:42,052 --> 00:10:47,888
+Reproduce the step interactively in a container of the base image to investigate:
+
+154
+00:10:49,633 --> 00:10:51,433
+Here is the fix.
+
+155
+00:10:53,167 --> 00:10:53,880
+Got it.
+
+156
+00:10:53,880 --> 00:10:56,631
+What do I need to remember?
+
+157
+00:10:57,167 --> 00:11:04,036
+RUN executes at build time; each RUN adds a layer; a non-zero exit status stops the build.
+
+158
+00:11:04,600 --> 00:11:10,889
+Shell form uses /bin/sh -c; exec form runs the program directly.
+
+159
+00:11:11,433 --> 00:11:17,203
+Chain with && and clean caches in the same step; use --no-cache with apk.
+
+160
+00:11:18,967 --> 00:11:21,361
+Can you show me CMD?
+
+161
+00:11:21,900 --> 00:11:24,947
+CMD sets the default command of a container:
+
+162
+00:11:24,947 --> 00:11:28,686
+what runs when you docker run IMAGE without a command.
+
+163
+00:11:28,686 --> 00:11:30,764
+It does nothing at build time.
+
+164
+00:11:30,764 --> 00:11:35,334
+Anything you write after the image name in docker run replaces it.
+
+165
+00:11:37,100 --> 00:11:41,059
+First, a fresh practice folder for this lesson.
+
+166
+00:11:41,600 --> 00:11:45,914
+A command after the image name replaces CMD completely:
+
+167
+00:11:46,467 --> 00:11:50,213
+A command after the image name replaces CMD completely:
+
+168
+00:11:50,213 --> 00:11:54,231
+The default command is stored in the image's configuration:
+
+169
+00:11:54,767 --> 00:11:58,795
+The default command is stored in the image's configuration:
+
+170
+00:11:58,795 --> 00:12:02,346
+The two forms differ in whether a shell is involved.
+
+171
+00:12:02,346 --> 00:12:04,941
+Only the shell form expands variables:
+
+172
+00:12:06,700 --> 00:12:08,335
+Let me try something.
+
+173
+00:12:08,335 --> 00:12:13,474
+A colleague writes the exec form with single quotes, as in Python:
+
+174
+00:12:14,033 --> 00:12:20,533
+The build worked, the container fails with exit status 127 ("command not found"),
+
+175
+00:12:20,533 --> 00:12:23,501
+and the "command" it tried is [echo,.
+
+176
+00:12:23,501 --> 00:12:25,668
+Look at what Docker stored:
+
+177
+00:12:27,433 --> 00:12:31,093
+Use double quotes, as JSON requires:
+
+178
+00:12:32,833 --> 00:12:33,547
+Got it.
+
+179
+00:12:33,547 --> 00:12:36,298
+What do I need to remember?
+
+180
+00:12:36,833 --> 00:12:42,353
+CMD is the default command of the container; it does nothing at build time.
+
+181
+00:12:42,900 --> 00:12:47,379
+Arguments after the image name in docker run replace it entirely.
+
+182
+00:12:47,933 --> 00:12:53,813
+Only the last CMD counts; it also replaces the base image's CMD.
+
+183
+00:12:55,567 --> 00:12:58,553
+I keep hearing about ENTRYPOINT.
+
+184
+00:12:58,553 --> 00:13:00,326
+What is it, really?
+
+185
+00:13:00,867 --> 00:13:04,731
+ENTRYPOINT sets the program a container always runs.
+
+186
+00:13:04,731 --> 00:13:09,339
+Unlike CMD, it is not replaced by the arguments of docker run:
+
+187
+00:13:09,339 --> 00:13:11,123
+they are appended to it.
+
+188
+00:13:11,123 --> 00:13:18,481
+That turns an image into a command-line tool (docker run price espresso works like price espresso).
+
+189
+00:13:20,233 --> 00:13:24,193
+First, a fresh practice folder for this lesson.
+
+190
+00:13:24,733 --> 00:13:26,983
+The image behaves like a program:
+
+191
+00:13:26,983 --> 00:13:31,140
+everything after the image name became the script's argument.
+
+192
+00:13:31,140 --> 00:13:37,888
+The script's exit status is the container's exit status, so a failure is visible to scripts and CI:
+
+193
+00:13:38,433 --> 00:13:40,683
+The image behaves like a program:
+
+194
+00:13:40,683 --> 00:13:44,840
+everything after the image name became the script's argument.
+
+195
+00:13:44,840 --> 00:13:51,588
+The script's exit status is the container's exit status, so a failure is visible to scripts and CI:
+
+196
+00:13:53,333 --> 00:13:54,944
+Let me try something.
+
+197
+00:13:54,944 --> 00:14:00,468
+You want to look inside the image, so you ask for a shell the usual way:
+
+198
+00:14:01,033 --> 00:14:02,045
+unknown item:
+
+199
+00:14:02,045 --> 00:14:02,278
+sh:
+
+200
+00:14:02,278 --> 00:14:08,734
+the message comes from price.sh, so the script ran and received sh as an item name.
+
+201
+00:14:08,734 --> 00:14:15,424
+With an ENTRYPOINT, the words after the image name are arguments, never a new command.
+
+202
+00:14:15,424 --> 00:14:18,613
+Check what the container really executed:
+
+203
+00:14:20,367 --> 00:14:27,286
+Replace the entrypoint for this one container; the arguments after the image name now go to the new program:
+
+204
+00:14:29,033 --> 00:14:29,747
+Got it.
+
+205
+00:14:29,747 --> 00:14:32,498
+What do I need to remember?
+
+206
+00:14:33,033 --> 00:14:39,393
+ENTRYPOINT is the program a container always runs; docker run arguments are appended to it.
+
+207
+00:14:39,933 --> 00:14:46,428
+--entrypoint replaces it for one container; arguments after the image name go to the new program.
+
+208
+00:14:46,967 --> 00:14:51,566
+Use the exec form; the shell form ignores all arguments.
+
+209
+00:14:53,300 --> 00:14:56,894
+How does CMD and ENTRYPOINT together work?
+
+210
+00:14:57,433 --> 00:15:03,136
+Used together, ENTRYPOINT is the fixed program and CMD its default arguments.
+
+211
+00:15:03,136 --> 00:15:09,802
+docker run IMAGE runs entrypoint + CMD; docker run IMAGE args runs entrypoint + your args.
+
+212
+00:15:09,802 --> 00:15:16,986
+This is the most common pattern for tool images and for service images with an entrypoint script.
+
+213
+00:15:16,986 --> 00:15:20,023
+It only works when both are in exec form.
+
+214
+00:15:21,767 --> 00:15:25,726
+First, a fresh practice folder for this lesson.
+
+215
+00:15:26,267 --> 00:15:28,469
+Give the tool a default argument:
+
+216
+00:15:28,469 --> 00:15:34,341
+The classic example from the standard tools, ping with a fixed count and a default host:
+
+217
+00:15:34,900 --> 00:15:42,021
+The classic example from the standard tools, ping with a fixed count and a default host:
+
+218
+00:15:42,021 --> 00:15:48,414
+docker run --rm pinger 127.0.0.1 would ping another host, always exactly twice.
+
+219
+00:15:50,167 --> 00:15:51,720
+Let me try something.
+
+220
+00:15:51,720 --> 00:15:56,751
+Someone "simplifies" the Dockerfile to the shell form of ENTRYPOINT:
+
+221
+00:15:57,300 --> 00:15:57,776
+usage:
+
+222
+00:15:57,776 --> 00:15:58,648
+price ITEM:
+
+223
+00:15:58,648 --> 00:16:04,356
+the script ran but received no argument, neither the CMD nor cappuccino.
+
+224
+00:16:04,356 --> 00:16:07,209
+Look at what the container executed:
+
+225
+00:16:08,967 --> 00:16:10,766
+Here is the fix.
+
+226
+00:16:12,500 --> 00:16:13,213
+Got it.
+
+227
+00:16:13,213 --> 00:16:15,964
+What do I need to remember?
+
+228
+00:16:16,500 --> 00:16:22,099
+With both, ENTRYPOINT is the program and CMD its default arguments.
+
+229
+00:16:22,633 --> 00:16:30,678
+Run arguments replace CMD, never ENTRYPOINT; --entrypoint replaces the entrypoint and clears CMD.
+
+230
+00:16:31,233 --> 00:16:33,199
+Both must be in exec form:
+
+231
+00:16:33,199 --> 00:16:36,978
+the shell form of ENTRYPOINT drops every argument.
+
+232
+00:16:38,733 --> 00:16:40,848
+Why would I need ENV?
+
+233
+00:16:41,400 --> 00:16:45,461
+ENV NAME=value sets an environment variable in the image:
+
+234
+00:16:45,461 --> 00:16:51,231
+it is available to the following build steps and to every container of the image,
+
+235
+00:16:51,231 --> 00:16:55,220
+as a default that docker run -e NAME=other can override.
+
+236
+00:16:55,220 --> 00:17:00,350
+Applications read their configuration from environment variables (ports,
+
+237
+00:17:00,350 --> 00:17:05,265
+URLs, feature flags), so ENV is how an image ships sensible defaults.
+
+238
+00:17:05,265 --> 00:17:08,685
+Everything set with ENV is visible in the image:
+
+239
+00:17:08,685 --> 00:17:10,394
+never put secrets there.
+
+240
+00:17:12,133 --> 00:17:16,093
+First, a fresh practice folder for this lesson.
+
+241
+00:17:16,633 --> 00:17:18,943
+Set defaults in the image:
+
+242
+00:17:19,500 --> 00:17:25,834
+The RUN step saw the variables during the build, and the application reads them at run time.
+
+243
+00:17:25,834 --> 00:17:29,689
+Override one for a single container, without rebuilding:
+
+244
+00:17:30,233 --> 00:17:36,567
+The RUN step saw the variables during the build, and the application reads them at run time.
+
+245
+00:17:36,567 --> 00:17:40,423
+Override one for a single container, without rebuilding:
+
+246
+00:17:42,167 --> 00:17:44,071
+Let me try something.
+
+247
+00:17:44,071 --> 00:17:47,516
+Version 1.1 should report its version.
+
+248
+00:17:48,067 --> 00:17:51,751
+Ask the container for the variable, then the image:
+
+249
+00:17:53,500 --> 00:17:55,299
+Here is the fix.
+
+250
+00:17:57,033 --> 00:17:57,747
+Got it.
+
+251
+00:17:57,747 --> 00:18:00,498
+What do I need to remember?
+
+252
+00:18:01,033 --> 00:18:07,018
+ENV sets variables for later build steps and for every container, as defaults.
+
+253
+00:18:07,567 --> 00:18:11,996
+docker run -e overrides them per container, without a rebuild.
+
+254
+00:18:12,533 --> 00:18:15,570
+RUN export does not persist:
+
+255
+00:18:15,570 --> 00:18:16,438
+use ENV.
+
+256
+00:18:18,200 --> 00:18:20,484
+What should I know about ARG?
+
+257
+00:18:21,033 --> 00:18:24,460
+ARG NAME=default declares a build-time variable:
+
+258
+00:18:24,460 --> 00:18:27,602
+docker build --build-arg NAME=value sets it,
+
+259
+00:18:27,602 --> 00:18:33,099
+the following build steps can use it, and it is gone when the container runs.
+
+260
+00:18:33,099 --> 00:18:36,811
+Use it for things that change how an image is built:
+
+261
+00:18:36,811 --> 00:18:40,595
+a version number, a base image tag, a feature switch.
+
+262
+00:18:40,595 --> 00:18:46,878
+Its values are recorded in the image's history, so ARG is never for passwords or tokens.
+
+263
+00:18:48,633 --> 00:18:52,593
+First, a fresh practice folder for this lesson.
+
+264
+00:18:53,133 --> 00:18:56,227
+A version that is chosen when building:
+
+265
+00:18:56,227 --> 00:18:59,956
+Without --build-arg, the default (dev) is used.
+
+266
+00:18:59,956 --> 00:19:03,288
+The variable exists only during the build:
+
+267
+00:19:03,833 --> 00:19:07,992
+Without --build-arg, the default (dev) is used.
+
+268
+00:19:07,992 --> 00:19:11,708
+The variable exists only during the build:
+
+269
+00:19:13,467 --> 00:19:14,967
+Let me try something.
+
+270
+00:19:14,967 --> 00:19:20,756
+A colleague moves ARG VERSION to the top of the file, next to the other argument:
+
+271
+00:19:21,300 --> 00:19:25,134
+An ARG declared before FROM belongs to the "global" scope:
+
+272
+00:19:25,134 --> 00:19:27,381
+it can be used in FROM lines only.
+
+273
+00:19:27,381 --> 00:19:34,719
+Each FROM starts a new build stage, and inside a stage an argument exists only after an ARG line in that stage.
+
+274
+00:19:34,719 --> 00:19:39,279
+The history of the image shows which arguments the RUN step received:
+
+275
+00:19:41,033 --> 00:19:48,318
+Declare it again inside the stage (without a value, it keeps the global default or the --build-arg value):
+
+276
+00:19:50,067 --> 00:19:50,780
+Got it.
+
+277
+00:19:50,780 --> 00:19:53,531
+What do I need to remember?
+
+278
+00:19:54,067 --> 00:19:59,756
+ARG is a build-time variable set with --build-arg; it does not exist in containers.
+
+279
+00:20:00,300 --> 00:20:06,409
+An ARG before FROM is only for FROM; declare it again after FROM to use it in the steps.
+
+280
+00:20:06,967 --> 00:20:13,406
+To keep a value at run time, copy it into ENV (or a file, or a label).
+
+281
+00:20:15,167 --> 00:20:17,421
+Can you show me EXPOSE?
+
+282
+00:20:17,967 --> 00:20:23,901
+EXPOSE 3000 documents the port the application in the image listens on.
+
+283
+00:20:23,901 --> 00:20:27,747
+It does not open, publish or forward anything:
+
+284
+00:20:27,747 --> 00:20:35,102
+a container is reachable from your computer only through -p HOST:CONTAINER (lesson 012).
+
+285
+00:20:35,102 --> 00:20:38,697
+EXPOSE is used by people reading the image,
+
+286
+00:20:38,697 --> 00:20:46,136
+by tools, and by docker run -P, which publishes every exposed port to a random free port.
+
+287
+00:20:47,900 --> 00:20:51,859
+First, a fresh practice folder for this lesson.
+
+288
+00:20:52,400 --> 00:20:57,859
+Run it with -P (capital P) and ask Docker which host port it chose:
+
+289
+00:20:58,400 --> 00:21:03,859
+Run it with -P (capital P) and ask Docker which host port it chose:
+
+290
+00:21:04,400 --> 00:21:05,999
+Let's run it.
+
+291
+00:21:07,733 --> 00:21:09,363
+Let me try something.
+
+292
+00:21:09,363 --> 00:21:15,263
+The image is rebuilt from a copied Nginx Dockerfile, still saying EXPOSE 80:
+
+293
+00:21:15,800 --> 00:21:20,692
+The container runs and Docker published a port, yet there is no answer.
+
+294
+00:21:20,692 --> 00:21:22,138
+Compare three things:
+
+295
+00:21:22,138 --> 00:21:28,614
+what is published, where the application listens, and whether it answers inside the container:
+
+296
+00:21:30,367 --> 00:21:35,186
+Make EXPOSE match the application's port, rebuild and restart:
+
+297
+00:21:36,933 --> 00:21:37,647
+Got it.
+
+298
+00:21:37,647 --> 00:21:40,398
+What do I need to remember?
+
+299
+00:21:40,933 --> 00:21:45,858
+EXPOSE documents the application's port; it publishes nothing.
+
+300
+00:21:46,400 --> 00:21:54,499
+-p HOST:CONTAINER publishes a port, with or without EXPOSE; -P publishes all exposed ports to random ports.
+
+301
+00:21:55,033 --> 00:22:00,433
+docker port shows the mapping; a wrong EXPOSE makes -P publish the wrong port.
+
+302
+00:22:02,167 --> 00:22:04,703
+I keep hearing about USER.
+
+303
+00:22:04,703 --> 00:22:06,556
+What is it, really?
+
+304
+00:22:07,100 --> 00:22:12,882
+Unless the image says otherwise, a container's process runs as root (user ID 0).
+
+305
+00:22:12,882 --> 00:22:18,736
+USER appuser switches the following RUN steps and the container to a normal user.
+
+306
+00:22:18,736 --> 00:22:26,398
+If the application is compromised, the attacker then has the rights of a normal user inside the container,
+
+307
+00:22:26,398 --> 00:22:28,999
+not root's (lesson 081 goes deeper).
+
+308
+00:22:30,733 --> 00:22:34,693
+First, a fresh practice folder for this lesson.
+
+309
+00:22:35,233 --> 00:22:37,944
+Most images run as root by default:
+
+310
+00:22:37,944 --> 00:22:45,303
+Some official images already contain a non-root user for you; node images have node (uid 1000):
+
+311
+00:22:45,867 --> 00:22:52,648
+Some official images already contain a non-root user for you; node images have node (uid 1000):
+
+312
+00:22:52,648 --> 00:22:55,361
+Create your own user and switch to it:
+
+313
+00:22:55,900 --> 00:22:58,830
+Create your own user and switch to it:
+
+314
+00:23:00,567 --> 00:23:02,113
+Let me try something.
+
+315
+00:23:02,113 --> 00:23:06,606
+The first attempt at a non-root order service only adds USER:
+
+316
+00:23:07,167 --> 00:23:09,426
+can't create /app/orders.log:
+
+317
+00:23:09,426 --> 00:23:10,829
+Permission denied:
+
+318
+00:23:10,829 --> 00:23:14,257
+the script runs, but cannot create its file.
+
+319
+00:23:14,257 --> 00:23:17,841
+Compare the user with the owner of the folder:
+
+320
+00:23:19,600 --> 00:23:24,745
+Give the user exactly one writable place, and leave the code owned by root:
+
+321
+00:23:26,500 --> 00:23:27,213
+Got it.
+
+322
+00:23:27,213 --> 00:23:29,965
+What do I need to remember?
+
+323
+00:23:30,500 --> 00:23:35,535
+Containers run as root unless the image or docker run --user says otherwise.
+
+324
+00:23:36,100 --> 00:23:43,095
+Create a user (adduser/useradd) and switch with USER, preferably by numeric ID.
+
+325
+00:23:43,633 --> 00:23:46,441
+Files created before USER belong to root:
+
+326
+00:23:46,441 --> 00:23:49,728
+give the user only the folders it must write to.
+
+327
+00:23:51,467 --> 00:23:54,816
+How does Dockerfile best practices work?
+
+328
+00:23:55,367 --> 00:24:02,231
+A Dockerfile that "works" can still be slow to rebuild, larger than needed, run as root and stop badly.
+
+329
+00:24:02,231 --> 00:24:09,028
+This lesson reviews a first version of the cafe API's Dockerfile against the practices of this module,
+
+330
+00:24:09,028 --> 00:24:16,891
+measures the difference, and uses Docker's built-in checker (docker build --check) to catch mistakes before they ship.
+
+331
+00:24:18,633 --> 00:24:22,593
+First, a fresh practice folder for this lesson.
+
+332
+00:24:23,133 --> 00:24:25,173
+Build both versions:
+
+333
+00:24:25,733 --> 00:24:28,146
+Both images run the same application.
+
+334
+00:24:28,146 --> 00:24:30,690
+Compare what is inside and who runs it:
+
+335
+00:24:30,690 --> 00:24:39,363
+The first image runs as root and contains the Dockerfiles and the private notes; the second contains only what the application needs.
+
+336
+00:24:41,100 --> 00:24:42,764
+Let me try something.
+
+337
+00:24:42,764 --> 00:24:46,329
+Ask Docker's checker about the first version:
+
+338
+00:24:46,867 --> 00:24:52,048
+--check runs Docker's build checks (rules such as JSONArgsRecommended,
+
+339
+00:24:52,048 --> 00:24:57,082
+SecretsUsedInArgOrEnv, FromAsCasing, UndefinedVar) without building,
+
+340
+00:24:57,082 --> 00:25:02,485
+and exits with status 1 when it finds something, so it can fail a CI job.
+
+341
+00:25:02,485 --> 00:25:08,111
+Each warning names the rule, links to its documentation, and marks the line.
+
+342
+00:25:08,111 --> 00:25:09,962
+It cannot see everything:
+
+343
+00:25:09,962 --> 00:25:14,551
+running as root and copying the whole folder are not "errors",
+
+344
+00:25:14,551 --> 00:25:18,696
+so a review against the practices above is still needed.
+
+345
+00:25:20,433 --> 00:25:23,388
+The improved version passes the checks:
+
+346
+00:25:25,133 --> 00:25:25,847
+Got it.
+
+347
+00:25:25,847 --> 00:25:28,598
+What do I need to remember?
+
+348
+00:25:29,133 --> 00:25:33,093
+Pinned small base, dependencies before code,
+
+349
+00:25:33,093 --> 00:25:39,123
+one clean RUN per concern, .dockerignore, non-root USER, exec form.
+
+350
+00:25:39,667 --> 00:25:42,999
+Dependency-first ordering keeps rebuilds fast:
+
+351
+00:25:42,999 --> 00:25:45,896
+code changes reuse the dependency layer.
+
+352
+00:25:46,433 --> 00:25:52,223
+docker build --check catches Dockerfile mistakes without building and fails CI on warnings.

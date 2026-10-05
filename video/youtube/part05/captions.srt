@@ -1,0 +1,723 @@
+1
+00:00:04,800 --> 00:00:07,165
+Can you show me docker build?
+
+2
+00:00:07,700 --> 00:00:13,818
+docker build turns a Dockerfile and a folder of files (the build context) into an image.
+
+3
+00:00:13,818 --> 00:00:17,921
+The Docker CLI sends the context to the builder (BuildKit),
+
+4
+00:00:17,921 --> 00:00:21,953
+the builder runs the Dockerfile's instructions one by one,
+
+5
+00:00:21,953 --> 00:00:27,446
+and the result is stored as an image with the name and tag you give it with -t.
+
+6
+00:00:27,446 --> 00:00:30,088
+This lesson covers the command itself:
+
+7
+00:00:30,088 --> 00:00:35,024
+naming, tagging, choosing the Dockerfile, and reading the build output.
+
+8
+00:00:36,767 --> 00:00:40,726
+First, a fresh practice folder for this lesson.
+
+9
+00:00:41,267 --> 00:00:42,689
+Build the image.
+
+10
+00:00:42,689 --> 00:00:46,332
+-t gives it a name and a tag; the final .
+
+11
+00:00:46,332 --> 00:00:50,065
+is the build context (the current folder):
+
+12
+00:00:50,065 --> 00:00:53,798
+Each #N [x/3] line is one Dockerfile step.
+
+13
+00:00:53,798 --> 00:00:58,686
+naming to docker.io/library/node-api:1.0 is the result:
+
+14
+00:00:58,686 --> 00:01:07,307
+a short name like node-api is expanded to Docker Hub's docker.io/library/ namespace (lesson 077).
+
+15
+00:01:07,307 --> 00:01:10,506
+The image is now in the local store:
+
+16
+00:01:11,067 --> 00:01:15,033
+Each #N [x/3] line is one Dockerfile step.
+
+17
+00:01:15,033 --> 00:01:20,227
+naming to docker.io/library/node-api:1.0 is the result:
+
+18
+00:01:20,227 --> 00:01:29,388
+a short name like node-api is expanded to Docker Hub's docker.io/library/ namespace (lesson 077).
+
+19
+00:01:29,388 --> 00:01:32,788
+The image is now in the local store:
+
+20
+00:01:32,788 --> 00:01:39,871
+Run it, publishing the container's port 3000 on port 8080 of your computer:
+
+21
+00:01:40,433 --> 00:01:47,108
+Run it, publishing the container's port 3000 on port 8080 of your computer:
+
+22
+00:01:48,867 --> 00:01:50,365
+Let me try something.
+
+23
+00:01:50,365 --> 00:01:57,431
+A teammate renamed the Dockerfile to Dockerfile.prod for production and now runs the usual command:
+
+24
+00:01:57,967 --> 00:01:59,882
+failed to read dockerfile:
+
+25
+00:01:59,882 --> 00:02:01,060
+open Dockerfile:
+
+26
+00:02:01,060 --> 00:02:02,975
+no such file or directory:
+
+27
+00:02:02,975 --> 00:02:09,383
+the builder looked for the default name, Dockerfile, in the context, and there is none.
+
+28
+00:02:09,383 --> 00:02:11,151
+The build never started.
+
+29
+00:02:11,151 --> 00:02:13,066
+List what is really there:
+
+30
+00:02:14,800 --> 00:02:17,630
+Name the file explicitly with -f:
+
+31
+00:02:19,367 --> 00:02:20,080
+Got it.
+
+32
+00:02:20,080 --> 00:02:22,831
+What do I need to remember?
+
+33
+00:02:23,367 --> 00:02:29,106
+docker build -t NAME:TAG CONTEXT builds an image from CONTEXT/Dockerfile.
+
+34
+00:02:29,667 --> 00:02:35,031
+-f chooses another Dockerfile; several -t give one image several names.
+
+35
+00:02:35,567 --> 00:02:40,226
+The build output lists one step per instruction and ends with naming to ….
+
+36
+00:02:41,967 --> 00:02:45,328
+I keep hearing about the build context.
+
+37
+00:02:45,328 --> 00:02:46,966
+What is it, really?
+
+38
+00:02:47,500 --> 00:02:51,697
+The last argument of docker build is the build context:
+
+39
+00:02:51,697 --> 00:02:54,978
+the folder whose files the builder may use.
+
+40
+00:02:54,978 --> 00:03:01,082
+The CLI sends that folder to the builder (BuildKit) before any instruction runs,
+
+41
+00:03:01,082 --> 00:03:04,210
+and COPY/ADD can only read files from it.
+
+42
+00:03:04,210 --> 00:03:05,507
+Two consequences:
+
+43
+00:03:05,507 --> 00:03:11,001
+everything in the context is transferred (big folders make builds slow),
+
+44
+00:03:11,001 --> 00:03:18,250
+and a Dockerfile can never copy a file from outside the context, such as ../shared/config.json.
+
+45
+00:03:20,000 --> 00:03:23,960
+First, a fresh practice folder for this lesson.
+
+46
+00:03:24,500 --> 00:03:26,759
+Build from inside node-api/.
+
+47
+00:03:26,759 --> 00:03:35,230
+Near the start, the builder loads the context; the transferring context line tells you how much was sent:
+
+48
+00:03:35,230 --> 00:03:36,601
+About a kilobyte:
+
+49
+00:03:36,601 --> 00:03:38,215
+the two small files.
+
+50
+00:03:38,767 --> 00:03:40,090
+About a kilobyte:
+
+51
+00:03:40,090 --> 00:03:41,648
+the two small files.
+
+52
+00:03:41,648 --> 00:03:48,500
+Now someone leaves a 50 MB log file in the folder (head -c writes 50 million zero bytes,
+
+53
+00:03:48,500 --> 00:03:54,106
+standing in for a real log, a dataset or node_modules) and builds again:
+
+54
+00:03:54,106 --> 00:03:54,962
+Still tiny:
+
+55
+00:03:54,962 --> 00:04:01,815
+BuildKit reads the Dockerfile first and only transfers the paths that COPY and ADD name,
+
+56
+00:04:01,815 --> 00:04:04,306
+here package.json and server.js.
+
+57
+00:04:04,867 --> 00:04:05,774
+Still tiny:
+
+58
+00:04:05,774 --> 00:04:13,030
+BuildKit reads the Dockerfile first and only transfers the paths that COPY and ADD name,
+
+59
+00:04:13,030 --> 00:04:15,668
+here package.json and server.js.
+
+60
+00:04:15,668 --> 00:04:19,049
+Most Dockerfiles, however, contain COPY .
+
+61
+00:04:19,049 --> 00:04:19,131
+.
+
+62
+00:04:20,867 --> 00:04:23,066
+Let me try something.
+
+63
+00:04:23,066 --> 00:04:26,941
+Now the API needs shared/config.json.
+
+64
+00:04:27,500 --> 00:04:29,247
+"/shared/config.json":
+
+65
+00:04:29,247 --> 00:04:33,296
+not found although the file clearly exists on disk.
+
+66
+00:04:33,296 --> 00:04:35,837
+Look at the path in the message:
+
+67
+00:04:35,837 --> 00:04:43,856
+the builder turned ../shared/config.json into /shared/config.json, a path at the root of the context.
+
+68
+00:04:43,856 --> 00:04:46,714
+A build can never leave its context:
+
+69
+00:04:46,714 --> 00:04:46,873
+..
+
+70
+00:04:46,873 --> 00:04:59,100
+stops at the top of it, for security (a Dockerfile from the internet must not be able to read ~/.ssh) and because the context is all the builder received.
+
+71
+00:05:00,833 --> 00:05:08,111
+Make the context the folder that contains both directories, and write the COPY paths relative to it.
+
+72
+00:05:08,111 --> 00:05:10,658
+Dockerfile.fixed does exactly that:
+
+73
+00:05:12,400 --> 00:05:13,113
+Got it.
+
+74
+00:05:13,113 --> 00:05:15,864
+What do I need to remember?
+
+75
+00:05:16,400 --> 00:05:22,709
+The context is the folder given to docker build; it is sent to the builder before the build starts.
+
+76
+00:05:23,267 --> 00:05:29,421
+COPY and ADD can only read files inside the context; ../ cannot leave it.
+
+77
+00:05:29,967 --> 00:05:34,295
+BuildKit transfers what COPY/ADD name; COPY .
+
+78
+00:05:34,295 --> 00:05:34,391
+.
+
+79
+00:05:34,391 --> 00:05:37,469
+sends (and bakes in) everything:
+
+80
+00:05:37,469 --> 00:05:40,066
+check transferring context.
+
+81
+00:05:41,800 --> 00:05:44,474
+How does .dockerignore work?
+
+82
+00:05:45,033 --> 00:05:53,253
+A .dockerignore file at the root of the build context lists files the builder must never see.
+
+83
+00:05:53,253 --> 00:05:53,783
+COPY .
+
+84
+00:05:53,783 --> 00:05:53,872
+.
+
+85
+00:05:53,872 --> 00:05:56,965
+then copies everything except them.
+
+86
+00:05:56,965 --> 00:06:00,854
+It keeps three kinds of files out of images:
+
+87
+00:06:00,854 --> 00:06:10,134
+secrets (.env, keys), junk (logs, .git, editor folders) and things the image builds itself (node_modules,
+
+88
+00:06:10,134 --> 00:06:10,753
+dist/).
+
+89
+00:06:12,500 --> 00:06:16,459
+First, a fresh practice folder for this lesson.
+
+90
+00:06:16,000 --> 00:06:21,324
+Build without a .dockerignore and look inside the image:
+
+91
+00:06:21,324 --> 00:06:23,023
+Everything was copied.
+
+92
+00:06:23,023 --> 00:06:24,104
+The worst one:
+
+93
+00:06:24,667 --> 00:06:26,342
+Everything was copied.
+
+94
+00:06:26,342 --> 00:06:27,408
+The worst one:
+
+95
+00:06:27,408 --> 00:06:34,033
+Anyone who can pull this image can read the token, even after you delete the container:
+
+96
+00:06:34,033 --> 00:06:37,231
+it is part of an image layer (lesson 083).
+
+97
+00:06:37,767 --> 00:06:44,393
+Anyone who can pull this image can read the token, even after you delete the container:
+
+98
+00:06:44,393 --> 00:06:47,591
+it is part of an image layer (lesson 083).
+
+99
+00:06:47,591 --> 00:06:49,419
+Now add a .dockerignore:
+
+100
+00:06:49,419 --> 00:06:51,856
+Only what the application needs.
+
+101
+00:06:53,600 --> 00:06:55,216
+Let me try something.
+
+102
+00:06:55,216 --> 00:06:58,910
+A teammate writes their own short .dockerignore,
+
+103
+00:06:58,910 --> 00:07:04,219
+expecting *.log to exclude every log file, as it would in .gitignore:
+
+104
+00:07:04,767 --> 00:07:09,290
+The log file is in the image although .log is in .dockerignore.
+
+105
+00:07:09,290 --> 00:07:11,301
+The rules differ from Git's:
+
+106
+00:07:11,301 --> 00:07:15,681
+in .gitignore a pattern without a slash matches at any depth,
+
+107
+00:07:15,681 --> 00:07:20,995
+but in .dockerignore every pattern is anchored at the root of the context.
+
+108
+00:07:20,995 --> 00:07:28,319
+.log therefore means ".log files directly in the context root", and logs/debug/app.log does not match.
+
+109
+00:07:28,319 --> 00:07:34,638
+To see exactly what a .dockerignore lets through, list the image (or a throw-away COPY .
+
+110
+00:07:34,638 --> 00:07:34,710
+.
+
+111
+00:07:34,710 --> 00:07:37,941
+image) as above, and compare with the folder:
+
+112
+00:07:39,700 --> 00:07:42,419
+Use ** for "any number of folders":
+
+113
+00:07:44,167 --> 00:07:44,880
+Got it.
+
+114
+00:07:44,880 --> 00:07:47,631
+What do I need to remember?
+
+115
+00:07:48,167 --> 00:07:54,081
+.dockerignore sits at the root of the context and excludes files from COPY/ADD.
+
+116
+00:07:54,633 --> 00:08:02,358
+Exclude secrets, junk and anything the image builds itself (node_modules, dist/).
+
+117
+00:08:02,900 --> 00:08:05,986
+Patterns are anchored at the context root:
+
+118
+00:08:05,986 --> 00:08:08,189
+use **/ to match at any depth.
+
+119
+00:08:09,933 --> 00:08:12,258
+Why would I need build layers?
+
+120
+00:08:12,800 --> 00:08:17,077
+Every RUN, COPY and ADD instruction produces a layer:
+
+121
+00:08:17,077 --> 00:08:21,354
+the set of files that step added, changed or deleted.
+
+122
+00:08:21,354 --> 00:08:27,165
+An image is its base image's layers plus one layer per such instruction,
+
+123
+00:08:27,165 --> 00:08:33,379
+stacked; other instructions (WORKDIR, CMD, ENV, EXPOSE) only change metadata.
+
+124
+00:08:33,379 --> 00:08:35,074
+Layers are immutable:
+
+125
+00:08:35,074 --> 00:08:40,885
+a later step can hide a file, but never remove it from an earlier layer.
+
+126
+00:08:42,633 --> 00:08:46,593
+First, a fresh practice folder for this lesson.
+
+127
+00:08:47,133 --> 00:08:52,836
+Build the image and list its layers with docker history, newest first:
+
+128
+00:08:52,836 --> 00:08:54,302
+Read it bottom-up:
+
+129
+00:08:54,302 --> 00:09:02,693
+the two Alpine lines are the base image's own history, then one line per instruction of our Dockerfile.
+
+130
+00:09:02,693 --> 00:09:09,373
+apk add curl added about 5 MB; COPY hello.sh a few kB; CMD is metadata only (0 B).
+
+131
+00:09:09,933 --> 00:09:11,510
+Read it bottom-up:
+
+132
+00:09:11,510 --> 00:09:20,534
+the two Alpine lines are the base image's own history, then one line per instruction of our Dockerfile.
+
+133
+00:09:20,534 --> 00:09:27,718
+apk add curl added about 5 MB; COPY hello.sh a few kB; CMD is metadata only (0 B).
+
+134
+00:09:29,467 --> 00:09:31,147
+Let me try something.
+
+135
+00:09:31,147 --> 00:09:36,826
+A Dockerfile that "cleans up" in a separate step (Dockerfile.wasteful):
+
+136
+00:09:37,367 --> 00:09:40,336
+The file is gone from the container's view:
+
+137
+00:09:42,100 --> 00:09:49,579
+Create, use and delete temporary files in the same RUN, so the file never exists at the end of any layer:
+
+138
+00:09:51,333 --> 00:09:52,047
+Got it.
+
+139
+00:09:52,047 --> 00:09:54,798
+What do I need to remember?
+
+140
+00:09:55,333 --> 00:10:00,853
+RUN, COPY and ADD each add a layer; other instructions are metadata.
+
+141
+00:10:01,400 --> 00:10:02,766
+Layers are immutable:
+
+142
+00:10:02,766 --> 00:10:07,385
+deleting a file in a later step hides it but does not shrink the image.
+
+143
+00:10:07,933 --> 00:10:12,253
+Create, use and delete temporary files in one RUN.
+
+144
+00:10:14,000 --> 00:10:16,735
+What should I know about the build cache?
+
+145
+00:10:17,300 --> 00:10:20,220
+BuildKit remembers every layer it built.
+
+146
+00:10:20,220 --> 00:10:26,280
+Before running a step, it checks whether it has already built the same instruction,
+
+147
+00:10:26,280 --> 00:10:30,588
+on the same parent layer, with the same input files; if so,
+
+148
+00:10:30,588 --> 00:10:34,385
+it reuses the stored layer (CACHED) in milliseconds.
+
+149
+00:10:34,385 --> 00:10:40,080
+As soon as one step changes, that step and every step after it must run again.
+
+150
+00:10:41,833 --> 00:10:45,793
+First, a fresh practice folder for this lesson.
+
+151
+00:10:46,333 --> 00:10:49,213
+First build of the well-ordered Dockerfile:
+
+152
+00:10:49,213 --> 00:10:50,284
+every step runs.
+
+153
+00:10:50,284 --> 00:10:55,573
+The grep keeps the step lines and the CACHED markers of the plain build output:
+
+154
+00:10:55,573 --> 00:10:58,118
+Build again without changing anything:
+
+155
+00:10:58,667 --> 00:11:01,728
+Build again without changing anything:
+
+156
+00:11:01,728 --> 00:11:03,419
+Every step is CACHED:
+
+157
+00:11:03,419 --> 00:11:04,386
+nothing ran.
+
+158
+00:11:04,386 --> 00:11:08,736
+Now change the application code, as every commit does:
+
+159
+00:11:09,300 --> 00:11:11,024
+Every step is CACHED:
+
+160
+00:11:11,024 --> 00:11:12,008
+nothing ran.
+
+161
+00:11:12,008 --> 00:11:16,440
+Now change the application code, as every commit does:
+
+162
+00:11:16,440 --> 00:11:20,954
+The dependencies stayed cached; only the last COPY ran.
+
+163
+00:11:22,700 --> 00:11:24,283
+Let me try something.
+
+164
+00:11:24,283 --> 00:11:30,689
+The same code change with Dockerfile.slow, which copies everything before installing.
+
+165
+00:11:31,233 --> 00:11:35,525
+A one-line code change reinstalled every Python package.
+
+166
+00:11:35,525 --> 00:11:40,584
+Read the steps top-down and find the first one that is not CACHED:
+
+167
+00:11:40,584 --> 00:11:41,504
+[3/4] COPY .
+
+168
+00:11:41,504 --> 00:11:41,657
+..
+
+169
+00:11:41,657 --> 00:11:46,256
+Its input (the whole folder) changed because app.py changed,
+
+170
+00:11:46,256 --> 00:11:51,697
+so its cache key changed, and from that point on nothing can be reused,
+
+171
+00:11:51,697 --> 00:11:56,373
+including pip install, whose own input did not change at all.
+
+172
+00:11:58,133 --> 00:12:03,364
+Order the steps from "changes rarely" to "changes often":
+
+173
+00:12:03,364 --> 00:12:09,604
+base image, system packages, dependency manifests (requirements.txt,
+
+174
+00:12:09,604 --> 00:12:17,220
+package*.json, go.mod/go.sum, pom.xml), dependency installation, and the code last.
+
+175
+00:12:17,220 --> 00:12:19,698
+That is exactly Dockerfile.
+
+176
+00:12:21,433 --> 00:12:22,147
+Got it.
+
+177
+00:12:22,147 --> 00:12:24,898
+What do I need to remember?
+
+178
+00:12:25,433 --> 00:12:31,328
+A step is reused when its parent layer, instruction and input files are unchanged.
+
+179
+00:12:31,867 --> 00:12:35,546
+The first cache miss invalidates every later step.
+
+180
+00:12:36,100 --> 00:12:40,260
+Order Dockerfiles from rarely-changing to often-changing:
+
+181
+00:12:40,260 --> 00:12:42,084
+dependencies before code.

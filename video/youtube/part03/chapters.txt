@@ -1,0 +1,5 @@
+0:00 Lesson 017 · Image layers
+2:08 Lesson 018 · Pulling images
+5:21 Lesson 019 · Listing and removing images
+7:32 Lesson 020 · Image tags
+10:02 Lesson 021 · The danger of the latest tag

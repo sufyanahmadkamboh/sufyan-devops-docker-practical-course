@@ -1,0 +1,1371 @@
+1
+00:00:04,800 --> 00:00:07,529
+Can you show me your first container?
+
+2
+00:00:08,067 --> 00:00:12,332
+docker run hello-world is the smallest complete container run.
+
+3
+00:00:12,332 --> 00:00:16,116
+It looks like one command, but Docker does four things:
+
+4
+00:00:16,116 --> 00:00:21,482
+it looks for the image locally, downloads it from a registry if it is missing,
+
+5
+00:00:21,482 --> 00:00:24,440
+creates a container from it, and starts it.
+
+6
+00:00:24,440 --> 00:00:27,261
+The container prints a message and exits.
+
+7
+00:00:29,000 --> 00:00:29,471
+Run it:
+
+8
+00:00:29,471 --> 00:00:30,616
+Read the message:
+
+9
+00:00:30,616 --> 00:00:33,578
+it lists the same four steps as the diagram.
+
+10
+00:00:33,578 --> 00:00:36,406
+When the image is not on your machine yet,
+
+11
+00:00:36,406 --> 00:00:42,869
+Docker first prints Unable to find image 'hello-world:latest' locally and the download progress.
+
+12
+00:00:43,433 --> 00:00:44,550
+Read the message:
+
+13
+00:00:44,550 --> 00:00:47,440
+it lists the same four steps as the diagram.
+
+14
+00:00:47,440 --> 00:00:50,198
+When the image is not on your machine yet,
+
+15
+00:00:50,198 --> 00:00:56,503
+Docker first prints Unable to find image 'hello-world:latest' locally and the download progress.
+
+16
+00:00:57,067 --> 00:01:02,146
+Docker gave it a random name made of an adjective and a scientist's name,
+
+17
+00:01:02,146 --> 00:01:05,137
+because we did not choose one (lesson 010).
+
+18
+00:01:05,137 --> 00:01:09,451
+Add --rm and Docker removes the container as soon as it exits:
+
+19
+00:01:09,451 --> 00:01:10,843
+Still one container:
+
+20
+00:01:10,843 --> 00:01:12,721
+the one from the first run.
+
+21
+00:01:14,467 --> 00:01:16,484
+Let me try something.
+
+22
+00:01:16,484 --> 00:01:18,886
+A typo in the image name:
+
+23
+00:01:19,433 --> 00:01:21,015
+Read the steps again.
+
+24
+00:01:21,015 --> 00:01:24,857
+Step 1 failed silently (no local image hello-word),
+
+25
+00:01:24,857 --> 00:01:31,185
+so Docker went to step 2 and asked Docker Hub for the repository library/hello-word.
+
+26
+00:01:31,185 --> 00:01:32,014
+The answer:
+
+27
+00:01:32,014 --> 00:01:38,869
+pull access denied for hello-word, repository does not exist or may require 'docker login':
+
+28
+00:01:38,869 --> 00:01:42,108
+there is no public repository of that name.
+
+29
+00:01:43,867 --> 00:01:45,876
+Use the correct name:
+
+30
+00:01:47,633 --> 00:01:48,347
+Got it.
+
+31
+00:01:48,347 --> 00:01:51,098
+What do I need to remember?
+
+32
+00:01:51,633 --> 00:01:57,158
+docker run = find or pull the image, create a container, start it.
+
+33
+00:01:57,700 --> 00:02:01,931
+A container whose process ends is exited, not deleted:
+
+34
+00:02:01,931 --> 00:02:04,124
+docker ps -a still lists it.
+
+35
+00:02:04,667 --> 00:02:08,516
+--rm removes the container automatically when it exits.
+
+36
+00:02:10,267 --> 00:02:14,064
+I keep hearing about images vs containers.
+
+37
+00:02:14,064 --> 00:02:15,781
+What is it, really?
+
+38
+00:02:16,333 --> 00:02:18,719
+An image is a read-only template:
+
+39
+00:02:18,719 --> 00:02:24,214
+a file system plus metadata (which command to run, which user, which ports).
+
+40
+00:02:24,214 --> 00:02:27,034
+A container is an instance of an image:
+
+41
+00:02:27,034 --> 00:02:33,903
+the image's layers, plus a thin writable layer of its own, plus a running (or stopped) process.
+
+42
+00:02:33,903 --> 00:02:38,169
+One image can be the template for any number of containers,
+
+43
+00:02:38,169 --> 00:02:42,073
+and changes inside a container never change the image.
+
+44
+00:02:43,833 --> 00:02:47,078
+Create three containers from the same image.
+
+45
+00:02:47,078 --> 00:02:49,658
+Two of them write a different file:
+
+46
+00:02:49,658 --> 00:02:51,723
+Three containers, one image.
+
+47
+00:02:51,723 --> 00:02:58,286
+docker container diff shows what each container changed compared with its image (A added,
+
+48
+00:02:58,286 --> 00:02:59,908
+C changed, D deleted):
+
+49
+00:03:00,467 --> 00:03:02,456
+Three containers, one image.
+
+50
+00:03:02,456 --> 00:03:08,779
+docker container diff shows what each container changed compared with its image (A added,
+
+51
+00:03:08,779 --> 00:03:10,342
+C changed, D deleted):
+
+52
+00:03:10,342 --> 00:03:11,905
+plain changed nothing.
+
+53
+00:03:11,905 --> 00:03:17,091
+The files written by red and blue live only in their own writable layers.
+
+54
+00:03:17,633 --> 00:03:19,171
+plain changed nothing.
+
+55
+00:03:19,171 --> 00:03:24,273
+The files written by red and blue live only in their own writable layers.
+
+56
+00:03:26,033 --> 00:03:27,424
+Let me try something.
+
+57
+00:03:27,424 --> 00:03:38,684
+Turn the red container into an image of its own with docker commit (it saves a container's writable layer as a new image; lesson 022 shows the right way to build images),
+
+58
+00:03:38,684 --> 00:03:42,658
+start a container from it, and then try to delete the image:
+
+59
+00:03:43,200 --> 00:03:43,867
+conflict:
+
+60
+00:03:43,867 --> 00:03:48,387
+unable to delete … container … is using its referenced image:
+
+61
+00:03:48,387 --> 00:03:52,091
+a container is built on top of its image's layers.
+
+62
+00:03:52,091 --> 00:03:59,056
+Even a stopped container needs them, so Docker refuses to delete an image while any container,
+
+63
+00:03:59,056 --> 00:04:01,723
+running or not, was created from it.
+
+64
+00:04:01,723 --> 00:04:04,094
+Find the containers that use it:
+
+65
+00:04:05,833 --> 00:04:09,313
+Remove the containers first, then the image:
+
+66
+00:04:11,067 --> 00:04:11,780
+Got it.
+
+67
+00:04:11,780 --> 00:04:14,531
+What do I need to remember?
+
+68
+00:04:15,067 --> 00:04:15,632
+Image:
+
+69
+00:04:15,632 --> 00:04:17,422
+read-only template.
+
+70
+00:04:17,422 --> 00:04:18,365
+Container:
+
+71
+00:04:18,365 --> 00:04:22,416
+image + its own writable layer + a process.
+
+72
+00:04:22,967 --> 00:04:28,706
+Many containers can run from one image; their changes stay in their own writable layers.
+
+73
+00:04:29,267 --> 00:04:35,226
+docker container diff shows a container's changes; docker cp copies files out.
+
+74
+00:04:36,967 --> 00:04:39,696
+How does listing containers work?
+
+75
+00:04:40,233 --> 00:04:43,000
+docker ps is the command you will type most often.
+
+76
+00:04:43,000 --> 00:04:49,273
+By default it lists running containers only; -a adds the stopped ones.
+
+77
+00:04:49,273 --> 00:04:54,547
+Filters (--filter) narrow the list down, --format chooses the columns,
+
+78
+00:04:54,547 --> 00:04:58,238
+and -q prints only IDs for use in other commands.
+
+79
+00:04:59,000 --> 00:05:03,959
+First, a fresh practice folder for this lesson.
+
+80
+00:05:04,500 --> 00:05:06,550
+Running containers only:
+
+81
+00:05:06,550 --> 00:05:09,454
+All containers, with their status:
+
+82
+00:05:09,000 --> 00:05:12,722
+All containers, with their status:
+
+83
+00:05:12,722 --> 00:05:19,127
+Exited (0) succeeded, Exited (3) failed with exit code 3, Created never started.
+
+84
+00:05:19,127 --> 00:05:23,289
+The full table is wide; choose the columns you need:
+
+85
+00:05:23,833 --> 00:05:29,938
+Exited (0) succeeded, Exited (3) failed with exit code 3, Created never started.
+
+86
+00:05:29,938 --> 00:05:33,906
+The full table is wide; choose the columns you need:
+
+87
+00:05:33,906 --> 00:05:36,958
+Filters combine with every other option.
+
+88
+00:05:38,700 --> 00:05:40,248
+Let me try something.
+
+89
+00:05:40,248 --> 00:05:45,704
+You remember that stopped containers are "stopped", so you filter on that:
+
+90
+00:05:46,267 --> 00:05:48,917
+invalid value for state (stopped):
+
+91
+00:05:48,917 --> 00:05:54,842
+must be one of created, running, paused, restarting, removing, exited, dead.
+
+92
+00:05:54,842 --> 00:05:57,493
+The error lists every valid value:
+
+93
+00:05:57,493 --> 00:06:00,612
+Docker calls a stopped container exited.
+
+94
+00:06:00,612 --> 00:06:07,706
+Filter keys and values are fixed words, listed in docker ps --help and in the error itself.
+
+95
+00:06:09,467 --> 00:06:11,266
+Here is the fix.
+
+96
+00:06:12,000 --> 00:06:13,713
+Got it.
+
+97
+00:06:13,713 --> 00:06:16,464
+What do I need to remember?
+
+98
+00:06:16,000 --> 00:06:18,034
+docker ps:
+
+99
+00:06:18,034 --> 00:06:21,448
+running containers; docker ps -a:
+
+100
+00:06:21,448 --> 00:06:22,689
+all of them.
+
+101
+00:06:23,233 --> 00:06:31,438
+--filter status=exited (not "stopped"), name=, ancestor=, exited=CODE.
+
+102
+00:06:31,000 --> 00:06:36,474
+--format picks columns; -q gives IDs for scripts.
+
+103
+00:06:38,233 --> 00:06:40,973
+Why would I need container lifecycle?
+
+104
+00:06:41,533 --> 00:06:43,914
+A container moves through states:
+
+105
+00:06:43,914 --> 00:06:47,809
+created, running, paused, exited, and finally removed.
+
+106
+00:06:47,809 --> 00:06:51,776
+Each docker command moves it from one state to another.
+
+107
+00:06:51,776 --> 00:06:54,517
+The most important transition is stop:
+
+108
+00:06:54,517 --> 00:06:59,927
+Docker first asks the main process to shut down cleanly (a SIGTERM signal),
+
+109
+00:06:59,927 --> 00:07:04,183
+waits for a grace period, and only then kills it (SIGKILL).
+
+110
+00:07:05,933 --> 00:07:09,893
+First, a fresh practice folder for this lesson.
+
+111
+00:07:10,433 --> 00:07:13,796
+Walk an Nginx container through every state:
+
+112
+00:07:13,796 --> 00:07:14,407
+Stop it.
+
+113
+00:07:14,407 --> 00:07:20,368
+Nginx handles the stop signal and shuts down cleanly, so it exits with code 0:
+
+114
+00:07:20,933 --> 00:07:21,574
+Stop it.
+
+115
+00:07:21,574 --> 00:07:27,818
+Nginx handles the stop signal and shuts down cleanly, so it exits with code 0:
+
+116
+00:07:27,818 --> 00:07:31,100
+An exited container can be started again:
+
+117
+00:07:31,100 --> 00:07:33,822
+its writable layer is still there.
+
+118
+00:07:33,822 --> 00:07:35,743
+restart is stop + start.
+
+119
+00:07:36,300 --> 00:07:39,992
+An exited container can be started again:
+
+120
+00:07:39,992 --> 00:07:43,053
+its writable layer is still there.
+
+121
+00:07:43,053 --> 00:07:45,215
+restart is stop + start.
+
+122
+00:07:45,215 --> 00:07:48,366
+Now a process that ignores SIGTERM:
+
+123
+00:07:48,366 --> 00:07:53,229
+sleep running as the container's main process (PID 1).
+
+124
+00:07:53,229 --> 00:07:58,091
+docker stop waits for the grace period, then kills it:
+
+125
+00:07:58,091 --> 00:08:00,252
+Exit code 137 = 128 + 9:
+
+126
+00:08:00,252 --> 00:08:04,304
+the process was killed by signal 9 (SIGKILL).
+
+127
+00:08:06,067 --> 00:08:07,664
+Let me try something.
+
+128
+00:08:07,664 --> 00:08:10,781
+Remove a container that is still running:
+
+129
+00:08:11,333 --> 00:08:13,190
+cannot remove container "web":
+
+130
+00:08:13,190 --> 00:08:14,490
+container is running:
+
+131
+00:08:14,490 --> 00:08:17,646
+stop the container before removing or force remove.
+
+132
+00:08:17,646 --> 00:08:21,174
+Docker protects running containers from an accidental rm.
+
+133
+00:08:21,174 --> 00:08:22,288
+Confirm the state:
+
+134
+00:08:24,033 --> 00:08:32,303
+Stop it cleanly, then remove it (or, when you do not care about a clean shutdown, docker rm -f web):
+
+135
+00:08:34,067 --> 00:08:34,780
+Got it.
+
+136
+00:08:34,780 --> 00:08:37,531
+What do I need to remember?
+
+137
+00:08:38,067 --> 00:08:38,675
+States:
+
+138
+00:08:38,675 --> 00:08:44,581
+created → running ⇄ paused → exited → removed; run = create + start.
+
+139
+00:08:45,133 --> 00:08:51,333
+stop sends SIGTERM, waits, then SIGKILL; kill sends SIGKILL at once.
+
+140
+00:08:51,867 --> 00:08:57,866
+Exit code 137 means the process was killed, not that it finished.
+
+141
+00:08:59,600 --> 00:09:02,534
+What should I know about container names?
+
+142
+00:09:03,100 --> 00:09:11,930
+Every container has a unique ID (64 hexadecimal characters, usually shown shortened to 12) and a unique name.
+
+143
+00:09:11,930 --> 00:09:16,710
+Without --name, Docker invents one such as gallant_ritchie.
+
+144
+00:09:16,710 --> 00:09:24,244
+Choosing names makes commands readable (docker logs api instead of docker logs 3f2a9c1e0b77),
+
+145
+00:09:24,244 --> 00:09:31,860
+and on a user-defined network other containers can reach a container by its name (lesson 050).
+
+146
+00:09:33,600 --> 00:09:37,729
+One container with a random name, one with a chosen name:
+
+147
+00:09:37,729 --> 00:09:42,510
+Any command accepts the name, the ID or a unique prefix of the ID:
+
+148
+00:09:43,067 --> 00:09:48,154
+Any command accepts the name, the ID or a unique prefix of the ID:
+
+149
+00:09:48,154 --> 00:09:50,851
+Rename a container, running or not:
+
+150
+00:09:51,400 --> 00:09:54,575
+Rename a container, running or not:
+
+151
+00:09:56,333 --> 00:09:57,884
+Let me try something.
+
+152
+00:09:57,884 --> 00:10:04,233
+Start a second container with the name proxy, which an existing container already has:
+
+153
+00:10:04,767 --> 00:10:05,459
+Conflict.
+
+154
+00:10:05,459 --> 00:10:10,302
+The container name "/proxy" is already in use by container "…".
+
+155
+00:10:10,302 --> 00:10:14,146
+The error names the container that holds the name.
+
+156
+00:10:15,900 --> 00:10:16,499
+Decide:
+
+157
+00:10:16,499 --> 00:10:19,411
+is the old container still needed?
+
+158
+00:10:19,411 --> 00:10:25,234
+If not, remove it and reuse the name; if it is, choose another name.
+
+159
+00:10:27,000 --> 00:10:27,713
+Got it.
+
+160
+00:10:27,713 --> 00:10:30,464
+What do I need to remember?
+
+161
+00:10:31,000 --> 00:10:37,830
+Every container has a unique ID and a unique name; commands accept either, or an ID prefix.
+
+162
+00:10:38,367 --> 00:10:42,391
+--name chooses the name; docker rename changes it.
+
+163
+00:10:42,933 --> 00:10:45,647
+Names stay taken by exited containers:
+
+164
+00:10:45,647 --> 00:10:48,933
+remove the old container or pick another name.
+
+165
+00:10:50,667 --> 00:10:53,096
+Can you show me running Nginx?
+
+166
+00:10:53,633 --> 00:10:56,734
+So far our containers ran a command and exited.
+
+167
+00:10:56,734 --> 00:10:58,912
+A server container keeps running:
+
+168
+00:10:58,912 --> 00:11:04,454
+its main process (here the Nginx web server) waits for requests until it is stopped.
+
+169
+00:11:04,454 --> 00:11:08,743
+We run one in the background with -d, check that it serves pages,
+
+170
+00:11:08,743 --> 00:11:12,174
+and discover the first rule of container networking:
+
+171
+00:11:12,174 --> 00:11:18,178
+a server inside a container is not reachable from your computer until you publish its port.
+
+172
+00:11:19,933 --> 00:11:23,893
+First, a fresh practice folder for this lesson.
+
+173
+00:11:24,433 --> 00:11:27,833
+Start Nginx in the background (-d, detached):
+
+174
+00:11:27,833 --> 00:11:34,254
+docker run -d prints the new container's ID and returns at once; Nginx keeps running.
+
+175
+00:11:34,254 --> 00:11:38,863
+Its startup messages are in the container's log (lesson 014):
+
+176
+00:11:39,400 --> 00:11:45,674
+docker run -d prints the new container's ID and returns at once; Nginx keeps running.
+
+177
+00:11:45,674 --> 00:11:50,176
+Its startup messages are in the container's log (lesson 014):
+
+178
+00:11:50,176 --> 00:11:51,210
+Is it serving?
+
+179
+00:11:51,767 --> 00:11:52,789
+Is it serving?
+
+180
+00:11:52,789 --> 00:11:54,760
+Ask from another container:
+
+181
+00:11:54,760 --> 00:11:59,652
+containers on the same Docker network can reach each other's ports:
+
+182
+00:11:59,652 --> 00:12:03,157
+Replace the default page with the lab's website.
+
+183
+00:12:03,157 --> 00:12:07,246
+docker cp copies files into a container, running or not:
+
+184
+00:12:09,000 --> 00:12:10,702
+Let me try something.
+
+185
+00:12:10,702 --> 00:12:13,945
+Open the website from your own computer:
+
+186
+00:12:14,500 --> 00:12:21,814
+The server works (other containers get the page), but nothing on your computer listens on port 8080:
+
+187
+00:12:21,814 --> 00:12:32,346
+curl gets no connection (Failed to connect … Couldn't connect to server; with Docker Desktop on Windows it can also be Empty reply from server).
+
+188
+00:12:32,346 --> 00:12:34,175
+Look at the PORTS column:
+
+189
+00:12:35,933 --> 00:12:39,469
+A container's ports are fixed when it is created,
+
+190
+00:12:39,469 --> 00:12:46,324
+so replace it with one that publishes port 80 as 8080 on your computer (next lesson in detail),
+
+191
+00:12:46,324 --> 00:12:48,273
+and copy the website again:
+
+192
+00:12:50,033 --> 00:12:50,747
+Got it.
+
+193
+00:12:50,747 --> 00:12:53,498
+What do I need to remember?
+
+194
+00:12:54,033 --> 00:12:57,918
+docker run -d runs a server container in the background.
+
+195
+00:12:58,467 --> 00:13:03,796
+80/tcp in docker ps is a declared port, not a published one:
+
+196
+00:13:03,796 --> 00:13:06,016
+the host cannot reach it.
+
+197
+00:13:06,567 --> 00:13:10,591
+Other containers can reach it by IP on Docker's network.
+
+198
+00:13:12,333 --> 00:13:15,358
+I keep hearing about port mapping.
+
+199
+00:13:15,358 --> 00:13:17,048
+What is it, really?
+
+200
+00:13:17,600 --> 00:13:21,339
+-p HOST_PORT:CONTAINER_PORT publishes a container's port:
+
+201
+00:13:21,339 --> 00:13:28,816
+Docker listens on HOST_PORT of your computer and forwards every connection to CONTAINER_PORT inside the container.
+
+202
+00:13:28,816 --> 00:13:37,671
+The two numbers are independent, so ten Nginx containers can all listen on port 80 inside while each one gets a different port outside.
+
+203
+00:13:37,671 --> 00:13:41,934
+A host port, however, can belong to only one container at a time.
+
+204
+00:13:43,700 --> 00:13:47,789
+Two containers, the same container port, different host ports:
+
+205
+00:13:47,789 --> 00:13:54,120
+Each host port reaches its own container (the Server header shows which Nginx version answered):
+
+206
+00:13:54,667 --> 00:14:00,220
+Each host port reaches its own container (the Server header shows which Nginx version answered):
+
+207
+00:14:00,220 --> 00:14:02,996
+docker port lists a container's published ports:
+
+208
+00:14:03,533 --> 00:14:06,604
+docker port lists a container's published ports:
+
+209
+00:14:06,604 --> 00:14:12,618
+Publish on the loopback interface only, so that other machines on your network cannot connect:
+
+210
+00:14:14,367 --> 00:14:16,353
+Let me try something.
+
+211
+00:14:16,353 --> 00:14:20,326
+A third website should also use port 8080:
+
+212
+00:14:20,867 --> 00:14:23,454
+Bind for 0.0.0.0:8080 failed:
+
+213
+00:14:23,454 --> 00:14:25,773
+port is already allocated:
+
+214
+00:14:25,773 --> 00:14:28,271
+one host port, one listener.
+
+215
+00:14:28,271 --> 00:14:36,032
+Docker created the container (it is in docker ps -a as Created) but could not start it.
+
+216
+00:14:36,032 --> 00:14:38,441
+Find out who owns the port.
+
+217
+00:14:40,200 --> 00:14:44,125
+Remove the half-created container and use a free host port:
+
+218
+00:14:45,867 --> 00:14:46,580
+Got it.
+
+219
+00:14:46,580 --> 00:14:49,331
+What do I need to remember?
+
+220
+00:14:49,867 --> 00:14:55,821
+-p HOST:CONTAINER forwards a host port to a container port; the numbers are independent.
+
+221
+00:14:56,367 --> 00:15:01,538
+One host port belongs to one container (or program) at a time:
+
+222
+00:15:01,538 --> 00:15:03,706
+port is already allocated.
+
+223
+00:15:04,267 --> 00:15:13,556
+-p 127.0.0.1:… restricts access to the local machine; -p PORT picks a random host port.
+
+224
+00:15:15,300 --> 00:15:18,360
+How does running multiple containers work?
+
+225
+00:15:18,900 --> 00:15:21,724
+Real systems are several containers:
+
+226
+00:15:21,724 --> 00:15:24,784
+a website, an API, a cache, a database.
+
+227
+00:15:24,784 --> 00:15:27,138
+Each container is independent:
+
+228
+00:15:27,138 --> 00:15:32,002
+its own process, its own file system, its own published ports.
+
+229
+00:15:32,002 --> 00:15:37,729
+This lesson runs several at once and shows how to manage them as a group,
+
+230
+00:15:37,729 --> 00:15:42,044
+with labels and filters, instead of one name at a time.
+
+231
+00:15:43,800 --> 00:15:48,716
+Start two websites with different content and a Redis cache,
+
+232
+00:15:48,716 --> 00:15:54,615
+all marked with the same label (a key=value tag you choose; lesson 101):
+
+233
+00:15:55,167 --> 00:15:59,382
+sh -c "… && exec nginx -g 'daemon off;'" writes a page,
+
+234
+00:15:59,382 --> 00:16:05,666
+then replaces the shell with Nginx in the foreground (the image's normal command).
+
+235
+00:16:05,666 --> 00:16:08,655
+Each site answers with its own content:
+
+236
+00:16:08,655 --> 00:16:10,801
+List the group by its label:
+
+237
+00:16:11,367 --> 00:16:13,398
+List the group by its label:
+
+238
+00:16:13,398 --> 00:16:16,226
+Stop and start the whole group at once:
+
+239
+00:16:17,967 --> 00:16:19,641
+Let me try something.
+
+240
+00:16:19,641 --> 00:16:23,786
+A cleanup script stops every container of a project.
+
+241
+00:16:24,333 --> 00:16:27,439
+'docker stop' requires at least 1 argument:
+
+242
+00:16:27,439 --> 00:16:34,444
+the filter matched nothing, so $(…) expanded to nothing and the command became plain docker stop.
+
+243
+00:16:34,444 --> 00:16:38,128
+Run the inner command alone to see what it returns:
+
+244
+00:16:39,867 --> 00:16:43,531
+Only call docker stop when there is something to stop:
+
+245
+00:16:45,267 --> 00:16:45,980
+Got it.
+
+246
+00:16:45,980 --> 00:16:48,731
+What do I need to remember?
+
+247
+00:16:49,267 --> 00:16:51,666
+Each container is independent:
+
+248
+00:16:51,666 --> 00:16:55,106
+its own process, files and published ports.
+
+249
+00:16:55,667 --> 00:17:02,071
+Labels group containers; --filter label=… with -q acts on the whole group.
+
+250
+00:17:02,633 --> 00:17:05,490
+$(docker ps -q …) can be empty:
+
+251
+00:17:05,490 --> 00:17:09,268
+guard commands that need at least one ID.
+
+252
+00:17:11,033 --> 00:17:13,593
+Why would I need container logs?
+
+253
+00:17:14,133 --> 00:17:25,180
+Docker captures everything a container's main process writes to standard output (stdout) and standard error (stderr) and keeps it as the container's log.
+
+254
+00:17:25,180 --> 00:17:29,439
+docker logs reads it, even after the container has stopped.
+
+255
+00:17:29,439 --> 00:17:34,349
+This only works if the application writes its logs to stdout/stderr:
+
+256
+00:17:34,349 --> 00:17:39,259
+logs written to a file inside the container are invisible to Docker.
+
+257
+00:17:39,259 --> 00:17:44,818
+That is why official images such as Nginx redirect their log files to stdout.
+
+258
+00:17:46,567 --> 00:17:52,746
+A container that writes some lines to stdout and an error to stderr, then exits:
+
+259
+00:17:53,300 --> 00:17:57,303
+The container has already exited, but its log is still there:
+
+260
+00:17:57,303 --> 00:18:02,751
+The error may appear before the last order line although the program wrote it last:
+
+261
+00:18:02,751 --> 00:18:09,707
+stdout and stderr are two separate streams, and Docker does not guarantee the order of lines between them.
+
+262
+00:18:09,707 --> 00:18:12,530
+Within one stream the order is always kept.
+
+263
+00:18:13,067 --> 00:18:18,535
+The error may appear before the last order line although the program wrote it last:
+
+264
+00:18:18,535 --> 00:18:25,518
+stdout and stderr are two separate streams, and Docker does not guarantee the order of lines between them.
+
+265
+00:18:25,518 --> 00:18:28,351
+Within one stream the order is always kept.
+
+266
+00:18:30,100 --> 00:18:31,777
+Let me try something.
+
+267
+00:18:31,777 --> 00:18:36,410
+An application writes its log to a file instead of stdout:
+
+268
+00:18:36,967 --> 00:18:41,044
+The container is running, but docker logs is empty.
+
+269
+00:18:41,044 --> 00:18:45,441
+Docker only sees stdout and stderr of the main process.
+
+270
+00:18:45,441 --> 00:18:52,636
+Look inside the container (docker exec runs a command in a running container, lesson 015):
+
+271
+00:18:54,400 --> 00:18:55,584
+Write to stdout.
+
+272
+00:18:55,584 --> 00:19:00,690
+When you cannot change the application, do what the Nginx image does:
+
+273
+00:19:00,690 --> 00:19:04,464
+make the log file a link to the container's stdout:
+
+274
+00:19:06,200 --> 00:19:06,913
+Got it.
+
+275
+00:19:06,913 --> 00:19:09,665
+What do I need to remember?
+
+276
+00:19:10,200 --> 00:19:16,929
+docker logs shows what the main process wrote to stdout and stderr, even after it exited.
+
+277
+00:19:17,467 --> 00:19:21,951
+--tail, -t, --since and -f narrow and follow the log.
+
+278
+00:19:22,500 --> 00:19:27,954
+Logs written to files inside the container are invisible to Docker:
+
+279
+00:19:27,954 --> 00:19:31,779
+log to stdout, or link the file to /dev/stdout.
+
+280
+00:19:33,533 --> 00:19:37,953
+What should I know about running commands in containers (exec)?
+
+281
+00:19:38,500 --> 00:19:42,982
+docker exec starts an additional process inside a running container:
+
+282
+00:19:42,982 --> 00:19:47,135
+it shares the container's file system, network and environment.
+
+283
+00:19:47,135 --> 00:19:49,376
+It is the tool for looking inside:
+
+284
+00:19:49,376 --> 00:19:53,265
+read a configuration file, check what the application sees,
+
+285
+00:19:53,265 --> 00:19:58,736
+test a connection from the container's point of view, or open an interactive shell.
+
+286
+00:19:58,736 --> 00:20:01,834
+It does not restart or change the main process,
+
+287
+00:20:01,834 --> 00:20:06,514
+and whatever you change by hand is lost when the container is replaced.
+
+288
+00:20:08,267 --> 00:20:12,226
+First, a fresh practice folder for this lesson.
+
+289
+00:20:12,767 --> 00:20:15,891
+Run single commands inside the container:
+
+290
+00:20:15,891 --> 00:20:19,245
+The container's processes, seen from inside:
+
+291
+00:20:19,245 --> 00:20:24,656
+the main process is PID 1, and ps itself appears because exec added it:
+
+292
+00:20:25,200 --> 00:20:28,489
+The container's processes, seen from inside:
+
+293
+00:20:28,489 --> 00:20:33,795
+the main process is PID 1, and ps itself appears because exec added it:
+
+294
+00:20:33,795 --> 00:20:40,447
+Nginx starts one worker per CPU the engine has, so the list is longer on bigger machines.
+
+295
+00:20:40,447 --> 00:20:45,605
+exec sees the container's environment variables, not your computer's:
+
+296
+00:20:46,167 --> 00:20:52,350
+Nginx starts one worker per CPU the engine has, so the list is longer on bigger machines.
+
+297
+00:20:52,350 --> 00:20:57,145
+exec sees the container's environment variables, not your computer's:
+
+298
+00:20:57,145 --> 00:21:02,286
+Test the server from inside the container (the container's own localhost):
+
+299
+00:21:04,033 --> 00:21:05,773
+Let me try something.
+
+300
+00:21:05,773 --> 00:21:09,418
+Open a Bash shell, as you would on a server:
+
+301
+00:21:09,967 --> 00:21:10,378
+exec:
+
+302
+00:21:10,378 --> 00:21:10,954
+"bash":
+
+303
+00:21:10,954 --> 00:21:13,833
+executable file not found in $PATH:
+
+304
+00:21:13,833 --> 00:21:19,344
+the container started, but the program does not exist in the image.
+
+305
+00:21:19,344 --> 00:21:23,787
+Small images (Alpine, distroless) do not include Bash.
+
+306
+00:21:23,787 --> 00:21:26,501
+Check which shells the image has:
+
+307
+00:21:28,267 --> 00:21:30,686
+Use the shell the image has:
+
+308
+00:21:32,433 --> 00:21:33,147
+Got it.
+
+309
+00:21:33,147 --> 00:21:35,898
+What do I need to remember?
+
+310
+00:21:36,433 --> 00:21:40,739
+docker exec runs an extra process in a running container:
+
+311
+00:21:40,739 --> 00:21:43,458
+same files, network and environment.
+
+312
+00:21:44,000 --> 00:21:50,929
+-it for interactive shells; sh -c '…' for pipes and redirections inside the container.
+
+313
+00:21:51,467 --> 00:21:53,552
+executable file not found:
+
+314
+00:21:53,552 --> 00:21:58,766
+the program is not in the image; small images often have only sh.
+
+315
+00:22:00,500 --> 00:22:03,399
+Can you show me inspecting containers?
+
+316
+00:22:03,933 --> 00:22:09,285
+docker inspect prints everything Docker knows about a container as JSON:
+
+317
+00:22:09,285 --> 00:22:12,779
+its configuration (image, command, environment,
+
+318
+00:22:12,779 --> 00:22:15,901
+ports, mounts), its state (running or not,
+
+319
+00:22:15,901 --> 00:22:22,889
+exit code, start and finish times, whether it was killed for memory) and its network settings.
+
+320
+00:22:22,889 --> 00:22:29,133
+It is the most precise answer to "what is this container, and what happened to it?".
+
+321
+00:22:29,133 --> 00:22:32,478
+--format extracts exactly the field you need.
+
+322
+00:22:34,233 --> 00:22:38,193
+First, a fresh practice folder for this lesson.
+
+323
+00:22:38,733 --> 00:22:42,910
+The full document is long (around 250 lines).
+
+324
+00:22:42,910 --> 00:22:44,210
+The beginning:
+
+325
+00:22:44,210 --> 00:22:47,273
+Pick single fields with --format:
+
+326
+00:22:47,833 --> 00:22:50,504
+Pick single fields with --format:
+
+327
+00:22:50,504 --> 00:22:59,081
+.Config.Env contains your -e APP_ENV=staging and the variables defined by the image (PATH, NGINX_VERSION).
+
+328
+00:22:59,081 --> 00:23:01,913
+Published ports and the IP address:
+
+329
+00:23:02,467 --> 00:23:11,352
+.Config.Env contains your -e APP_ENV=staging and the variables defined by the image (PATH, NGINX_VERSION).
+
+330
+00:23:11,352 --> 00:23:14,286
+Published ports and the IP address:
+
+331
+00:23:16,033 --> 00:23:17,707
+Let me try something.
+
+332
+00:23:17,707 --> 00:23:22,488
+A new service is deployed, and stops shortly after starting:
+
+333
+00:23:23,033 --> 00:23:25,381
+Ask Docker how it ended.
+
+334
+00:23:25,381 --> 00:23:33,698
+ExitCode 3 means the application chose to exit (a crash by a signal would be 128 + n,
+
+335
+00:23:33,698 --> 00:23:38,003
+like 137); OOMKilled false rules out memory:
+
+336
+00:23:39,767 --> 00:23:46,321
+Recreate the container with the variable (lesson 059 covers configuration in depth):
+
+337
+00:23:48,067 --> 00:23:48,780
+Got it.
+
+338
+00:23:48,780 --> 00:23:51,531
+What do I need to remember?
+
+339
+00:23:52,067 --> 00:23:56,213
+docker inspect is the full truth about a container:
+
+340
+00:23:56,213 --> 00:23:58,896
+configuration, state, networking.
+
+341
+00:23:59,433 --> 00:24:07,778
+--format with Go templates extracts fields; json, range and index handle objects, lists and maps.
+
+342
+00:24:08,333 --> 00:24:10,400
+For a stopped container:
+
+343
+00:24:10,400 --> 00:24:17,463
+exit code and OOM flag (inspect), then the message (logs), then the configuration.

@@ -1,0 +1,483 @@
+1
+00:00:04,800 --> 00:00:07,184
+Can you show me HEALTHCHECK?
+
+2
+00:00:07,733 --> 00:00:11,343
+Docker knows whether a container's process is running.
+
+3
+00:00:11,343 --> 00:00:14,485
+It does not know whether the application works.
+
+4
+00:00:14,485 --> 00:00:20,301
+A health check is a command that Docker runs inside the container at regular intervals:
+
+5
+00:00:20,301 --> 00:00:24,513
+exit status 0 means healthy, anything else counts as a failure.
+
+6
+00:00:26,267 --> 00:00:30,226
+First, a fresh practice folder for this lesson.
+
+7
+00:00:30,767 --> 00:00:36,731
+A health check can also be given at start time, without changing the image.
+
+8
+00:00:36,731 --> 00:00:38,401
+Start nginx with one:
+
+9
+00:00:38,967 --> 00:00:45,214
+Right after the start the status is starting; after the first successful check it is healthy.
+
+10
+00:00:45,214 --> 00:00:47,901
+docker ps shows it in the status column:
+
+11
+00:00:47,901 --> 00:00:53,476
+The details, including the output of the last checks, are in the container's state:
+
+12
+00:00:54,033 --> 00:00:59,843
+The details, including the output of the last checks, are in the container's state:
+
+13
+00:01:01,600 --> 00:01:03,418
+Let me try something.
+
+14
+00:01:03,418 --> 00:01:06,879
+The broken/ image checks the wrong port.
+
+15
+00:01:07,433 --> 00:01:12,038
+The container is Up, and nginx actually serves pages:
+
+16
+00:01:13,800 --> 00:01:19,166
+The health check must use the container's own port (see fixed/Dockerfile).
+
+17
+00:01:19,166 --> 00:01:22,284
+Replace the container with the fixed image:
+
+18
+00:01:24,033 --> 00:01:24,747
+Got it.
+
+19
+00:01:24,747 --> 00:01:27,498
+What do I need to remember?
+
+20
+00:01:28,033 --> 00:01:33,603
+A health check is a command run inside the container; exit 0 = healthy.
+
+21
+00:01:34,167 --> 00:01:34,805
+Status:
+
+22
+00:01:34,805 --> 00:01:40,826
+starting → healthy or, after retries failures in a row, unhealthy.
+
+23
+00:01:41,367 --> 00:01:43,555
+Check from inside the container:
+
+24
+00:01:43,555 --> 00:01:47,796
+use the container's port, and a tool that exists in the image.
+
+25
+00:01:49,533 --> 00:01:53,116
+I keep hearing about running is not healthy.
+
+26
+00:01:53,116 --> 00:01:54,663
+What is it, really?
+
+27
+00:01:55,200 --> 00:02:00,080
+docker ps says Up, the process exists, and yet nobody gets an answer:
+
+28
+00:02:00,080 --> 00:02:06,798
+the application is stuck (a deadlock, a request waiting forever, an exhausted connection pool).
+
+29
+00:02:06,798 --> 00:02:12,809
+Docker restarts containers only when their process exits; a hung process never exits.
+
+30
+00:02:12,809 --> 00:02:17,123
+This lesson shows the difference between running and healthy,
+
+31
+00:02:17,123 --> 00:02:22,709
+how to detect a hung application, and why Docker on its own does not repair it.
+
+32
+00:02:24,467 --> 00:02:28,426
+First, a fresh practice folder for this lesson.
+
+33
+00:02:28,967 --> 00:02:35,236
+Build the single version, start it with a restart policy, and wait until it is healthy:
+
+34
+00:02:35,800 --> 00:02:37,400
+Let's run it.
+
+35
+00:02:39,133 --> 00:02:41,084
+Let me try something.
+
+36
+00:02:41,084 --> 00:02:43,778
+One user requests the report:
+
+37
+00:02:44,333 --> 00:02:48,098
+Now nothing answers, not even /health:
+
+38
+00:02:49,833 --> 00:02:50,572
+Short term:
+
+39
+00:02:50,572 --> 00:02:57,423
+restart the hung container (this is what an orchestrator would do automatically for an unhealthy one):
+
+40
+00:02:59,167 --> 00:02:59,880
+Got it.
+
+41
+00:02:59,880 --> 00:03:02,631
+What do I need to remember?
+
+42
+00:03:03,167 --> 00:03:08,362
+running describes the process; healthy describes the application.
+
+43
+00:03:08,362 --> 00:03:09,801
+They can disagree.
+
+44
+00:03:10,367 --> 00:03:16,961
+Restart policies act only when the process exits; a hung process is never restarted by them.
+
+45
+00:03:17,500 --> 00:03:20,618
+Find hung containers with health checks:
+
+46
+00:03:20,618 --> 00:03:23,424
+docker ps --filter health=unhealthy.
+
+47
+00:03:25,167 --> 00:03:27,616
+How does logs in depth work?
+
+48
+00:03:28,167 --> 00:03:37,360
+Docker captures everything a container's main process writes to standard output (stdout) and standard error (stderr),
+
+49
+00:03:37,360 --> 00:03:43,174
+and stores it through a logging driver (by default json-file, lesson 102).
+
+50
+00:03:43,174 --> 00:03:45,217
+docker logs reads it back.
+
+51
+00:03:45,217 --> 00:03:52,760
+Lesson 014 covered the basics; this lesson covers the parts that matter when something is wrong:
+
+52
+00:03:52,760 --> 00:03:59,595
+the two streams, time filters, timestamps, and the most common reason logs are missing:
+
+53
+00:03:59,595 --> 00:04:00,931
+output buffering.
+
+54
+00:04:02,667 --> 00:04:06,626
+First, a fresh practice folder for this lesson.
+
+55
+00:04:07,167 --> 00:04:13,343
+nginx writes its access log to stdout and its error/notice log to stderr.
+
+56
+00:04:13,343 --> 00:04:15,966
+Start it and make two requests:
+
+57
+00:04:16,500 --> 00:04:20,430
+The last two lines, with Docker's timestamps:
+
+58
+00:04:20,967 --> 00:04:24,420
+The last two lines, with Docker's timestamps:
+
+59
+00:04:24,420 --> 00:04:27,489
+docker logs keeps the two streams apart:
+
+60
+00:04:27,489 --> 00:04:32,861
+the container's stdout goes to your stdout, its stderr to your stderr.
+
+61
+00:04:32,861 --> 00:04:36,391
+Show only one of them by discarding the other:
+
+62
+00:04:38,133 --> 00:04:39,708
+Let me try something.
+
+63
+00:04:39,708 --> 00:04:47,433
+Start the worker, which processes an order every half second, and look at its logs after a few seconds:
+
+64
+00:04:47,967 --> 00:04:50,066
+The process is running:
+
+65
+00:04:51,800 --> 00:04:54,408
+Tell Python not to buffer:
+
+66
+00:04:54,408 --> 00:04:58,018
+PYTHONUNBUFFERED=1 (in a Dockerfile:
+
+67
+00:04:58,018 --> 00:05:01,829
+ENV PYTHONUNBUFFERED=1; or python -u):
+
+68
+00:05:03,567 --> 00:05:04,280
+Got it.
+
+69
+00:05:04,280 --> 00:05:07,031
+What do I need to remember?
+
+70
+00:05:07,567 --> 00:05:14,741
+Docker captures the main process's stdout and stderr; docker logs keeps them as separate streams.
+
+71
+00:05:15,300 --> 00:05:20,764
+--tail, --since, --until, -t and -f narrow down what you read.
+
+72
+00:05:21,300 --> 00:05:24,565
+Missing log lines with a running process:
+
+73
+00:05:24,565 --> 00:05:30,299
+suspect output buffering (PYTHONUNBUFFERED=1) or logs written to a file.
+
+74
+00:05:32,033 --> 00:05:34,498
+Why would I need docker stats?
+
+75
+00:05:35,033 --> 00:05:38,822
+docker stats shows, for every running container,
+
+76
+00:05:38,822 --> 00:05:46,161
+how much CPU, memory, network and disk I/O it uses right now, and how many processes it runs.
+
+77
+00:05:46,161 --> 00:05:49,870
+It reads the numbers from the kernel's cgroups,
+
+78
+00:05:49,870 --> 00:05:54,842
+the same mechanism that enforces the limits of lessons 097–099.
+
+79
+00:05:54,842 --> 00:05:59,657
+When a host is slow, docker stats answers the first question:
+
+80
+00:05:59,657 --> 00:06:01,393
+which container is it?
+
+81
+00:06:03,133 --> 00:06:07,443
+Start an idle web server and a small cache with a memory limit:
+
+82
+00:06:08,000 --> 00:06:14,470
+One snapshot (without --no-stream, docker stats refreshes every second until Ctrl+C):
+
+83
+00:06:14,470 --> 00:06:20,178
+The cache container's memory limit is the 64 MiB you set; web has no limit,
+
+84
+00:06:20,178 --> 00:06:26,420
+so its limit is the memory of the whole Docker engine (on Docker Desktop, its VM).
+
+85
+00:06:28,167 --> 00:06:29,784
+Let me try something.
+
+86
+00:06:29,784 --> 00:06:32,712
+Somebody starts a "worker" with a bug:
+
+87
+00:06:32,712 --> 00:06:35,331
+an endless loop that never sleeps.
+
+88
+00:06:35,867 --> 00:06:42,331
+Take a snapshot and sort by CPU (give the worker a few seconds to show up in the measurement):
+
+89
+00:06:44,067 --> 00:06:47,127
+Two steps, as in a real incident.
+
+90
+00:06:47,127 --> 00:06:54,176
+Contain it immediately with a CPU limit, without restarting it (lesson 097):
+
+91
+00:06:55,933 --> 00:06:56,647
+Got it.
+
+92
+00:06:56,647 --> 00:06:59,398
+What do I need to remember?
+
+93
+00:06:59,933 --> 00:07:08,588
+docker stats shows per-container CPU, memory (usage / limit), network, disk I/O and process count.
+
+94
+00:07:09,133 --> 00:07:14,368
+--no-stream and --format make it scriptable; sort finds the top consumer.
+
+95
+00:07:14,933 --> 00:07:23,428
+CPU 100% = one full core; the memory limit column shows the container's limit, or the engine's memory.
+
+96
+00:07:25,167 --> 00:07:27,956
+What should I know about docker events?
+
+97
+00:07:28,500 --> 00:07:32,907
+The Docker engine records an event for everything that happens:
+
+98
+00:07:32,907 --> 00:07:37,034
+a container is created, started, dies (with its exit code),
+
+99
+00:07:37,034 --> 00:07:40,951
+is killed by the kernel for using too much memory (oom),
+
+100
+00:07:40,951 --> 00:07:47,387
+changes health status, is destroyed; images are pulled, networks connected, volumes mounted.
+
+101
+00:07:47,387 --> 00:07:51,374
+docker events streams them live or replays a time window.
+
+102
+00:07:51,374 --> 00:07:58,159
+When a container "keeps restarting" or "disappeared", the events tell you what happened and when.
+
+103
+00:07:59,900 --> 00:08:03,587
+Do a full life cycle, then replay its events.
+
+104
+00:08:03,587 --> 00:08:07,929
+--until with the current time (in seconds since 1970,
+
+105
+00:08:07,929 --> 00:08:14,975
+date +%s) makes docker events print the window and exit, instead of streaming forever:
+
+106
+00:08:14,975 --> 00:08:17,515
+Every event carries attributes:
+
+107
+00:08:17,515 --> 00:08:19,399
+for die, the exit code:
+
+108
+00:08:19,933 --> 00:08:22,663
+Every event carries attributes:
+
+109
+00:08:22,663 --> 00:08:24,688
+for die, the exit code:
+
+110
+00:08:26,433 --> 00:08:28,017
+Let me try something.
+
+111
+00:08:28,017 --> 00:08:32,468
+A service needs a database address and crashes without one.
+
+112
+00:08:33,033 --> 00:08:36,074
+docker ps shows only the current state.
+
+113
+00:08:36,074 --> 00:08:38,257
+The events show the history:
+
+114
+00:08:38,257 --> 00:08:41,688
+how often it died, and with which exit code:
+
+115
+00:08:43,433 --> 00:08:48,013
+Give the service its configuration (lesson 059):
+
+116
+00:08:49,767 --> 00:08:50,480
+Got it.
+
+117
+00:08:50,480 --> 00:08:53,231
+What do I need to remember?
+
+118
+00:08:53,767 --> 00:08:58,034
+The engine emits an event for every change:
+
+119
+00:08:58,034 --> 00:09:03,691
+create, start, die, oom, kill, health_status, destroy, ….
+
+120
+00:09:04,233 --> 00:09:10,103
+--since / --until replay a window; without --until, the command streams forever.
+
+121
+00:09:10,667 --> 00:09:18,706
+Filter by container=, type=, event=; read attributes such as exitCode with --format.

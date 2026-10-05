@@ -1,0 +1,5 @@
+0:00 Lesson 001 · What is Docker?
+2:03 Lesson 002 · Why containers?
+4:14 Lesson 003 · Docker vs virtual machines
+7:01 Lesson 004 · Docker architecture
+9:27 Lesson 005 · Installing Docker

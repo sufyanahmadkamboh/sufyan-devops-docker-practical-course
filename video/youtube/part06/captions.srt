@@ -1,0 +1,671 @@
+1
+00:00:04,800 --> 00:00:09,134
+Can you show me containerizing a Node.js application?
+
+2
+00:00:09,700 --> 00:00:15,116
+How to write a proper Dockerfile for a Node.js service, step by step:
+
+3
+00:00:15,116 --> 00:00:22,416
+an official, pinned base image, a reproducible dependency install from the lockfile (npm ci),
+
+4
+00:00:22,416 --> 00:00:25,635
+the cache-friendly order from lesson 039,
+
+5
+00:00:25,635 --> 00:00:32,228
+an unprivileged user, and a start command that lets Node.js receive the stop signal.
+
+6
+00:00:32,228 --> 00:00:36,859
+The same pattern works for Express, Fastify or NestJS APIs.
+
+7
+00:00:38,600 --> 00:00:42,559
+First, a fresh practice folder for this lesson.
+
+8
+00:00:43,100 --> 00:00:45,124
+Build and run the image:
+
+9
+00:00:45,667 --> 00:00:49,242
+Check the two properties the Dockerfile promised:
+
+10
+00:00:49,242 --> 00:00:53,036
+the process runs as node, not root, and it is PID 1:
+
+11
+00:00:53,600 --> 00:00:57,175
+Check the two properties the Dockerfile promised:
+
+12
+00:00:57,175 --> 00:01:00,969
+the process runs as node, not root, and it is PID 1:
+
+13
+00:01:02,733 --> 00:01:04,489
+Let me try something.
+
+14
+00:01:04,489 --> 00:01:10,928
+A teammate deletes package-lock.json ("it is generated anyway") and rebuilds:
+
+15
+00:01:11,467 --> 00:01:15,173
+npm ci refuses to run without a lockfile, by design:
+
+16
+00:01:15,173 --> 00:01:21,873
+it installs exactly what the lockfile records, so that every build installs the same versions.
+
+17
+00:01:21,873 --> 00:01:27,504
+npm install would silently resolve the newest versions allowed by package.json,
+
+18
+00:01:27,504 --> 00:01:31,995
+and two builds of the same commit could contain different code.
+
+19
+00:01:31,995 --> 00:01:34,846
+The lockfile is part of the source code:
+
+20
+00:01:36,600 --> 00:01:39,788
+Restore the lockfile (in a real project:
+
+21
+00:01:39,788 --> 00:01:42,338
+git checkout package-lock.json).
+
+22
+00:01:42,338 --> 00:01:48,315
+If a project really has none, generate it once with Node.js in a container,
+
+23
+00:01:48,315 --> 00:01:52,299
+without installing Node.js locally, and commit it:
+
+24
+00:01:54,033 --> 00:01:54,747
+Got it.
+
+25
+00:01:54,747 --> 00:01:57,498
+What do I need to remember?
+
+26
+00:01:58,033 --> 00:02:06,543
+Base image pinned, manifests copied first, npm ci --omit=dev from the lockfile, code last.
+
+27
+00:02:07,100 --> 00:02:13,894
+Run as the image's node user, with an exec-form CMD so Node.js receives SIGTERM.
+
+28
+00:02:14,433 --> 00:02:16,507
+Commit package-lock.json:
+
+29
+00:02:16,507 --> 00:02:21,153
+without it npm ci fails and builds are not reproducible.
+
+30
+00:02:22,900 --> 00:02:27,452
+I keep hearing about containerizing a Python application.
+
+31
+00:02:27,452 --> 00:02:28,969
+What is it, really?
+
+32
+00:02:29,533 --> 00:02:37,538
+How to containerize a Python web API (Flask here; FastAPI works the same way with uvicorn instead of gunicorn):
+
+33
+00:02:37,538 --> 00:02:42,874
+a slim official base image, pinned requirements installed before the code,
+
+34
+00:02:42,874 --> 00:02:46,191
+two Python settings that matter in containers,
+
+35
+00:02:46,191 --> 00:02:51,023
+an unprivileged user, and a production server listening on 0.0.0.0.
+
+36
+00:02:51,023 --> 00:02:58,018
+The last point is the most common reason a containerized Python app "runs but cannot be reached".
+
+37
+00:02:59,767 --> 00:03:03,726
+First, a fresh practice folder for this lesson.
+
+38
+00:03:04,267 --> 00:03:05,866
+Let's run it.
+
+39
+00:03:06,400 --> 00:03:12,904
+Gunicorn's start-up lines appear in the logs immediately, thanks to PYTHONUNBUFFERED=1:
+
+40
+00:03:13,467 --> 00:03:19,971
+Gunicorn's start-up lines appear in the logs immediately, thanks to PYTHONUNBUFFERED=1:
+
+41
+00:03:21,733 --> 00:03:23,209
+Let me try something.
+
+42
+00:03:23,209 --> 00:03:29,181
+A developer starts the image with Flask's own development server instead of gunicorn,
+
+43
+00:03:29,181 --> 00:03:31,078
+as they do on their laptop:
+
+44
+00:03:31,633 --> 00:03:37,020
+The container is running, the port is published, and still no response.
+
+45
+00:03:37,020 --> 00:03:40,358
+Read what the application says about itself:
+
+46
+00:03:42,100 --> 00:03:45,780
+Listen on all interfaces, 0.0.0.0.
+
+47
+00:03:45,780 --> 00:03:57,255
+For the development server that is --host 0.0.0.0; the image's default command (gunicorn) already does it:
+
+48
+00:03:59,000 --> 00:03:59,713
+Got it.
+
+49
+00:03:59,713 --> 00:04:02,465
+What do I need to remember?
+
+50
+00:04:03,000 --> 00:04:10,054
+Slim base image, requirements before code, --no-cache-dir, an unprivileged user.
+
+51
+00:04:10,600 --> 00:04:15,769
+PYTHONUNBUFFERED=1 makes logs appear in docker logs immediately.
+
+52
+00:04:16,333 --> 00:04:23,223
+Run a production server (gunicorn, uvicorn), not the framework's development server.
+
+53
+00:04:24,967 --> 00:04:28,406
+How does containerizing a Go application work?
+
+54
+00:04:28,967 --> 00:04:31,260
+Go compiles to a single binary.
+
+55
+00:04:31,260 --> 00:04:33,035
+Containerizing it means:
+
+56
+00:04:33,035 --> 00:04:38,582
+compile inside the official Go image (no Go installation on your computer),
+
+57
+00:04:38,582 --> 00:04:43,168
+with the module files copied first so dependencies are cached,
+
+58
+00:04:43,168 --> 00:04:48,420
+as a static binary (CGO_ENABLED=0), and run it as an unprivileged user.
+
+59
+00:04:48,420 --> 00:04:53,968
+This lesson builds a working single-stage image and measures what it costs:
+
+60
+00:04:53,968 --> 00:04:57,666
+the whole Go toolchain ships with an 8 MB program.
+
+61
+00:04:59,400 --> 00:05:03,359
+First, a fresh practice folder for this lesson.
+
+62
+00:05:03,900 --> 00:05:05,499
+Let's run it.
+
+63
+00:05:06,033 --> 00:05:08,673
+How big is the program itself?
+
+64
+00:05:09,233 --> 00:05:11,873
+How big is the program itself?
+
+65
+00:05:13,633 --> 00:05:15,632
+Let me try something.
+
+66
+00:05:15,632 --> 00:05:19,533
+Dockerfile.broken forgets to copy go.mod:
+
+67
+00:05:20,067 --> 00:05:20,294
+go:
+
+68
+00:05:20,294 --> 00:05:25,377
+go.mod file not found in current directory or any parent directory:
+
+69
+00:05:25,377 --> 00:05:30,384
+the error comes from the Go tool inside the RUN step (#8 0.236 go:
+
+70
+00:05:30,384 --> 00:05:31,902
+…), not from Docker.
+
+71
+00:05:31,902 --> 00:05:36,681
+Docker only reports that the step's command exited with code 1.
+
+72
+00:05:36,681 --> 00:05:44,571
+A modern Go build needs the module file, and /src in the image only contains what the Dockerfile copied.
+
+73
+00:05:46,333 --> 00:05:55,033
+Copy go.mod (and go.sum, when the module has dependencies) before building, as Dockerfile does:
+
+74
+00:05:56,767 --> 00:05:57,480
+Got it.
+
+75
+00:05:57,480 --> 00:06:00,231
+What do I need to remember?
+
+76
+00:06:00,767 --> 00:06:09,666
+Build inside golang:1.26-alpine; copy go.mod/go.sum first and run go mod download for caching.
+
+77
+00:06:10,200 --> 00:06:16,064
+CGO_ENABLED=0 produces a static binary that runs on any Linux image.
+
+78
+00:06:16,600 --> 00:06:20,746
+A single-stage Go image carries the whole toolchain:
+
+79
+00:06:20,746 --> 00:06:24,014
+hundreds of MB for a program of a few MB.
+
+80
+00:06:25,767 --> 00:06:29,316
+Why would I need containerizing a Java application?
+
+81
+00:06:29,867 --> 00:06:32,375
+How to containerize a Java service:
+
+82
+00:06:32,375 --> 00:06:39,038
+compile and package it into an executable jar inside an official JDK image (Eclipse Temurin),
+
+83
+00:06:39,038 --> 00:06:46,920
+run it with java -jar as an unprivileged user, and understand how the JVM sizes its memory inside a container.
+
+84
+00:06:46,920 --> 00:06:54,229
+The example is a plain JDK HTTP server, so the build needs no Maven download; the Spring Boot pattern,
+
+85
+00:06:54,229 --> 00:06:59,316
+which follows the same principles, is shown as an annotated Dockerfile.
+
+86
+00:07:01,067 --> 00:07:05,026
+First, a fresh practice folder for this lesson.
+
+87
+00:07:05,567 --> 00:07:07,166
+Let's run it.
+
+88
+00:07:07,700 --> 00:07:09,925
+The JVM is container-aware:
+
+89
+00:07:09,925 --> 00:07:15,116
+it reads the container's CPU and memory limits, not the host's.
+
+90
+00:07:15,116 --> 00:07:22,119
+Start the image with a 512 MB memory limit and ask the JVM for its maximum heap size:
+
+91
+00:07:22,667 --> 00:07:25,213
+The JVM is container-aware:
+
+92
+00:07:25,213 --> 00:07:31,156
+it reads the container's CPU and memory limits, not the host's.
+
+93
+00:07:31,156 --> 00:07:39,173
+Start the image with a 512 MB memory limit and ask the JVM for its maximum heap size:
+
+94
+00:07:39,173 --> 00:07:41,531
+134217728 bytes = 128 MB:
+
+95
+00:07:41,531 --> 00:07:48,416
+by default the JVM uses only 25 % of the container's memory for the heap.
+
+96
+00:07:50,167 --> 00:07:51,608
+Let me try something.
+
+97
+00:07:51,608 --> 00:07:58,676
+A colleague writes the start command by hand, as they remember it from the project's run configuration:
+
+98
+00:07:59,233 --> 00:08:02,124
+Could not find or load main class main:
+
+99
+00:08:02,124 --> 00:08:06,868
+the JVM started, opened app.jar, and found no class called main.
+
+100
+00:08:06,868 --> 00:08:11,316
+Java class names are case-sensitive and include the package.
+
+101
+00:08:11,316 --> 00:08:17,098
+List what the jar really contains, and which main class its manifest declares:
+
+102
+00:08:18,833 --> 00:08:27,038
+Use the exact class name, or better, let the manifest decide with java -jar (what the image's CMD does):
+
+103
+00:08:28,800 --> 00:08:29,513
+Got it.
+
+104
+00:08:29,513 --> 00:08:32,264
+What do I need to remember?
+
+105
+00:08:32,800 --> 00:08:39,594
+Compile and package inside an official JDK image; run with java -jar as an unprivileged user.
+
+106
+00:08:40,133 --> 00:08:47,263
+The JVM respects container limits; by default the heap is 25 % of the container's memory.
+
+107
+00:08:47,800 --> 00:08:55,010
+Set -XX:MaxRAMPercentage (or JAVA_TOOL_OPTIONS) instead of a fixed -Xmx.
+
+108
+00:08:56,767 --> 00:09:01,186
+What should I know about containerizing a PHP application?
+
+109
+00:09:01,733 --> 00:09:05,797
+A PHP application usually runs as two containers:
+
+110
+00:09:05,797 --> 00:09:12,265
+PHP-FPM, which executes PHP code and speaks the FastCGI protocol on port 9000,
+
+111
+00:09:12,265 --> 00:09:21,056
+and Nginx, which receives HTTP requests, serves static files itself and forwards .php requests to PHP-FPM.
+
+112
+00:09:21,056 --> 00:09:26,114
+Each container does one job, the PHP image contains the code,
+
+113
+00:09:26,114 --> 00:09:30,758
+and the two find each other by name on a shared network.
+
+114
+00:09:30,758 --> 00:09:35,983
+This is also how Laravel and Symfony applications are deployed.
+
+115
+00:09:37,733 --> 00:09:41,693
+First, a fresh practice folder for this lesson.
+
+116
+00:09:42,233 --> 00:09:50,552
+Build the PHP image, create a network, and start PHP-FPM under the name php (the name nginx.conf uses):
+
+117
+00:09:50,552 --> 00:09:58,548
+Start Nginx on the same network with the configuration mounted read-only (:ro) as its default site:
+
+118
+00:09:59,100 --> 00:10:06,180
+Start Nginx on the same network with the configuration mounted read-only (:ro) as its default site:
+
+119
+00:10:06,733 --> 00:10:10,272
+The hostname is the PHP container's ID:
+
+120
+00:10:10,272 --> 00:10:14,718
+Nginx received the request, PHP-FPM ran the code.
+
+121
+00:10:16,467 --> 00:10:18,004
+Let me try something.
+
+122
+00:10:18,004 --> 00:10:25,911
+The PHP container crashes and is removed while Nginx gets restarted, a common situation during a deployment:
+
+123
+00:10:26,467 --> 00:10:28,675
+Nginx itself exited.
+
+124
+00:10:28,675 --> 00:10:30,551
+Its log says why:
+
+125
+00:10:32,300 --> 00:10:41,100
+Start the backend first, then the proxy (Docker Compose expresses this order with depends_on, lesson 068):
+
+126
+00:10:42,833 --> 00:10:43,547
+Got it.
+
+127
+00:10:43,547 --> 00:10:46,298
+What do I need to remember?
+
+128
+00:10:46,833 --> 00:10:54,482
+PHP runs as PHP-FPM (FastCGI, port 9000) behind Nginx (HTTP):
+
+129
+00:10:54,482 --> 00:10:58,118
+two containers, one job each.
+
+130
+00:10:58,667 --> 00:11:05,141
+The PHP image contains the code; Nginx reaches it by container name on a shared network.
+
+131
+00:11:05,700 --> 00:11:08,814
+Nginx resolves fastcgi_pass hosts at start-up:
+
+132
+00:11:08,814 --> 00:11:13,350
+host not found in upstream means the backend is not on the network.
+
+133
+00:11:15,100 --> 00:11:17,945
+Can you show me comparing the stacks?
+
+134
+00:11:18,500 --> 00:11:23,526
+Lessons 040–044 containerized the same small API in five languages.
+
+135
+00:11:23,526 --> 00:11:29,077
+Every Dockerfile followed the same principles (official pinned base image,
+
+136
+00:11:29,077 --> 00:11:32,377
+dependencies before code, unprivileged user,
+
+137
+00:11:32,377 --> 00:11:36,953
+exec-form start command), but the results are very different,
+
+138
+00:11:36,953 --> 00:11:41,453
+because each language needs something different at run time.
+
+139
+00:11:41,453 --> 00:11:45,879
+This lesson builds all five side by side and measures them:
+
+140
+00:11:45,879 --> 00:11:50,154
+image size, memory in use, and what is inside each image.
+
+141
+00:11:51,900 --> 00:11:55,860
+First, a fresh practice folder for this lesson.
+
+142
+00:11:56,400 --> 00:11:57,574
+Build all five.
+
+143
+00:11:57,574 --> 00:12:00,468
+Each folder is its own build context:
+
+144
+00:12:00,468 --> 00:12:06,179
+Compare their sizes (--filter reference= selects images by name pattern):
+
+145
+00:12:06,733 --> 00:12:11,367
+Compare their sizes (--filter reference= selects images by name pattern):
+
+146
+00:12:11,367 --> 00:12:15,303
+Start each one and measure the memory it uses once it is idle:
+
+147
+00:12:15,867 --> 00:12:20,380
+Start each one and measure the memory it uses once it is idle:
+
+148
+00:12:20,380 --> 00:12:25,476
+The numbers depend on your machine and versions; the pattern does not:
+
+149
+00:12:25,476 --> 00:12:33,847
+the Go binary needs a few MB, the JVM and the two gunicorn workers need tens of MB before serving a single request.
+
+150
+00:12:33,847 --> 00:12:36,031
+The part after / is the limit:
+
+151
+00:12:36,031 --> 00:12:42,146
+none was set, so it is all the memory of the Docker engine (lesson 098 sets limits).
+
+152
+00:12:43,900 --> 00:12:45,583
+Let me try something.
+
+153
+00:12:45,583 --> 00:12:50,069
+Java's image is the biggest because it contains the JDK.
+
+154
+00:12:50,633 --> 00:12:51,085
+javac:
+
+155
+00:12:51,085 --> 00:12:56,209
+not found, exit code 127 (the shell's code for "command not found"):
+
+156
+00:12:56,209 --> 00:13:01,558
+the JRE contains the JVM to run Java, but not the compiler to build it.
+
+157
+00:13:01,558 --> 00:13:06,229
+The Dockerfile compiles inside the image, so it needs the JDK.
+
+158
+00:13:06,229 --> 00:13:09,017
+The same trap exists for every stack:
+
+159
+00:13:09,017 --> 00:13:19,113
+a Go binary can run on scratch but scratch cannot compile Go; a Node.js app can run without TypeScript but cannot be built without it.
+
+160
+00:13:20,867 --> 00:13:27,070
+For now, keep the JDK base (java-api/Dockerfile) and accept the size.
+
+161
+00:13:27,070 --> 00:13:34,801
+The real fix is to build in a JDK stage and run in a JRE stage of the same Dockerfile:
+
+162
+00:13:34,801 --> 00:13:39,296
+that is a multi-stage build (lessons 087 and 090).
+
+163
+00:13:41,033 --> 00:13:41,747
+Got it.
+
+164
+00:13:41,747 --> 00:13:44,498
+What do I need to remember?
+
+165
+00:13:45,033 --> 00:13:51,453
+The same principles apply to every stack; what differs is what the application needs at run time.
+
+166
+00:13:52,000 --> 00:13:53,981
+Measure, do not guess:
+
+167
+00:13:53,981 --> 00:13:58,484
+docker image ls for size, docker stats for memory.
+
+168
+00:13:59,033 --> 00:14:05,233
+Build tools (compilers, package managers) are only needed at build time.

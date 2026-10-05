@@ -149,6 +149,15 @@ rm -rf ~/docker-practice
 > These commands remove **all** containers and unused volumes on this engine, not only the course's. Run them only on
 > a computer where nothing else uses Docker. `docker image prune -a` also removes the downloaded images.
 
+## Videos
+
+A 21-video series (5 h 27 min) follows the course: one video per module, the 25 troubleshooting problems and the
+capstone. Each lesson becomes a short conversation between a senior and a junior engineer over the lesson's diagram, its
+real commands and outputs, the mistake made on purpose and the fix. Every video exists in two versions with identical
+pictures: full (narration, music, sound effects) and silent. The videos are generated from the lessons by
+[video/build.py](video/build.py); titles, descriptions, chapters and captions are in [video/youtube](video/youtube),
+and every audio asset is listed in [video/AUDIO-LICENSES.md](video/AUDIO-LICENSES.md).
+
 ## Docker, CI/CD and Kubernetes
 
 Docker is where the delivery chain starts. A CI pipeline builds the image from the `Dockerfile`, tests and scans it,

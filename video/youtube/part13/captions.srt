@@ -1,0 +1,547 @@
+1
+00:00:04,800 --> 00:00:07,089
+Why multi-stage builds?
+
+2
+00:00:07,633 --> 00:00:15,873
+Building an application needs compilers, package managers and source code; running it usually needs only the result.
+
+3
+00:00:15,873 --> 00:00:20,420
+A single-stage image ships both (lesson 045 measured the waste).
+
+4
+00:00:20,420 --> 00:00:24,327
+A multi-stage Dockerfile has several FROM instructions:
+
+5
+00:00:24,327 --> 00:00:32,638
+each starts a new stage, and a later stage copies only the files it needs from an earlier one with COPY --from=STAGE.
+
+6
+00:00:34,400 --> 00:00:38,359
+First, a fresh practice folder for this lesson.
+
+7
+00:00:38,900 --> 00:00:44,065
+Build the single-stage and the multi-stage version of the same program:
+
+8
+00:00:44,065 --> 00:00:46,975
+The same binary, a fraction of the size.
+
+9
+00:00:46,975 --> 00:00:48,284
+It works the same:
+
+10
+00:00:48,833 --> 00:00:52,502
+The same binary, a fraction of the size.
+
+11
+00:00:52,502 --> 00:00:54,153
+It works the same:
+
+12
+00:00:54,700 --> 00:00:57,914
+But the Go toolchain is gone from the image:
+
+13
+00:00:59,667 --> 00:01:01,175
+Let me try something.
+
+14
+00:01:01,175 --> 00:01:06,991
+Dockerfile.broken copies the binary from the path where a developer thinks it is:
+
+15
+00:01:07,533 --> 00:01:08,590
+"/src/go-api":
+
+16
+00:01:08,590 --> 00:01:09,345
+not found:
+
+17
+00:01:09,345 --> 00:01:15,383
+the build stage succeeded, but there is no file at that path in the build stage.
+
+18
+00:01:15,383 --> 00:01:19,912
+COPY --from paths are paths inside that stage's file system,
+
+19
+00:01:19,912 --> 00:01:23,686
+not on your computer and not in the build context.
+
+20
+00:01:23,686 --> 00:01:26,403
+Build the stage on its own and look:
+
+21
+00:01:28,167 --> 00:01:29,966
+Here is the fix.
+
+22
+00:01:31,700 --> 00:01:32,413
+Got it.
+
+23
+00:01:32,413 --> 00:01:35,164
+What do I need to remember?
+
+24
+00:01:35,700 --> 00:01:40,829
+Several FROMs = several stages; only the last one is the image.
+
+25
+00:01:41,367 --> 00:01:45,654
+COPY --from=STAGE copies files from a stage's file system:
+
+26
+00:01:45,654 --> 00:01:48,611
+build tools never reach the final image.
+
+27
+00:01:49,167 --> 00:01:51,907
+--target STAGE builds up to a stage:
+
+28
+00:01:51,907 --> 00:01:55,256
+for debugging, tests or a development image.
+
+29
+00:01:56,000 --> 00:02:01,632
+I keep hearing about multi-stage builds for Node.js.
+
+30
+00:02:01,632 --> 00:02:03,324
+What is it, really?
+
+31
+00:02:03,867 --> 00:02:08,326
+A Node.js service written in TypeScript (or with a bundler,
+
+32
+00:02:08,326 --> 00:02:13,920
+a frontend framework, test tools) needs development dependencies to build,
+
+33
+00:02:13,920 --> 00:02:19,135
+and only production dependencies plus the compiled JavaScript to run.
+
+34
+00:02:19,135 --> 00:02:27,450
+A two-stage Dockerfile installs everything and compiles in the first stage, then starts the final stage fresh:
+
+35
+00:02:27,450 --> 00:02:31,229
+npm ci --omit=dev and COPY --from=build /app/dist.
+
+36
+00:02:31,229 --> 00:02:37,881
+The TypeScript compiler, the type definitions and the .ts sources never reach the image.
+
+37
+00:02:39,633 --> 00:02:43,593
+First, a fresh practice folder for this lesson.
+
+38
+00:02:44,133 --> 00:02:47,505
+Build the single-stage and the multi-stage version:
+
+39
+00:02:47,505 --> 00:02:48,629
+Look inside both:
+
+40
+00:02:48,629 --> 00:02:55,043
+the single-stage image carries the compiler and the sources, the multi-stage one only the output:
+
+41
+00:02:55,600 --> 00:02:56,782
+Look inside both:
+
+42
+00:02:56,782 --> 00:03:03,530
+the single-stage image carries the compiler and the sources, the multi-stage one only the output:
+
+43
+00:03:04,067 --> 00:03:05,666
+Let's run it.
+
+44
+00:03:07,400 --> 00:03:09,023
+Let me try something.
+
+45
+00:03:09,023 --> 00:03:14,434
+Dockerfile.broken is the multi-stage Dockerfile with one line missing.
+
+46
+00:03:15,000 --> 00:03:19,170
+The build cannot catch a missing file in the final stage:
+
+47
+00:03:19,170 --> 00:03:21,219
+every instruction succeeded.
+
+48
+00:03:21,219 --> 00:03:22,974
+The container's log can:
+
+49
+00:03:24,733 --> 00:03:34,611
+Restore the COPY --from=build /app/dist ./dist line (it is in Dockerfile) and check that the image really starts.
+
+50
+00:03:34,611 --> 00:03:40,468
+A quick smoke test after every build catches this class of mistake:
+
+51
+00:03:42,233 --> 00:03:42,947
+Got it.
+
+52
+00:03:42,947 --> 00:03:45,698
+What do I need to remember?
+
+53
+00:03:46,233 --> 00:03:47,270
+Build stage:
+
+54
+00:03:47,270 --> 00:03:50,725
+all dependencies + compile; final stage:
+
+55
+00:03:50,725 --> 00:03:54,353
+production dependencies + compiled output.
+
+56
+00:03:54,900 --> 00:04:00,424
+npm ci --omit=dev in the final stage keeps development tools out.
+
+57
+00:04:00,967 --> 00:04:04,823
+A missing COPY --from builds fine and fails at run time:
+
+58
+00:04:04,823 --> 00:04:07,096
+smoke-test every image you build.
+
+59
+00:04:08,833 --> 00:04:11,913
+How does multi-stage builds for Go work?
+
+60
+00:04:12,467 --> 00:04:21,979
+A static Go binary needs no runtime, no shell and no C library, so its final stage can be almost empty.
+
+61
+00:04:21,979 --> 00:04:31,399
+Distroless images (gcr.io/distroless/static-debian12) contain only what such a program may still need:
+
+62
+00:04:31,399 --> 00:04:38,418
+CA certificates for HTTPS, time zone data, /etc/passwd with a non-root user.
+
+63
+00:04:38,418 --> 00:04:41,096
+No shell, no package manager.
+
+64
+00:04:42,833 --> 00:04:46,793
+First, a fresh practice folder for this lesson.
+
+65
+00:04:47,333 --> 00:04:48,933
+Let's run it.
+
+66
+00:04:49,467 --> 00:04:51,066
+Let's run it.
+
+67
+00:04:51,600 --> 00:04:57,144
+The image's configuration shows the non-root user it inherited from the :nonroot base:
+
+68
+00:04:58,900 --> 00:05:00,698
+Let me try something.
+
+69
+00:05:00,698 --> 00:05:09,175
+Dockerfile.broken writes the entrypoint in shell form (ENTRYPOINT /go-api), as many Dockerfiles do:
+
+70
+00:05:09,733 --> 00:05:10,272
+exec:
+
+71
+00:05:10,272 --> 00:05:11,350
+"/bin/sh":
+
+72
+00:05:11,350 --> 00:05:12,751
+stat /bin/sh:
+
+73
+00:05:12,751 --> 00:05:15,552
+no such file or directory:
+
+74
+00:05:15,552 --> 00:05:20,186
+Docker tried to start /bin/sh, not /go-api.
+
+75
+00:05:20,186 --> 00:05:30,747
+The shell form ENTRYPOINT /go-api means "run /bin/sh -c "/go-api"", and distroless has no /bin/sh.
+
+76
+00:05:30,747 --> 00:05:34,303
+The image configuration shows it:
+
+77
+00:05:36,067 --> 00:05:41,126
+Use the exec form, a JSON array, as Dockerfile does:
+
+78
+00:05:42,867 --> 00:05:43,580
+Got it.
+
+79
+00:05:43,580 --> 00:05:46,331
+What do I need to remember?
+
+80
+00:05:46,867 --> 00:05:51,738
+Static Go binaries run on distroless/static (or scratch):
+
+81
+00:05:51,738 --> 00:05:53,361
+images of a few MB.
+
+82
+00:05:53,900 --> 00:06:00,789
+:nonroot distroless images run as uid 65532 by default.
+
+83
+00:06:01,333 --> 00:06:02,269
+No shell:
+
+84
+00:06:02,269 --> 00:06:11,313
+ENTRYPOINT/CMD must use the exec form (JSON array), and docker exec … sh is impossible.
+
+85
+00:06:13,067 --> 00:06:16,266
+Why would I need multi-stage builds for Java?
+
+86
+00:06:16,800 --> 00:06:26,589
+Java needs the JDK (compiler, jar, Maven or Gradle) to build and only the JRE (the JVM and the class libraries) to run.
+
+87
+00:06:26,589 --> 00:06:35,391
+A two-stage Dockerfile compiles in eclipse-temurin:25-jdk-alpine and runs in eclipse-temurin:25-jre-alpine,
+
+88
+00:06:35,391 --> 00:06:37,119
+copying just the jar.
+
+89
+00:06:37,119 --> 00:06:45,509
+One step further, jlink builds a custom runtime containing only the Java modules the application uses.
+
+90
+00:06:47,267 --> 00:06:51,226
+First, a fresh practice folder for this lesson.
+
+91
+00:06:51,767 --> 00:07:00,536
+Build the single-stage image of lesson 043 (Dockerfile.single) for comparison, and the multi-stage one:
+
+92
+00:07:01,100 --> 00:07:02,699
+Let's run it.
+
+93
+00:07:03,233 --> 00:07:06,913
+The final image can run Java but has no compiler:
+
+94
+00:07:08,667 --> 00:07:10,515
+Let me try something.
+
+95
+00:07:10,515 --> 00:07:14,036
+Dockerfile.broken builds without errors:
+
+96
+00:07:14,600 --> 00:07:16,974
+Unable to access jarfile app.jar:
+
+97
+00:07:16,974 --> 00:07:22,226
+the JVM started and looked for app.jar relative to its working directory.
+
+98
+00:07:22,226 --> 00:07:25,894
+Find out what that is, and where the jar really is:
+
+99
+00:07:27,633 --> 00:07:33,529
+Copy the jar into the working directory with a relative destination (./app.jar),
+
+100
+00:07:33,529 --> 00:07:39,278
+as Dockerfile does, or use absolute paths consistently in COPY and ENTRYPOINT:
+
+101
+00:07:41,033 --> 00:07:41,747
+Got it.
+
+102
+00:07:41,747 --> 00:07:44,498
+What do I need to remember?
+
+103
+00:07:45,033 --> 00:07:48,450
+Build with the JDK, run with the JRE:
+
+104
+00:07:48,450 --> 00:07:51,313
+COPY --from=build only the jar.
+
+105
+00:07:51,867 --> 00:07:58,881
+Relative COPY destinations and ENTRYPOINT paths depend on WORKDIR; absolute ones ignore it.
+
+106
+00:07:59,433 --> 00:08:03,453
+--entrypoint overrides an image's entrypoint to inspect it.
+
+107
+00:08:05,200 --> 00:08:08,319
+What should I know about measuring image size?
+
+108
+00:08:08,867 --> 00:08:12,958
+"Make the image smaller" only means something if you measure.
+
+109
+00:08:12,958 --> 00:08:15,506
+Docker reports two sizes for an image:
+
+110
+00:08:15,506 --> 00:08:25,432
+the disk usage (the unpacked files on the engine's disk) and the content size (the compressed layers a registry stores and a docker pull downloads).
+
+111
+00:08:25,432 --> 00:08:28,853
+docker history breaks the size down by instruction,
+
+112
+00:08:28,853 --> 00:08:32,810
+so you can see which line of the Dockerfile is responsible.
+
+113
+00:08:32,810 --> 00:08:38,041
+This lesson measures the module's Node.js images and finds an oversized layer.
+
+114
+00:08:39,800 --> 00:08:43,760
+First, a fresh practice folder for this lesson.
+
+115
+00:08:44,300 --> 00:08:50,710
+Build the single-stage and the multi-stage image, and compare both numbers with the base image:
+
+116
+00:08:50,710 --> 00:08:55,365
+The content size (compressed) is roughly a quarter of the disk usage:
+
+117
+00:08:55,365 --> 00:08:57,929
+text files and binaries compress well.
+
+118
+00:08:57,929 --> 00:09:03,124
+Both numbers include the base image, which is the same for both variants and,
+
+119
+00:09:03,124 --> 00:09:06,969
+on a server that already has it, is not downloaded again.
+
+120
+00:09:07,533 --> 00:09:12,452
+The content size (compressed) is roughly a quarter of the disk usage:
+
+121
+00:09:12,452 --> 00:09:15,161
+text files and binaries compress well.
+
+122
+00:09:15,161 --> 00:09:20,650
+Both numbers include the base image, which is the same for both variants and,
+
+123
+00:09:20,650 --> 00:09:24,713
+on a server that already has it, is not downloaded again.
+
+124
+00:09:25,267 --> 00:09:30,334
+A few MB at most (most of it is npm's own files from npm ci):
+
+125
+00:09:30,334 --> 00:09:33,740
+almost the whole image is Node.js itself.
+
+126
+00:09:33,740 --> 00:09:39,306
+Programmatically, the exact numbers come from docker image inspect:
+
+127
+00:09:41,067 --> 00:09:42,680
+Let me try something.
+
+128
+00:09:42,680 --> 00:09:46,367
+Dockerfile.copyall "simplifies" the final stage:
+
+129
+00:09:46,367 --> 00:09:51,283
+instead of installing production dependencies and copying dist/,
+
+130
+00:09:51,283 --> 00:09:55,201
+it copies the whole /app folder of the build stage:
+
+131
+00:09:55,767 --> 00:09:58,186
+Find the layer responsible:
+
+132
+00:09:59,933 --> 00:10:06,963
+Copy only the build output, and install production dependencies in the final stage (Dockerfile):
+
+133
+00:10:08,700 --> 00:10:09,413
+Got it.
+
+134
+00:10:09,413 --> 00:10:12,164
+What do I need to remember?
+
+135
+00:10:12,700 --> 00:10:19,644
+Disk usage = unpacked size; content size = compressed, what is pulled and pushed.
+
+136
+00:10:20,200 --> 00:10:26,824
+docker history attributes size to Dockerfile instructions; your layers are above the base image's.
+
+137
+00:10:27,367 --> 00:10:33,196
+docker image inspect --format '{{.Size}}' gives exact bytes for scripts and CI checks.

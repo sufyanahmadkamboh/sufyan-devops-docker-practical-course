@@ -1,0 +1,11 @@
+0:00 The architecture
+0:37 Lab and configuration
+1:19 Build the images
+1:40 Start the stack
+1:54 Health, not just "running"
+2:24 Security, verified
+2:44 Networks
+2:58 Persistence
+3:06 Limits and logs
+3:33 Break it, troubleshoot it, fix it
+3:53 Ship the images to a registry

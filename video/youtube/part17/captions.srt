@@ -1,0 +1,1171 @@
+1
+00:00:04,800 --> 00:00:07,704
+A team packages its static site with Nginx.
+
+2
+00:00:07,704 --> 00:00:11,891
+docker run -d prints a container ID, so everything looks fine,
+
+3
+00:00:11,891 --> 00:00:17,700
+but the site is not reachable and the container is gone from docker ps a second later.
+
+4
+00:00:18,233 --> 00:00:18,370
+1.
+
+5
+00:00:18,370 --> 00:00:21,588
+What did the container print before it stopped?
+
+6
+00:00:22,133 --> 00:00:24,836
+CMD ["nginx"] starts Nginx as a daemon.
+
+7
+00:00:24,836 --> 00:00:30,035
+The foreground process returns as soon as Nginx has gone to the background,
+
+8
+00:00:30,035 --> 00:00:35,718
+so the container's main process ends with status 0 and Docker stops the container.
+
+9
+00:00:37,467 --> 00:00:40,012
+Run the server in the foreground.
+
+10
+00:00:40,012 --> 00:00:43,561
+The fixed Dockerfile keeps Nginx as process 1:
+
+11
+00:00:44,100 --> 00:00:48,426
+Every container's main command must run in the foreground:
+
+12
+00:00:48,426 --> 00:00:51,485
+nginx -g 'daemon off;', gunicorn without.
+
+13
+00:00:52,033 --> 00:00:59,723
+Start from the official image's default CMD unless you have a reason not to (the nginx image already sets.
+
+14
+00:01:01,467 --> 00:01:04,883
+A new image of the orders service never starts.
+
+15
+00:01:04,883 --> 00:01:11,351
+docker run fails at once, and the container appears in docker ps -a as Created, never Up.
+
+16
+00:01:11,900 --> 00:01:12,065
+1.
+
+17
+00:01:12,065 --> 00:01:14,370
+Read the error from the end.
+
+18
+00:01:14,933 --> 00:01:17,242
+A typo in the Dockerfile:
+
+19
+00:01:17,242 --> 00:01:19,552
+CMD ["pyhton", "app.py"].
+
+20
+00:01:19,552 --> 00:01:23,893
+The program pyhton does not exist in the image.
+
+21
+00:01:27,133 --> 00:01:31,509
+Run the image once locally (or in CI) before pushing it:
+
+22
+00:01:31,509 --> 00:01:35,103
+docker run --rm IMAGE catches this in seconds.
+
+23
+00:01:35,667 --> 00:01:39,950
+Use the exec form (CMD ["python", "app.py"]):
+
+24
+00:01:39,950 --> 00:01:46,136
+the error is explicit and signals reach the process (lesson 027).
+
+25
+00:01:47,900 --> 00:01:54,132
+Version 2.0 of the price list was built and "deployed", yet users still see version 1.0.
+
+26
+00:01:54,132 --> 00:01:59,160
+The container runs, the logs are clean, and there is no error anywhere:
+
+27
+00:01:59,160 --> 00:02:03,905
+the container simply runs a different image than everyone believes.
+
+28
+00:02:04,467 --> 00:02:04,613
+1.
+
+29
+00:02:04,613 --> 00:02:07,182
+Which image does the container run?
+
+30
+00:02:07,182 --> 00:02:12,391
+docker ps shows the name it was started with, not what that name meant:
+
+31
+00:02:12,933 --> 00:02:20,158
+The deployment referenced price-list (implicitly :latest), which still pointed to the 1.0 build.
+
+32
+00:02:20,158 --> 00:02:22,491
+Nothing was broken technically:
+
+33
+00:02:22,491 --> 00:02:24,523
+the wrong image was chosen.
+
+34
+00:02:26,267 --> 00:02:29,036
+Deploy an explicit version tag:
+
+35
+00:02:29,600 --> 00:02:31,680
+Never deploy latest.
+
+36
+00:02:32,233 --> 00:02:40,888
+Write the version and the Git commit into labels at build time (LABEL org.opencontainers.image.version=…) and.
+
+37
+00:02:42,633 --> 00:02:47,185
+A developer starts the new version of the website next to the old one,
+
+38
+00:02:47,185 --> 00:02:50,697
+and docker run refuses with port is already allocated.
+
+39
+00:02:50,697 --> 00:02:53,558
+The new container exists but is not running.
+
+40
+00:02:54,100 --> 00:02:54,264
+1.
+
+41
+00:02:54,264 --> 00:02:56,800
+Which container holds the port?
+
+42
+00:02:57,333 --> 00:03:01,396
+Two containers asked for the same host port 8080.
+
+43
+00:03:01,396 --> 00:03:04,298
+The old one still runs and owns it.
+
+44
+00:03:06,033 --> 00:03:06,777
+Pick one:
+
+45
+00:03:06,777 --> 00:03:12,393
+stop the old container first, or give the new one another host port.
+
+46
+00:03:12,393 --> 00:03:14,623
+Here both run side by side:
+
+47
+00:03:15,167 --> 00:03:27,856
+Keep a port plan for local development (for example 8080 web, 8081 API, 5432 database) and write it into the.
+
+48
+00:03:28,400 --> 00:03:36,284
+Remove containers you no longer need (docker rm -f, docker compose down) instead of leaving them running.
+
+49
+00:03:38,033 --> 00:03:42,516
+The container is Up, the logs show the server started,
+
+50
+00:03:42,516 --> 00:03:47,913
+but the browser and curl cannot connect to http://localhost:8080.
+
+51
+00:03:48,467 --> 00:03:50,363
+Work from the inside out:
+
+52
+00:03:50,363 --> 00:03:56,812
+is the application running, does it answer inside the container, is a port published?
+
+53
+00:03:56,812 --> 00:03:56,964
+1.
+
+54
+00:03:56,964 --> 00:03:58,026
+Is it running?
+
+55
+00:03:58,567 --> 00:04:01,191
+The container was started without -p:
+
+56
+00:04:01,191 --> 00:04:04,241
+no host port forwards to container port 80.
+
+57
+00:04:05,000 --> 00:04:11,746
+Port mappings are set when a container is created; they cannot be added later.
+
+58
+00:04:11,746 --> 00:04:13,219
+Recreate it with -p:
+
+59
+00:04:13,767 --> 00:04:20,706
+Define published ports in a Compose file instead of remembering -p flags (lesson 064).
+
+60
+00:04:21,267 --> 00:04:30,631
+After starting a service, check docker ps for the 0.0.0.0:…->… mapping, not only for Up.
+
+61
+00:04:32,367 --> 00:04:37,363
+The tickets service works on the developer's laptop with python app.py.
+
+62
+00:04:37,363 --> 00:04:44,751
+In a container, with the port published correctly, every request from the host fails with an empty reply.
+
+63
+00:04:45,300 --> 00:04:45,485
+1.
+
+64
+00:04:45,485 --> 00:04:47,515
+Running and published?
+
+65
+00:04:48,067 --> 00:04:50,978
+The application binds to 127.0.0.1.
+
+66
+00:04:50,978 --> 00:04:56,718
+That is fine on a laptop, where the browser runs on the same machine,
+
+67
+00:04:56,718 --> 00:05:01,626
+but inside a container "localhost" is the container itself.
+
+68
+00:05:03,367 --> 00:05:07,191
+Bind to 0.0.0.0 (all interfaces).
+
+69
+00:05:07,191 --> 00:05:15,070
+Many frameworks have the same default and a flag or variable for it:
+
+70
+00:05:15,070 --> 00:05:27,816
+Flask --host 0.0.0.0, uvicorn --host 0.0.0.0, Node server.listen(port, '0.0.0.0'), Spring Boot server.address.
+
+71
+00:05:28,367 --> 00:05:39,856
+Make the listen address configurable and default it to 0.0.0.0 in the image (for example ENV HOST=0.0.0.0).
+
+72
+00:05:40,400 --> 00:05:54,400
+Publish to 127.0.0.1 on the host side (-p 127.0.0.1:8080:8080) when you want to restrict access, never by.
+
+73
+00:05:56,133 --> 00:06:03,112
+The team's services listen on port 8080, so a developer starts Nginx the same way:
+
+74
+00:06:03,112 --> 00:06:04,219
+-p 8080:8080.
+
+75
+00:06:04,219 --> 00:06:11,198
+The container is Up, the port is published, and every request gets an empty reply.
+
+76
+00:06:11,733 --> 00:06:11,891
+1.
+
+77
+00:06:11,891 --> 00:06:14,893
+Which port does the image say it uses?
+
+78
+00:06:15,433 --> 00:06:24,043
+-p 8080:8080 maps to container port 8080; the application listens on container port 80.
+
+79
+00:06:27,300 --> 00:06:33,675
+Read EXPOSE (or the image's documentation) before choosing the container side of -p.
+
+80
+00:06:34,233 --> 00:06:36,294
+Remember the order:
+
+81
+00:06:36,294 --> 00:06:42,478
+-p HOST:CONTAINER, as in -p 8080:80 = "my 8080 → its 80".
+
+82
+00:06:44,233 --> 00:06:47,234
+The application was split into two networks:
+
+83
+00:06:47,234 --> 00:06:51,189
+frontend for the public side, backend for the data stores.
+
+84
+00:06:51,189 --> 00:06:57,803
+Since then the API cannot reach its Redis cache by name, although the container cache is running.
+
+85
+00:06:58,367 --> 00:06:58,578
+1.
+
+86
+00:06:58,578 --> 00:07:00,686
+Both containers run?
+
+87
+00:07:01,233 --> 00:07:05,662
+The API needs both networks (public traffic on frontend,
+
+88
+00:07:05,662 --> 00:07:10,248
+data stores on backend) but was attached to frontend only.
+
+89
+00:07:12,000 --> 00:07:16,885
+Connect the running container to the second network (no restart needed):
+
+90
+00:07:17,433 --> 00:07:25,003
+Declare networks per service in Compose, so membership is reviewed in code (lesson 065):
+
+91
+00:07:25,567 --> 00:07:31,776
+Keep data stores on an internal network only, and attach exactly the services that need them.
+
+92
+00:07:33,533 --> 00:07:38,038
+Two containers started with plain docker run, no network options.
+
+93
+00:07:38,038 --> 00:07:46,078
+The API cannot reach cache by name, but a colleague notices that the same command with the cache's IP address works.
+
+94
+00:07:46,633 --> 00:07:46,890
+1.
+
+95
+00:07:46,890 --> 00:07:48,558
+Same network?
+
+96
+00:07:49,100 --> 00:07:55,389
+Both containers are on the default bridge network, where Docker does not resolve container names.
+
+97
+00:07:57,133 --> 00:08:00,808
+Use a user-defined network for every application:
+
+98
+00:08:01,367 --> 00:08:05,137
+Never rely on the default bridge for applications:
+
+99
+00:08:05,137 --> 00:08:09,436
+create a network (docker network create) or use Compose,.
+
+100
+00:08:10,000 --> 00:08:14,350
+Refer to services by name, never by IP address.
+
+101
+00:08:16,100 --> 00:08:20,988
+The API was moved into a container next to its PostgreSQL container.
+
+102
+00:08:20,988 --> 00:08:27,456
+It worked on the laptop, where PostgreSQL ran locally; in the container it cannot connect:
+
+103
+00:08:27,456 --> 00:08:31,985
+Connection refused, although the database container is running.
+
+104
+00:08:32,533 --> 00:08:32,690
+1.
+
+105
+00:08:32,690 --> 00:08:35,283
+Is the database up and listening?
+
+106
+00:08:35,833 --> 00:08:40,448
+The connection setting PGHOST=localhost was copied from the laptop.
+
+107
+00:08:40,448 --> 00:08:46,026
+In a container it points to the client itself; the database is another container,
+
+108
+00:08:46,026 --> 00:08:49,263
+reachable by its name db on the shared network.
+
+109
+00:08:51,000 --> 00:08:57,164
+Configure the host by service name, through the environment (lesson 059):
+
+110
+00:08:57,700 --> 00:09:01,456
+Never hard-code localhost for another service:
+
+111
+00:09:01,456 --> 00:09:05,865
+read DB_HOST (or a DATABASE_URL) from the environment.
+
+112
+00:09:06,400 --> 00:09:10,181
+Wait for readiness, not for "container started":
+
+113
+00:09:10,181 --> 00:09:12,860
+a healthcheck with pg_isready and.
+
+114
+00:09:14,600 --> 00:09:21,194
+The billing service starts on a developer's machine but stops immediately on the test server with exit code 1.
+
+115
+00:09:21,194 --> 00:09:26,590
+The deployment script was copied from another service and does not pass any configuration.
+
+116
+00:09:27,133 --> 00:09:27,336
+1.
+
+117
+00:09:27,336 --> 00:09:29,158
+What did it print?
+
+118
+00:09:29,700 --> 00:09:33,683
+The container was started without the required DATABASE_URL.
+
+119
+00:09:33,683 --> 00:09:37,932
+Environment variables are not inherited from the server's shell:
+
+120
+00:09:37,932 --> 00:09:43,310
+each container gets only what -e, --env-file, Compose or the image's ENV give it.
+
+121
+00:09:45,067 --> 00:09:51,056
+Pass the configuration from a file kept next to the deployment (lesson 060):
+
+122
+00:09:51,600 --> 00:09:59,785
+Fail at start-up with a clear message when a required variable is missing (as app.py does), never later.
+
+123
+00:10:00,333 --> 00:10:08,063
+Document every variable in a committed .env.example; keep the real .env out of Git and out of the image.
+
+124
+00:10:09,800 --> 00:10:17,283
+A security review asked the team to run the reports service as a non-root user and to "make the settings file private".
+
+125
+00:10:17,283 --> 00:10:21,496
+After the change, the container stops at once with PermissionError:
+
+126
+00:10:21,496 --> 00:10:23,320
+[Errno 13] Permission denied.
+
+127
+00:10:23,867 --> 00:10:24,064
+1.
+
+128
+00:10:24,064 --> 00:10:26,136
+Who runs the process?
+
+129
+00:10:26,700 --> 00:10:33,635
+chmod 600 made the file readable by root only, while the container runs as the non-root user app.
+
+130
+00:10:35,400 --> 00:10:39,850
+Give the application user exactly the access it needs, no more:
+
+131
+00:10:39,850 --> 00:10:42,745
+owned by root (the app cannot change it),
+
+132
+00:10:42,745 --> 00:10:48,255
+readable by the app group, with COPY --chown and --chmod (no extra RUN layer):
+
+133
+00:10:48,800 --> 00:10:51,758
+Decide ownership in the Dockerfile:
+
+134
+00:10:51,758 --> 00:10:54,885
+COPY --chown=USER:GROUP --chmod=MODE.
+
+135
+00:10:55,433 --> 00:10:57,661
+Test the image as it will run:
+
+136
+00:10:57,661 --> 00:11:02,858
+docker run --rm IMAGE id and ls -l in CI catch this before deployment.
+
+137
+00:11:04,600 --> 00:11:08,237
+The uploads service must write to its data/ directory.
+
+138
+00:11:08,237 --> 00:11:12,008
+After moving it to a non-root user it fails at start-up,
+
+139
+00:11:12,008 --> 00:11:19,080
+and after the next hardening step (a read-only root file system) it fails again with a different message.
+
+140
+00:11:19,633 --> 00:11:19,795
+1.
+
+141
+00:11:19,795 --> 00:11:23,038
+Who runs it, and who owns the directory?
+
+142
+00:11:23,600 --> 00:11:23,753
+1.
+
+143
+00:11:23,753 --> 00:11:29,562
+data/ was created by root during the build, and the application runs as app.
+
+144
+00:11:29,562 --> 00:11:29,715
+2.
+
+145
+00:11:29,715 --> 00:11:36,900
+With --read-only, every path that must be written needs its own writable mount; /tmp had none.
+
+146
+00:11:38,633 --> 00:11:43,877
+The fixed image gives data/ to the app user and declares it as a volume.
+
+147
+00:11:43,877 --> 00:11:50,141
+At run time, keep the root file system read-only and mount exactly the writable paths:
+
+148
+00:11:50,141 --> 00:11:54,293
+a named volume for the data, a tmpfs for temporary files:
+
+149
+00:11:54,833 --> 00:12:02,128
+In the Dockerfile, create every directory the app writes to and chown it to the app user; leave the rest owned.
+
+150
+00:12:02,667 --> 00:12:09,121
+List the writable paths in the image documentation and in Compose (read_only:
+
+151
+00:12:09,121 --> 00:12:10,127
+true, tmpfs:
+
+152
+00:12:10,127 --> 00:12:11,636
+[/tmp], volumes:).
+
+153
+00:12:13,400 --> 00:12:17,652
+The notes service was given a named volume "so the notes survive".
+
+154
+00:12:17,652 --> 00:12:24,030
+After the container was recreated, the notes are gone anyway, and the volume turns out to be empty.
+
+155
+00:12:24,567 --> 00:12:24,731
+1.
+
+156
+00:12:24,731 --> 00:12:27,036
+Where is the volume mounted?
+
+157
+00:12:27,600 --> 00:12:31,305
+A typo in the mount target (/dat instead of /data):
+
+158
+00:12:31,305 --> 00:12:35,520
+the volume and the application's data directory never met.
+
+159
+00:12:38,767 --> 00:12:40,788
+Declare the data path once:
+
+160
+00:12:40,788 --> 00:12:47,301
+VOLUME /data in the Dockerfile documents it, and Compose files reference the same path.
+
+161
+00:12:47,867 --> 00:12:54,826
+Prefer --mount (explicit keys, errors on missing bind sources) over -v in scripts.
+
+162
+00:12:56,567 --> 00:12:59,249
+A PostgreSQL container ran for weeks.
+
+163
+00:12:59,249 --> 00:13:07,222
+It was recreated for a configuration change, and the application now reports relation "orders" does not exist:
+
+164
+00:13:07,222 --> 00:13:09,251
+the whole database is empty.
+
+165
+00:13:09,800 --> 00:13:09,962
+1.
+
+166
+00:13:09,962 --> 00:13:12,950
+Does the image declare a data volume?
+
+167
+00:13:13,500 --> 00:13:16,560
+The database was run without a named volume.
+
+168
+00:13:16,560 --> 00:13:22,820
+Recreating the container attached a fresh anonymous volume, so the database started empty.
+
+169
+00:13:24,567 --> 00:13:26,190
+Recover the data first:
+
+170
+00:13:26,190 --> 00:13:32,401
+copy the old anonymous volume into a named volume, then run the database with that name.
+
+171
+00:13:32,967 --> 00:13:40,260
+Every stateful container gets a named volume (or a bind mount) for its data path:
+
+172
+00:13:40,260 --> 00:13:42,961
+-v pgdata:/var/lib/postgresql.
+
+173
+00:13:43,500 --> 00:13:48,653
+Read the image's VOLUME paths (and its documentation:
+
+174
+00:13:48,653 --> 00:13:54,195
+PostgreSQL 18 images use /var/lib/postgresql, older ones.
+
+175
+00:13:55,933 --> 00:14:00,713
+Someone added a .dockerignore to keep a notes file out of the image.
+
+176
+00:14:00,713 --> 00:14:04,016
+Since then, the inventory image does not build:
+
+177
+00:14:04,016 --> 00:14:05,211
+requirements.txt:
+
+178
+00:14:05,211 --> 00:14:09,288
+not found, although the file is right there in the folder.
+
+179
+00:14:09,833 --> 00:14:10,678
+1.
+
+180
+00:14:10,678 --> 00:14:27,998
+Read the build output from the bottom up.
+
+181
+00:14:28,533 --> 00:14:35,994
+.dockerignore contains *.txt, which excludes requirements.txt together with notes.txt.
+
+182
+00:14:35,994 --> 00:14:39,464
+The Dockerfile's COPY requirements.txt .
+
+183
+00:14:39,464 --> 00:14:41,113
+then finds nothing.
+
+184
+00:14:42,867 --> 00:14:50,786
+Exclude exactly what should not be shipped (or use an exception, !requirements.txt, after the pattern):
+
+185
+00:14:51,333 --> 00:14:54,292
+Review .dockerignore like code:
+
+186
+00:14:54,292 --> 00:14:59,733
+broad patterns (.txt, .json, *) need explicit exceptions.
+
+187
+00:15:00,267 --> 00:15:04,815
+An allow-list style is safest for small apps:
+
+188
+00:15:04,815 --> 00:15:09,666
+* first, then !app.py, !requirements.txt, !src/.
+
+189
+00:15:11,400 --> 00:15:16,024
+The pricing image downloads the latest exchange rates during the build.
+
+190
+00:15:16,024 --> 00:15:21,365
+A new build was made this morning, yet the image still contains yesterday's rates.
+
+191
+00:15:21,900 --> 00:15:22,056
+1.
+
+192
+00:15:22,056 --> 00:15:24,715
+Did the build run the step at all?
+
+193
+00:15:25,267 --> 00:15:30,665
+A build step that depends on something outside the build context (the network,
+
+194
+00:15:30,665 --> 00:15:33,572
+the time, a remote repository) was cached:
+
+195
+00:15:33,572 --> 00:15:37,586
+Docker cannot know that its result would be different now.
+
+196
+00:15:39,333 --> 00:15:42,195
+Make the dependency part of the cache key.
+
+197
+00:15:42,195 --> 00:15:47,373
+A build argument used by the step invalidates it whenever its value changes:
+
+198
+00:15:47,933 --> 00:15:50,846
+Never rely on the cache for freshness:
+
+199
+00:15:50,846 --> 00:15:56,748
+pin what you download (a version, a checksum) so the Dockerfile changes when.
+
+200
+00:15:57,300 --> 00:16:02,690
+Rebuild regularly without cache, and with --pull to get the patched base image:
+
+201
+00:16:02,690 --> 00:16:04,055
+a nightly or weekly.
+
+202
+00:16:05,800 --> 00:16:11,149
+The Go API is a single small binary, but its image is hundreds of megabytes.
+
+203
+00:16:11,149 --> 00:16:15,302
+Deployments are slow because every new server downloads it,
+
+204
+00:16:15,302 --> 00:16:20,230
+and the security scanner reports findings in tools the API never uses.
+
+205
+00:16:20,767 --> 00:16:20,904
+1.
+
+206
+00:16:20,904 --> 00:16:22,348
+Which layers are big?
+
+207
+00:16:22,348 --> 00:16:28,056
+docker history lists every layer with its size and the instruction that created it:
+
+208
+00:16:28,600 --> 00:16:33,120
+The image was built in a single stage from the compiler image,
+
+209
+00:16:33,120 --> 00:16:40,775
+so the build environment (compiler, sources, shell, package manager) ships to production with the binary.
+
+210
+00:16:42,533 --> 00:16:45,946
+A multi-stage build (lessons 087, 089):
+
+211
+00:16:45,946 --> 00:16:54,348
+compile in the golang stage, copy only the static binary into a minimal, non-root runtime image.
+
+212
+00:16:54,900 --> 00:17:05,425
+Use multi-stage builds for every compiled language (Go, Java, Rust, .NET) and for front-end builds (Node.js →.
+
+213
+00:17:05,967 --> 00:17:09,093
+Choose the smallest base that works:
+
+214
+00:17:09,093 --> 00:17:14,391
+distroless, -alpine, -slim; avoid full OS images for runtime.
+
+215
+00:17:16,133 --> 00:17:21,816
+The pricing image needs an access token to download a private price feed during the build.
+
+216
+00:17:21,816 --> 00:17:26,363
+The token was passed with --build-arg, "so it is not in the Dockerfile".
+
+217
+00:17:26,900 --> 00:17:27,099
+1.
+
+218
+00:17:27,099 --> 00:17:28,995
+Where is it stored?
+
+219
+00:17:29,533 --> 00:17:36,793
+The token was passed as a build argument and used by a RUN step, so BuildKit recorded it in the image history.
+
+220
+00:17:38,533 --> 00:17:40,426
+First, revoke the token:
+
+221
+00:17:40,426 --> 00:17:46,656
+it was published with the image, and removing the image does not un-publish it.
+
+222
+00:17:46,656 --> 00:17:50,993
+Then pass the new token as a build secret (lesson 083):
+
+223
+00:17:51,533 --> 00:17:55,448
+Never pass secrets with ARG, ENV or COPY.
+
+224
+00:17:56,000 --> 00:18:04,240
+Scan images for secrets in CI and review docker history --no-trunc of release images (lesson 137).
+
+225
+00:18:06,000 --> 00:18:09,502
+A penetration test of the opening-hours website reports:
+
+226
+00:18:09,502 --> 00:18:14,879
+"a vulnerability in the web server gives an attacker a shell, and that shell is root".
+
+227
+00:18:14,879 --> 00:18:21,195
+Nothing is broken functionally; the finding is that a compromise would be total inside the container.
+
+228
+00:18:21,733 --> 00:18:21,910
+1.
+
+229
+00:18:21,910 --> 00:18:24,378
+Who runs the server process?
+
+230
+00:18:24,933 --> 00:18:31,108
+The Dockerfile has no USER instruction, so the server runs as root, the default.
+
+231
+00:18:32,867 --> 00:18:40,486
+Create an unprivileged user and switch to it; keep the content owned by root so the server can read it but not change it:
+
+232
+00:18:41,033 --> 00:18:50,143
+Every image ends with USER (a numeric uid works everywhere, including Kubernetes runAsNonRoot, lesson 081).
+
+233
+00:18:50,700 --> 00:18:56,650
+Application files owned by root and read-only for the app; only data paths writable.
+
+234
+00:18:58,400 --> 00:19:03,794
+The menu API answers every request, but Docker reports it as unhealthy.
+
+235
+00:19:03,794 --> 00:19:07,897
+In Compose, the services that wait for it (depends_on:
+
+236
+00:19:07,897 --> 00:19:08,656
+condition:
+
+237
+00:19:08,656 --> 00:19:10,860
+service_healthy) never start.
+
+238
+00:19:11,400 --> 00:19:11,559
+1.
+
+239
+00:19:11,559 --> 00:19:13,945
+What does the healthcheck run?
+
+240
+00:19:14,500 --> 00:19:18,990
+The HEALTHCHECK uses curl, which is not installed in the image.
+
+241
+00:19:20,733 --> 00:19:25,103
+Check with a tool the image really contains (here Python itself),
+
+242
+00:19:25,103 --> 00:19:28,263
+rather than installing curl only for the check:
+
+243
+00:19:28,800 --> 00:19:32,718
+Test the healthcheck command in the image when you write it:
+
+244
+00:19:32,718 --> 00:19:35,070
+docker run --rm IMAGE sh -c 'CHECK'.
+
+245
+00:19:35,633 --> 00:19:37,567
+Use what the image has:
+
+246
+00:19:37,567 --> 00:19:44,378
+wget in Alpine/BusyBox, the language runtime in slim images, a small healthcheck.
+
+247
+00:19:46,133 --> 00:19:52,070
+The nightly report job got a memory limit of 64 MB during a cost review.
+
+248
+00:19:52,070 --> 00:19:58,913
+Since then it dies without a single error message, every night, with exit code 137.
+
+249
+00:19:59,467 --> 00:19:59,656
+1.
+
+250
+00:19:59,656 --> 00:20:01,741
+Who ended the process?
+
+251
+00:20:02,300 --> 00:20:08,209
+The job needs more than 150 MB at its peak; the new limit is 64 MB.
+
+252
+00:20:08,209 --> 00:20:12,795
+The kernel kills it as soon as it crosses the limit.
+
+253
+00:20:14,533 --> 00:20:19,906
+Set the limit from the measured peak plus headroom (or make the job use less memory,
+
+254
+00:20:19,906 --> 00:20:24,063
+for example by streaming the data instead of loading it at once):
+
+255
+00:20:24,600 --> 00:20:26,775
+Measure before you limit:
+
+256
+00:20:26,775 --> 00:20:33,910
+docker stats under realistic load, the cgroup's memory.peak for jobs (lesson 098).
+
+257
+00:20:34,467 --> 00:20:43,021
+Alert on oom events and on exit code 137 in your monitoring; a restart policy alone only hides the kills.
+
+258
+00:20:44,767 --> 00:20:52,151
+The thumbnail service became several times slower after its deployment configuration got --cpus 0.25.
+
+259
+00:20:52,151 --> 00:20:58,146
+There are no errors and the server has idle CPU cores, but every job takes longer.
+
+260
+00:20:58,700 --> 00:20:58,881
+1.
+
+261
+00:20:58,881 --> 00:21:01,235
+Which limit is configured?
+
+262
+00:21:01,800 --> 00:21:07,340
+The limit of a quarter of a CPU is far below what the job needs to finish in time.
+
+263
+00:21:09,100 --> 00:21:15,259
+Limits can be changed on a running container with docker update (Compose:
+
+264
+00:21:15,259 --> 00:21:17,790
+deploy.resources.limits.cpus):
+
+265
+00:21:18,333 --> 00:21:24,167
+Size CPU limits from measurements under realistic load (docker stats,
+
+266
+00:21:24,167 --> 00:21:27,718
+cpu.stat), and recheck after code changes.
+
+267
+00:21:28,267 --> 00:21:30,834
+Watch throttling, not only usage:
+
+268
+00:21:30,834 --> 00:21:37,136
+throttled_usec growing is the signal; monitoring systems export it per container.
+
+269
+00:21:38,900 --> 00:21:42,327
+The team's private registry now requires a login.
+
+270
+00:21:42,327 --> 00:21:50,000
+The release script pushes as before and fails with no basic auth credentials; a colleague logs in and gets 401 Unauthorized.
+
+271
+00:21:51,533 --> 00:21:51,701
+1.
+
+272
+00:21:51,701 --> 00:21:54,293
+What does the registry require?
+
+273
+00:21:54,833 --> 00:21:59,765
+The client had no credentials for localhost:5000 (no docker login),
+
+274
+00:21:59,765 --> 00:22:03,298
+and the colleague's login used a wrong password.
+
+275
+00:22:05,033 --> 00:22:13,218
+Log in with the right credentials, read from standard input so the password never appears in the shell history or the process list:
+
+276
+00:22:13,767 --> 00:22:21,143
+In CI, log in with a dedicated token from the secret store, never a personal password:
+
+277
+00:22:21,143 --> 00:22:23,201
+docker/login-action, or.
+
+278
+00:22:23,767 --> 00:22:31,166
+Use tokens with the narrowest scope (pull-only for servers, push for CI) and an expiry date.
+
+279
+00:22:32,900 --> 00:22:35,081
+Three reports in one morning:
+
+280
+00:22:35,081 --> 00:22:39,367
+a new server cannot start the proxy (pull access denied),
+
+281
+00:22:39,367 --> 00:22:42,977
+a CI job cannot find its base image (not found),
+
+282
+00:22:42,977 --> 00:22:51,475
+and a training room full of laptops gets toomanyrequests / 429 Too Many Requests for images that certainly exist.
+
+283
+00:22:52,033 --> 00:22:52,207
+1.
+
+284
+00:22:52,207 --> 00:22:54,468
+Is the image already here?
+
+285
+00:22:55,033 --> 00:22:55,283
+1.
+
+286
+00:22:55,283 --> 00:22:59,025
+A typo in the repository name:
+
+287
+00:22:59,025 --> 00:22:59,773
+ngnix.
+
+288
+00:22:59,773 --> 00:23:00,023
+2.
+
+289
+00:23:01,767 --> 00:23:02,244
+Typos:
+
+290
+00:23:02,244 --> 00:23:08,453
+use the exact reference from the registry's tag list, and pin it (lesson 020).
+
+291
+00:23:08,453 --> 00:23:14,741
+The correct image is already local, so it runs without contacting the registry:
+
+292
+00:23:15,300 --> 00:23:25,280
+Pin exact image references (nginx:1.30-alpine, or a digest) and copy them from the registry, not from memory.
+
+293
+00:23:25,833 --> 00:23:31,433
+Log in to Docker Hub in CI and on servers, with a read-only access token.

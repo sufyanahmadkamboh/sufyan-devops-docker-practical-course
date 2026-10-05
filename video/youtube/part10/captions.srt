@@ -1,0 +1,1531 @@
+1
+00:00:04,800 --> 00:00:06,849
+Why Docker Compose?
+
+2
+00:00:07,400 --> 00:00:10,487
+Real applications are several containers:
+
+3
+00:00:10,487 --> 00:00:13,272
+an API, a cache, a database, a proxy.
+
+4
+00:00:13,272 --> 00:00:17,036
+With plain docker commands you create the network,
+
+5
+00:00:17,036 --> 00:00:24,489
+start each container with the right flags, in the right order, and remove everything again by hand.
+
+6
+00:00:24,489 --> 00:00:32,469
+Docker Compose describes the whole application in one file, compose.yaml, and manages it with one command:
+
+7
+00:00:32,469 --> 00:00:33,825
+docker compose up.
+
+8
+00:00:35,567 --> 00:00:39,526
+First, a fresh practice folder for this lesson.
+
+9
+00:00:40,067 --> 00:00:41,314
+The manual way.
+
+10
+00:00:41,314 --> 00:00:45,971
+Every step is a separate command, and the order matters:
+
+11
+00:00:46,533 --> 00:00:53,930
+It works, but you had to remember the network, both names, the port, the variable and the order.
+
+12
+00:00:53,930 --> 00:00:56,858
+Removing it all is four more commands:
+
+13
+00:00:57,400 --> 00:01:04,797
+It works, but you had to remember the network, both names, the port, the variable and the order.
+
+14
+00:01:04,797 --> 00:01:07,725
+Removing it all is four more commands:
+
+15
+00:01:09,467 --> 00:01:11,107
+Let me try something.
+
+16
+00:01:11,107 --> 00:01:15,326
+The manual way fails as soon as one step is forgotten.
+
+17
+00:01:15,867 --> 00:01:19,976
+HTTP 000 means curl got no HTTP answer at all:
+
+18
+00:01:19,976 --> 00:01:24,085
+nothing listens on port 8081 of your computer.
+
+19
+00:01:24,085 --> 00:01:29,891
+The container is running; check which of its ports are published:
+
+20
+00:01:31,633 --> 00:01:35,056
+Do not repeat long docker run commands by hand:
+
+21
+00:01:35,056 --> 00:01:37,823
+let Compose apply the file every time.
+
+22
+00:01:39,567 --> 00:01:40,280
+Got it.
+
+23
+00:01:40,280 --> 00:01:43,031
+What do I need to remember?
+
+24
+00:01:43,567 --> 00:01:50,258
+Multi-container applications need networks, names, ports, variables and an order:
+
+25
+00:01:50,258 --> 00:01:52,406
+easy to get wrong by hand.
+
+26
+00:01:52,967 --> 00:01:58,721
+Compose describes the application in compose.yaml and manages it as one project.
+
+27
+00:01:59,267 --> 00:02:04,471
+docker compose up -d creates everything; docker compose down removes it.
+
+28
+00:02:06,233 --> 00:02:10,005
+I keep hearing about your first Compose file.
+
+29
+00:02:10,005 --> 00:02:11,598
+What is it, really?
+
+30
+00:02:12,133 --> 00:02:20,005
+How a compose.yaml file is structured, how to check it before running it (docker compose config),
+
+31
+00:02:20,005 --> 00:02:21,628
+and the basic cycle:
+
+32
+00:02:21,628 --> 00:02:24,387
+up, ps, use the application, down.
+
+33
+00:02:24,387 --> 00:02:26,253
+Compose files are YAML:
+
+34
+00:02:26,253 --> 00:02:32,258
+indentation is the structure, so most mistakes are a few misplaced spaces.
+
+35
+00:02:34,000 --> 00:02:37,960
+First, a fresh practice folder for this lesson.
+
+36
+00:02:38,500 --> 00:02:39,580
+Read the file:
+
+37
+00:02:39,580 --> 00:02:41,971
+each comment explains one line.
+
+38
+00:02:41,971 --> 00:02:49,685
+Before starting anything, let Compose validate the file and print it fully resolved (defaults added,
+
+39
+00:02:49,685 --> 00:02:50,920
+paths absolute):
+
+40
+00:02:51,467 --> 00:02:58,736
+Before starting anything, let Compose validate the file and print it fully resolved (defaults added,
+
+41
+00:02:58,736 --> 00:02:59,899
+paths absolute):
+
+42
+00:02:59,899 --> 00:03:03,316
+Start the application, check its state, use it:
+
+43
+00:03:03,867 --> 00:03:08,166
+Start the application, check its state, use it:
+
+44
+00:03:09,900 --> 00:03:11,358
+Let me try something.
+
+45
+00:03:11,358 --> 00:03:16,705
+A colleague's version of the file has one space too many before environment::
+
+46
+00:03:17,267 --> 00:03:23,263
+The error comes from the YAML parser, before Compose looks at any service.
+
+47
+00:03:23,263 --> 00:03:24,883
+It names two places:
+
+48
+00:03:24,883 --> 00:03:32,500
+the mapping it was reading (line 2, the keys of api) and where it got lost (line 5, column 6).
+
+49
+00:03:32,500 --> 00:03:35,741
+Look at those lines with visible spaces:
+
+50
+00:03:37,500 --> 00:03:38,938
+Indent environment:
+
+51
+00:03:38,938 --> 00:03:41,815
+like its siblings, and validate again:
+
+52
+00:03:43,567 --> 00:03:44,280
+Got it.
+
+53
+00:03:44,280 --> 00:03:47,031
+What do I need to remember?
+
+54
+00:03:47,567 --> 00:03:51,724
+compose.yaml lists services; each one uses an image:
+
+55
+00:03:51,724 --> 00:03:55,401
+or a build:, plus ports, environment and more.
+
+56
+00:03:55,967 --> 00:03:58,034
+Indentation is structure:
+
+57
+00:03:58,034 --> 00:04:01,671
+keys of one mapping line up; never use tabs.
+
+58
+00:04:02,233 --> 00:04:08,308
+docker compose config validates and shows the resolved file; use it after every edit.
+
+59
+00:04:10,067 --> 00:04:12,271
+How does services work?
+
+60
+00:04:12,833 --> 00:04:16,203
+A service is one component of the application:
+
+61
+00:04:16,203 --> 00:04:21,771
+Compose runs one or more containers for it, all from the same configuration.
+
+62
+00:04:21,771 --> 00:04:25,214
+This lesson covers the keys every service uses:
+
+63
+00:04:25,214 --> 00:04:27,705
+where the image comes from (image:
+
+64
+00:04:27,705 --> 00:04:34,298
+or build:), the command, the ports, the restart policy, and how many copies run (--scale).
+
+65
+00:04:36,033 --> 00:04:39,993
+First, a fresh practice folder for this lesson.
+
+66
+00:04:40,533 --> 00:04:44,500
+Start the project and list its services and containers:
+
+67
+00:04:44,500 --> 00:04:50,341
+The api image was built and named PROJECT-SERVICE; redis used the image as it is,
+
+68
+00:04:50,341 --> 00:04:52,576
+with the command from the file.
+
+69
+00:04:52,576 --> 00:04:53,658
+Restart policy.
+
+70
+00:04:54,200 --> 00:05:00,444
+The api image was built and named PROJECT-SERVICE; redis used the image as it is,
+
+71
+00:05:00,444 --> 00:05:02,833
+with the command from the file.
+
+72
+00:05:02,833 --> 00:05:03,990
+Restart policy.
+
+73
+00:05:04,533 --> 00:05:06,133
+Let's run it.
+
+74
+00:05:07,867 --> 00:05:09,933
+Let me try something.
+
+75
+00:05:09,933 --> 00:05:11,213
+More traffic:
+
+76
+00:05:11,213 --> 00:05:13,771
+run two copies of the API.
+
+77
+00:05:14,333 --> 00:05:16,800
+Bind for 0.0.0.0:8080 failed:
+
+78
+00:05:16,800 --> 00:05:19,011
+port is already allocated:
+
+79
+00:05:19,011 --> 00:05:25,729
+the second replica asked for host port 8080, which the first one already holds.
+
+80
+00:05:25,729 --> 00:05:29,556
+A host port can belong to one container only.
+
+81
+00:05:29,556 --> 00:05:33,723
+The failed replica was created but never started:
+
+82
+00:05:35,467 --> 00:05:38,219
+Give the service a range of host ports:
+
+83
+00:05:38,219 --> 00:05:40,336
+each replica takes a free one.
+
+84
+00:05:42,100 --> 00:05:42,813
+Got it.
+
+85
+00:05:42,813 --> 00:05:45,565
+What do I need to remember?
+
+86
+00:05:46,100 --> 00:05:50,930
+A service = configuration for one or more identical containers.
+
+87
+00:05:51,467 --> 00:05:51,929
+image:
+
+88
+00:05:51,929 --> 00:05:53,547
+uses an image, build:
+
+89
+00:05:53,547 --> 00:05:55,087
+builds one; command:
+
+90
+00:05:55,087 --> 00:05:57,321
+replaces the default command.
+
+91
+00:05:57,867 --> 00:05:58,436
+restart:
+
+92
+00:05:58,436 --> 00:06:03,066
+unless-stopped restarts crashed containers, not ones you stopped.
+
+93
+00:06:04,800 --> 00:06:07,670
+Why would I need networking in Compose?
+
+94
+00:06:08,233 --> 00:06:15,214
+Compose creates a network for every project (PROJECT_default) and attaches every service to it.
+
+95
+00:06:15,214 --> 00:06:18,815
+On that network, each service name is a DNS name:
+
+96
+00:06:18,815 --> 00:06:22,710
+the API reaches Redis at redis, not at an IP address.
+
+97
+00:06:22,710 --> 00:06:28,956
+You can also declare your own networks and attach each service only where it belongs,
+
+98
+00:06:28,956 --> 00:06:33,218
+so a front-end component cannot reach the database at all.
+
+99
+00:06:34,967 --> 00:06:38,926
+First, a fresh practice folder for this lesson.
+
+100
+00:06:39,467 --> 00:06:43,286
+Start the project and look at the networks Compose created:
+
+101
+00:06:43,286 --> 00:06:45,746
+Which containers are on which network:
+
+102
+00:06:46,300 --> 00:06:49,098
+Which containers are on which network:
+
+103
+00:06:49,098 --> 00:06:54,695
+The API resolves redis through Docker's built-in DNS, and the request works:
+
+104
+00:06:55,233 --> 00:07:01,298
+The API resolves redis through Docker's built-in DNS, and the request works:
+
+105
+00:07:03,033 --> 00:07:04,544
+Let me try something.
+
+106
+00:07:04,544 --> 00:07:11,016
+A colleague "fixed" a connection problem on their laptop by pointing the API at localhost,
+
+107
+00:07:11,016 --> 00:07:16,123
+in an override file (Compose merges -f files in order, later ones win):
+
+108
+00:07:16,667 --> 00:07:19,752
+The API answers, but /visits fails.
+
+109
+00:07:19,752 --> 00:07:26,186
+Read the API's log, then check what localhost means inside the container:
+
+110
+00:07:27,933 --> 00:07:32,523
+Remove the override, so REDIS_HOST is the service name again:
+
+111
+00:07:34,267 --> 00:07:34,980
+Got it.
+
+112
+00:07:34,980 --> 00:07:37,731
+What do I need to remember?
+
+113
+00:07:38,267 --> 00:07:43,698
+Compose creates PROJECT_default and attaches every service; custom networks:
+
+114
+00:07:43,698 --> 00:07:45,056
+give finer control.
+
+115
+00:07:45,600 --> 00:07:50,469
+Service names are DNS names on every network the service joins.
+
+116
+00:07:51,033 --> 00:07:56,583
+Services talk on container ports; published ports are only for your computer.
+
+117
+00:07:58,333 --> 00:08:01,473
+What should I know about volumes in Compose?
+
+118
+00:08:02,033 --> 00:08:07,115
+A container's writable layer disappears with the container (lesson 053).
+
+119
+00:08:07,115 --> 00:08:14,173
+Data that must survive (a database, a cache that must not start empty, uploads) belongs in a volume.
+
+120
+00:08:14,173 --> 00:08:24,336
+In Compose you declare named volumes at the top level and mount them into services; Compose creates them once and keeps them across down and up,
+
+121
+00:08:24,336 --> 00:08:27,583
+until you explicitly delete them with down -v.
+
+122
+00:08:29,333 --> 00:08:33,293
+First, a fresh practice folder for this lesson.
+
+123
+00:08:33,833 --> 00:08:36,843
+Start the stack and count a few visits:
+
+124
+00:08:37,400 --> 00:08:43,184
+Now remove the whole application (containers and network) and start it again:
+
+125
+00:08:43,733 --> 00:08:49,518
+Now remove the whole application (containers and network) and start it again:
+
+126
+00:08:51,267 --> 00:08:52,671
+Let me try something.
+
+127
+00:08:52,671 --> 00:08:58,756
+A colleague's copy of the file mounts the volume but forgot to declare it at the top level:
+
+128
+00:08:59,300 --> 00:09:02,312
+refers to undefined volume redis-data:
+
+129
+00:09:02,312 --> 00:09:08,098
+in a service, redis-data:/data (a name, not a path) means a named volume,
+
+130
+00:09:08,098 --> 00:09:13,487
+and every named volume must be declared under the top-level volumes:
+
+131
+00:09:13,487 --> 00:09:13,804
+key.
+
+132
+00:09:13,804 --> 00:09:17,371
+Compose checks this before creating anything.
+
+133
+00:09:17,371 --> 00:09:19,115
+Compare the two files:
+
+134
+00:09:20,867 --> 00:09:23,194
+Add the declaration (here:
+
+135
+00:09:23,194 --> 00:09:26,416
+copy the correct file) and validate:
+
+136
+00:09:28,167 --> 00:09:28,880
+Got it.
+
+137
+00:09:28,880 --> 00:09:31,631
+What do I need to remember?
+
+138
+00:09:32,167 --> 00:09:38,196
+Named volumes are declared at the top level and mounted per service (name:/path).
+
+139
+00:09:38,733 --> 00:09:40,607
+They outlive containers:
+
+140
+00:09:40,607 --> 00:09:43,573
+down keeps them, down -v deletes them.
+
+141
+00:09:44,133 --> 00:09:46,856
+A name in a service's volumes:
+
+142
+00:09:46,856 --> 00:09:51,938
+means a named volume, a path (./dir) means a bind mount.
+
+143
+00:09:53,700 --> 00:09:57,285
+Can you show me environment variables in Compose?
+
+144
+00:09:57,833 --> 00:10:02,598
+Compose uses environment variables in two different places,
+
+145
+00:10:02,598 --> 00:10:06,798
+and mixing them up is a classic source of confusion:
+
+146
+00:10:06,798 --> 00:10:06,959
+1.
+
+147
+00:10:06,959 --> 00:10:08,090
+Interpolation:
+
+148
+00:10:08,090 --> 00:10:12,693
+${VAR} inside compose.yaml is replaced by Compose itself,
+
+149
+00:10:12,693 --> 00:10:17,296
+from your shell or from a .env file next to compose.yaml.
+
+150
+00:10:17,296 --> 00:10:21,576
+It configures the file (ports, image tags, defaults).
+
+151
+00:10:21,576 --> 00:10:21,738
+2.
+
+152
+00:10:23,500 --> 00:10:27,460
+First, a fresh practice folder for this lesson.
+
+153
+00:10:28,000 --> 00:10:32,660
+See what interpolation produced, before anything runs:
+
+154
+00:10:32,660 --> 00:10:38,098
+API_PORT and GREETING came from .env; APP_VERSION from api.env.
+
+155
+00:10:38,098 --> 00:10:40,859
+A shell variable wins over .env:
+
+156
+00:10:41,400 --> 00:10:46,636
+API_PORT and GREETING came from .env; APP_VERSION from api.env.
+
+157
+00:10:46,636 --> 00:10:49,296
+A shell variable wins over .env:
+
+158
+00:10:49,296 --> 00:10:53,120
+Start the stack and look inside the container:
+
+159
+00:10:53,667 --> 00:10:56,932
+Start the stack and look inside the container:
+
+160
+00:10:56,932 --> 00:10:59,274
+API_PORT is not in the container:
+
+161
+00:10:59,274 --> 00:11:01,261
+it only configured the file.
+
+162
+00:11:03,000 --> 00:11:04,802
+Let me try something.
+
+163
+00:11:04,802 --> 00:11:09,264
+A teammate clones the repository and runs the stack.
+
+164
+00:11:09,264 --> 00:11:12,954
+.env is not in Git, so they do not have it:
+
+165
+00:11:13,500 --> 00:11:19,216
+Compose printed a warning, not an error, and started the stack anyway.
+
+166
+00:11:19,216 --> 00:11:26,321
+With API_PORT empty, ":5000" means "publish container port 5000 on a random host port".
+
+167
+00:11:26,321 --> 00:11:28,445
+Ask Compose where it went:
+
+168
+00:11:30,200 --> 00:11:37,760
+Restore the .env file, and make the file fail loudly instead of silently when a required value is missing:
+
+169
+00:11:39,500 --> 00:11:40,213
+Got it.
+
+170
+00:11:40,213 --> 00:11:42,964
+What do I need to remember?
+
+171
+00:11:43,500 --> 00:11:47,037
+${VAR} in compose.yaml is interpolation:
+
+172
+00:11:47,037 --> 00:11:49,336
+from the shell, then .env.
+
+173
+00:11:49,336 --> 00:11:52,784
+docker compose config shows the result.
+
+174
+00:11:53,333 --> 00:11:54,298
+environment:
+
+175
+00:11:54,298 --> 00:11:55,344
+and env_file:
+
+176
+00:11:55,344 --> 00:11:57,918
+set variables inside containers.
+
+177
+00:11:58,467 --> 00:12:01,564
+An unset ${VAR} is only a warning:
+
+178
+00:12:01,564 --> 00:12:05,116
+use ${VAR:-default} or ${VAR:?message}.
+
+179
+00:12:06,867 --> 00:12:11,187
+I keep hearing about depends_on vs readiness.
+
+180
+00:12:11,187 --> 00:12:13,011
+What is it, really?
+
+181
+00:12:13,567 --> 00:12:14,338
+depends_on:
+
+182
+00:12:14,338 --> 00:12:16,793
+[db] only controls the start order:
+
+183
+00:12:16,793 --> 00:12:21,281
+Compose starts db's container first, then the dependent service.
+
+184
+00:12:21,281 --> 00:12:26,470
+It does not wait until the database inside is ready to accept connections.
+
+185
+00:12:26,470 --> 00:12:32,571
+A database needs seconds to initialise; an application that connects immediately fails.
+
+186
+00:12:34,333 --> 00:12:38,293
+First, a fresh practice folder for this lesson.
+
+187
+00:12:38,833 --> 00:12:40,619
+"Running" is not "ready".
+
+188
+00:12:40,619 --> 00:12:46,764
+Start only the database and ask PostgreSQL immediately, and again a few seconds later:
+
+189
+00:12:46,764 --> 00:12:53,908
+The container was running from the first second; PostgreSQL accepted connections only seconds later.
+
+190
+00:12:54,467 --> 00:13:01,499
+The container was running from the first second; PostgreSQL accepted connections only seconds later.
+
+191
+00:13:01,499 --> 00:13:07,546
+The first start of a database is the slowest, because it creates its data files first.
+
+192
+00:13:09,300 --> 00:13:10,897
+Let me try something.
+
+193
+00:13:10,897 --> 00:13:15,612
+This is the failure the lab showed, as your team would see it:
+
+194
+00:13:15,612 --> 00:13:16,905
+the job's output.
+
+195
+00:13:17,467 --> 00:13:21,210
+Connection refused on the right host name and port:
+
+196
+00:13:21,210 --> 00:13:27,375
+db resolved and the network path exists, but nothing was listening on port 5432 yet.
+
+197
+00:13:27,375 --> 00:13:33,686
+Compare the start times of the two containers with the time the database became ready:
+
+198
+00:13:35,433 --> 00:13:40,908
+Define readiness with a healthcheck and wait for it (fixed/compose.yaml):
+
+199
+00:13:42,667 --> 00:13:43,380
+Got it.
+
+200
+00:13:43,380 --> 00:13:46,131
+What do I need to remember?
+
+201
+00:13:46,667 --> 00:13:48,896
+depends_on = start order.
+
+202
+00:13:48,896 --> 00:13:51,661
+It does not wait for readiness.
+
+203
+00:13:52,200 --> 00:13:55,186
+Readiness needs a definition:
+
+204
+00:13:55,186 --> 00:14:01,365
+a healthcheck (pg_isready, an HTTP /health, redis-cli ping).
+
+205
+00:14:01,900 --> 00:14:02,556
+condition:
+
+206
+00:14:02,556 --> 00:14:08,465
+service_healthy waits for the healthcheck; service_completed_successfully waits for a job.
+
+207
+00:14:10,200 --> 00:14:13,135
+How does healthchecks in Compose work?
+
+208
+00:14:13,700 --> 00:14:19,669
+A healthcheck is a command Docker runs inside the container at a regular interval.
+
+209
+00:14:19,669 --> 00:14:26,949
+Exit code 0 means healthy, any other code means a failed check; after a number of failures in a row,
+
+210
+00:14:26,949 --> 00:14:28,915
+the container is unhealthy.
+
+211
+00:14:28,915 --> 00:14:38,015
+Compose uses health for depends_on conditions (lesson 068) and for docker compose up --wait; you see it in docker compose ps.
+
+212
+00:14:39,767 --> 00:14:43,726
+First, a fresh practice folder for this lesson.
+
+213
+00:14:44,267 --> 00:14:49,838
+--wait makes up return only when every service is healthy (or fails if one is not):
+
+214
+00:14:49,838 --> 00:14:56,013
+Redis started first; api was created only when Redis was healthy (its depends_on condition).
+
+215
+00:14:56,013 --> 00:14:59,906
+The history of the last checks is stored on the container:
+
+216
+00:15:00,467 --> 00:15:07,124
+Redis started first; api was created only when Redis was healthy (its depends_on condition).
+
+217
+00:15:07,124 --> 00:15:11,321
+The history of the last checks is stored on the container:
+
+218
+00:15:13,067 --> 00:15:14,983
+Let me try something.
+
+219
+00:15:14,983 --> 00:15:22,466
+A teammate changes the port the healthcheck uses (5001 instead of the API's 5000):
+
+220
+00:15:23,000 --> 00:15:26,950
+unhealthy, although the API itself works:
+
+221
+00:15:28,700 --> 00:15:30,500
+Here is the fix.
+
+222
+00:15:32,233 --> 00:15:32,947
+Got it.
+
+223
+00:15:32,947 --> 00:15:35,698
+What do I need to remember?
+
+224
+00:15:36,233 --> 00:15:42,083
+A healthcheck is a command run inside the container; exit 0 = check passed.
+
+225
+00:15:42,633 --> 00:15:48,828
+retries failures in a row → unhealthy; start_period gives the service time to start.
+
+226
+00:15:49,367 --> 00:15:51,907
+docker compose up --wait and condition:
+
+227
+00:15:51,907 --> 00:15:53,666
+service_healthy use health.
+
+228
+00:15:55,400 --> 00:15:57,695
+Why would I need profiles?
+
+229
+00:15:58,233 --> 00:16:01,145
+Some services are not needed every time:
+
+230
+00:16:01,145 --> 00:16:06,750
+a debugging shell, an admin UI, a job that loads test data, a load generator.
+
+231
+00:16:06,750 --> 00:16:12,210
+Profiles keep them in the same compose.yaml but start them only on request.
+
+232
+00:16:12,210 --> 00:16:14,176
+A service without profiles:
+
+233
+00:16:14,176 --> 00:16:17,015
+always starts; a service with profiles:
+
+234
+00:16:17,015 --> 00:16:20,873
+[debug] starts only when the debug profile is active.
+
+235
+00:16:22,633 --> 00:16:26,593
+First, a fresh practice folder for this lesson.
+
+236
+00:16:27,133 --> 00:16:31,094
+Without a profile, only the two core services start:
+
+237
+00:16:31,094 --> 00:16:35,208
+All services of the file, and the profiles that exist:
+
+238
+00:16:35,767 --> 00:16:39,505
+All services of the file, and the profiles that exist:
+
+239
+00:16:39,505 --> 00:16:45,596
+Load test data with the seed profile, then use the debugging shell of the debug profile:
+
+240
+00:16:46,133 --> 00:16:52,163
+Load test data with the seed profile, then use the debugging shell of the debug profile:
+
+241
+00:16:53,900 --> 00:16:55,552
+Let me try something.
+
+242
+00:16:55,552 --> 00:17:01,060
+Someone decides "the API needs test data" and makes it depend on seed:
+
+243
+00:17:01,600 --> 00:17:04,147
+depends on undefined service "seed":
+
+244
+00:17:04,147 --> 00:17:07,754
+seed is in the file, but its profile is not active,
+
+245
+00:17:07,754 --> 00:17:14,263
+so for this command it does not exist, and a service that always starts cannot depend on it.
+
+246
+00:17:14,263 --> 00:17:17,305
+With the profile active, the file is valid:
+
+247
+00:17:19,067 --> 00:17:22,840
+An always-on service should not depend on an optional one.
+
+248
+00:17:22,840 --> 00:17:27,003
+Either remove the dependency, or mark it optional with required:
+
+249
+00:17:27,003 --> 00:17:31,426
+false (Compose then waits for seed only when it is part of the run):
+
+250
+00:17:33,167 --> 00:17:33,880
+Got it.
+
+251
+00:17:33,880 --> 00:17:36,631
+What do I need to remember?
+
+252
+00:17:37,167 --> 00:17:37,822
+profiles:
+
+253
+00:17:37,822 --> 00:17:43,061
+[name] makes a service optional; services without profiles always start.
+
+254
+00:17:43,600 --> 00:17:47,345
+Activate with --profile name or COMPOSE_PROFILES.
+
+255
+00:17:47,900 --> 00:17:53,124
+An always-on service cannot depend on an inactive one (or use required:
+
+256
+00:17:53,124 --> 00:17:53,639
+false).
+
+257
+00:17:55,400 --> 00:17:57,800
+What should I know about logs?
+
+258
+00:17:58,333 --> 00:18:05,093
+Docker collects everything a container's main process writes to standard output and standard error.
+
+259
+00:18:05,093 --> 00:18:09,940
+docker compose logs shows that output for every service of the project,
+
+260
+00:18:09,940 --> 00:18:14,652
+interleaved and prefixed with the container name, or for one service.
+
+261
+00:18:14,652 --> 00:18:16,563
+The rule that makes it work:
+
+262
+00:18:16,563 --> 00:18:21,138
+containers log to stdout/stderr, not to files inside the container.
+
+263
+00:18:22,900 --> 00:18:26,860
+First, a fresh practice folder for this lesson.
+
+264
+00:18:27,400 --> 00:18:31,502
+Make a few requests, then read the API's last lines:
+
+265
+00:18:31,502 --> 00:18:37,735
+All services together, with Docker's timestamps, only the last 2 lines of each:
+
+266
+00:18:38,300 --> 00:18:44,164
+All services together, with Docker's timestamps, only the last 2 lines of each:
+
+267
+00:18:44,164 --> 00:18:49,955
+Only what happened recently, without the prefix (useful for piping into grep):
+
+268
+00:18:50,500 --> 00:18:56,429
+Only what happened recently, without the prefix (useful for piping into grep):
+
+269
+00:18:56,429 --> 00:19:02,435
+To follow the logs live, add -f and stop with Ctrl+C (it never ends by itself):
+
+270
+00:19:04,200 --> 00:19:05,800
+Let me try something.
+
+271
+00:19:05,800 --> 00:19:09,685
+The same worker, but written the "traditional" way:
+
+272
+00:19:09,685 --> 00:19:11,590
+it appends to a log file.
+
+273
+00:19:12,133 --> 00:19:15,929
+The container is running, but its log is empty.
+
+274
+00:19:15,929 --> 00:19:21,583
+Docker only sees stdout and stderr; the process writes somewhere else.
+
+275
+00:19:21,583 --> 00:19:23,683
+Look inside the container:
+
+276
+00:19:25,433 --> 00:19:26,916
+Write to stdout.
+
+277
+00:19:26,916 --> 00:19:31,085
+When an application can only write to a file,
+
+278
+00:19:31,085 --> 00:19:37,570
+point that file at stdout (the official Nginx image does exactly this:
+
+279
+00:19:37,570 --> 00:19:42,388
+/var/log/nginx/access.log is a link to /dev/stdout):
+
+280
+00:19:44,133 --> 00:19:44,847
+Got it.
+
+281
+00:19:44,847 --> 00:19:47,598
+What do I need to remember?
+
+282
+00:19:48,133 --> 00:19:55,858
+Docker captures a container's stdout and stderr; docker compose logs shows them per project or per service.
+
+283
+00:19:56,400 --> 00:20:02,895
+--tail, -t, --since, -f, --no-log-prefix narrow and shape the output.
+
+284
+00:20:03,433 --> 00:20:08,089
+Log files inside the container are invisible to Docker:
+
+285
+00:20:08,089 --> 00:20:12,153
+log to stdout (or link the file to /dev/stdout).
+
+286
+00:20:13,900 --> 00:20:16,430
+Can you show me exec and run?
+
+287
+00:20:16,967 --> 00:20:21,939
+Two ways to run a command for a service, which are easy to confuse:
+
+288
+00:20:21,939 --> 00:20:28,619
+docker compose exec SERVICE CMD runs the command in the running container of that service:
+
+289
+00:20:28,619 --> 00:20:31,588
+same processes, same files, same memory.
+
+290
+00:20:31,588 --> 00:20:35,447
+For investigating and administering what is running.
+
+291
+00:20:35,447 --> 00:20:38,787
+docker compose run SERVICE CMD creates a new,
+
+292
+00:20:38,787 --> 00:20:44,651
+separate container from the service's configuration and runs the command there.
+
+293
+00:20:44,651 --> 00:20:45,912
+For one-off jobs:
+
+294
+00:20:45,912 --> 00:20:47,916
+migrations, tests, scripts.
+
+295
+00:20:49,667 --> 00:20:53,626
+First, a fresh practice folder for this lesson.
+
+296
+00:20:54,167 --> 00:20:56,664
+exec joins the running container:
+
+297
+00:20:56,664 --> 00:21:00,297
+it sees the API's own processes and environment.
+
+298
+00:21:00,297 --> 00:21:04,082
+Process 1 is Gunicorn, the service's main process.
+
+299
+00:21:04,082 --> 00:21:09,001
+run instead starts a fresh container with the same configuration:
+
+300
+00:21:09,567 --> 00:21:13,223
+Process 1 is Gunicorn, the service's main process.
+
+301
+00:21:13,223 --> 00:21:17,975
+run instead starts a fresh container with the same configuration:
+
+302
+00:21:17,975 --> 00:21:21,412
+Another hostname, and process 1 is our command.
+
+303
+00:21:21,412 --> 00:21:27,115
+--rm removed the container afterwards; only the two service containers remain.
+
+304
+00:21:27,115 --> 00:21:32,526
+The new container was on the project network, so it could reach redis too:
+
+305
+00:21:33,067 --> 00:21:36,517
+Another hostname, and process 1 is our command.
+
+306
+00:21:36,517 --> 00:21:42,243
+--rm removed the container afterwards; only the two service containers remain.
+
+307
+00:21:42,243 --> 00:21:47,676
+The new container was on the project network, so it could reach redis too:
+
+308
+00:21:49,433 --> 00:21:51,426
+Let me try something.
+
+309
+00:21:51,426 --> 00:21:55,318
+Stop the API, then try to look inside it:
+
+310
+00:21:55,867 --> 00:21:58,314
+exec needs a running container:
+
+311
+00:21:58,314 --> 00:22:01,708
+it starts a process inside an existing one.
+
+312
+00:22:01,708 --> 00:22:02,971
+Check the state:
+
+313
+00:22:04,733 --> 00:22:15,183
+Start it again, or use run when you need the image and configuration but not the running container (for example to inspect files of a service that crashes at start):
+
+314
+00:22:16,933 --> 00:22:17,647
+Got it.
+
+315
+00:22:17,647 --> 00:22:20,398
+What do I need to remember?
+
+316
+00:22:20,933 --> 00:22:21,327
+exec:
+
+317
+00:22:21,327 --> 00:22:25,888
+a new process in the running container (needs it running).
+
+318
+00:22:26,433 --> 00:22:26,774
+run:
+
+319
+00:22:26,774 --> 00:22:31,878
+a new container from the service's configuration (use --rm).
+
+320
+00:22:32,433 --> 00:22:38,068
+exec -T for scripts and pipes; run --no-deps, --service-ports as needed.
+
+321
+00:22:39,833 --> 00:22:43,862
+I keep hearing about building images with Compose.
+
+322
+00:22:43,862 --> 00:22:45,393
+What is it, really?
+
+323
+00:22:45,933 --> 00:22:47,400
+A service with build:
+
+324
+00:22:47,400 --> 00:22:49,706
+gets its image from a Dockerfile.
+
+325
+00:22:49,706 --> 00:22:54,387
+Compose builds it when the image does not exist yet, and only then:
+
+326
+00:22:54,387 --> 00:23:02,491
+after you change the code, docker compose up keeps running the old image until you rebuild it (docker compose build,
+
+327
+00:23:02,491 --> 00:23:03,539
+or up --build).
+
+328
+00:23:03,539 --> 00:23:04,237
+The build:
+
+329
+00:23:04,237 --> 00:23:11,503
+section also sets the context, the Dockerfile, build arguments and, with image:, the name of the result.
+
+330
+00:23:13,267 --> 00:23:17,226
+First, a fresh practice folder for this lesson.
+
+331
+00:23:17,767 --> 00:23:23,331
+Build the images of the project (only services with build:) and look at the result:
+
+332
+00:23:23,331 --> 00:23:25,811
+The build argument reached the image:
+
+333
+00:23:26,367 --> 00:23:28,704
+The build argument reached the image:
+
+334
+00:23:28,704 --> 00:23:33,441
+docker compose images shows which image each container of the project runs:
+
+335
+00:23:34,000 --> 00:23:38,860
+docker compose images shows which image each container of the project runs:
+
+336
+00:23:40,600 --> 00:23:42,218
+Let me try something.
+
+337
+00:23:42,218 --> 00:23:47,610
+A developer changes the API's default greeting and restarts the stack:
+
+338
+00:23:48,167 --> 00:23:51,304
+The file is changed, the answer is old.
+
+339
+00:23:51,304 --> 00:23:59,670
+The code inside an image is a copy made at build time (COPY app.py .), and up reuses the existing image.
+
+340
+00:23:59,670 --> 00:24:03,531
+Compare the image's creation time with the file:
+
+341
+00:24:05,267 --> 00:24:06,862
+The rebuild was fast:
+
+342
+00:24:06,862 --> 00:24:12,788
+requirements.txt did not change, so the pip install layer came from the cache,
+
+343
+00:24:12,788 --> 00:24:18,789
+and only the COPY app.py layer and the ones after it were rebuilt (lesson 039).
+
+344
+00:24:18,789 --> 00:24:26,918
+For fast feedback during development, Compose can also sync or rebuild automatically (docker compose watch,
+
+345
+00:24:26,918 --> 00:24:28,057
+with a develop:
+
+346
+00:24:28,057 --> 00:24:28,741
+section).
+
+347
+00:24:30,500 --> 00:24:31,213
+Got it.
+
+348
+00:24:31,213 --> 00:24:33,965
+What do I need to remember?
+
+349
+00:24:34,500 --> 00:24:34,953
+build:
+
+350
+00:24:34,953 --> 00:24:37,749
+builds an image for a service; image:
+
+351
+00:24:37,749 --> 00:24:38,429
+names it.
+
+352
+00:24:38,967 --> 00:24:42,340
+Compose builds only when the image is missing:
+
+353
+00:24:42,340 --> 00:24:45,566
+after code changes, use up --build or build.
+
+354
+00:24:46,100 --> 00:24:46,547
+args:
+
+355
+00:24:46,547 --> 00:24:49,675
+pass build arguments (ARG); target:
+
+356
+00:24:49,675 --> 00:24:51,104
+selects a stage.
+
+357
+00:24:52,867 --> 00:24:56,876
+How does up, down and the project lifecycle work?
+
+358
+00:24:57,433 --> 00:24:59,135
+up is not only "start":
+
+359
+00:24:59,135 --> 00:25:02,464
+it converges the running project to the file.
+
+360
+00:25:02,464 --> 00:25:10,158
+It creates what is missing, recreates containers whose configuration changed, and leaves the rest alone.
+
+361
+00:25:10,158 --> 00:25:16,076
+stop/start pause and resume containers without removing them; down removes them.
+
+362
+00:25:16,076 --> 00:25:18,517
+What down removes can be widened:
+
+363
+00:25:18,517 --> 00:25:26,433
+volumes (-v), images (--rmi), and containers of services that are no longer in the file (--remove-orphans).
+
+364
+00:25:28,167 --> 00:25:32,126
+First, a fresh practice folder for this lesson.
+
+365
+00:25:32,667 --> 00:25:34,945
+The first up creates everything:
+
+366
+00:25:34,945 --> 00:25:38,576
+A second up with an unchanged file changes nothing:
+
+367
+00:25:39,133 --> 00:25:42,766
+A second up with an unchanged file changes nothing:
+
+368
+00:25:42,766 --> 00:25:47,823
+Change one service's configuration, and only that service is recreated:
+
+369
+00:25:48,367 --> 00:25:53,380
+Change one service's configuration, and only that service is recreated:
+
+370
+00:25:53,380 --> 00:25:58,606
+stop keeps the containers (and their writable layers); start resumes them:
+
+371
+00:26:00,367 --> 00:26:01,808
+Let me try something.
+
+372
+00:26:01,808 --> 00:26:06,816
+The team no longer needs the worker service and deletes it from the file.
+
+373
+00:26:07,367 --> 00:26:11,323
+A warning, not an error, so it is easy to miss.
+
+374
+00:26:11,323 --> 00:26:15,111
+The old container still runs, uses resources,
+
+375
+00:26:15,111 --> 00:26:20,751
+and (for a real worker) may still be processing jobs with old code:
+
+376
+00:26:22,500 --> 00:26:24,300
+Here is the fix.
+
+377
+00:26:26,033 --> 00:26:26,747
+Got it.
+
+378
+00:26:26,747 --> 00:26:29,498
+What do I need to remember?
+
+379
+00:26:30,033 --> 00:26:32,498
+up -d converges to the file:
+
+380
+00:26:32,498 --> 00:26:38,133
+creates, recreates on change, starts; unchanged containers stay.
+
+381
+00:26:38,667 --> 00:26:46,246
+stop/start keep containers; down removes them (-v volumes, --rmi local built images).
+
+382
+00:26:46,800 --> 00:26:49,325
+Removed services leave orphans:
+
+383
+00:26:49,325 --> 00:26:50,710
+--remove-orphans.
