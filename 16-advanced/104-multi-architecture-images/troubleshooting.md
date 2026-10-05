@@ -21,8 +21,8 @@ Run 'docker run --help' for more information
 ## Troubleshoot it
 
 The image index has no `arm/v7` variant. Docker found the tag locally, but nothing for that platform, so it tried to
-pull it from Docker Hub, where `cafe-hello` does not exist (`pull access denied`, or `not found` when the engine pulls
-through a registry mirror). List what the tag contains:
+pull it from Docker Hub, where `cafe-hello` does not exist (`pull access denied`; an engine that pulls through a
+registry mirror reports the failed lookup of `docker.io/library/cafe-hello:1.0` in the mirror's own words). List what the tag contains:
 
 ```bash
 docker image ls --tree cafe-hello
