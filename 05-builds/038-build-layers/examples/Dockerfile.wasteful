@@ -1,0 +1,5 @@
+FROM alpine:3.23
+# download a 30 MB archive, compute its checksum, then "clean up"
+RUN head -c 30000000 /dev/urandom > /tmp/download.bin
+RUN sha256sum /tmp/download.bin > /checksum.txt
+RUN rm /tmp/download.bin

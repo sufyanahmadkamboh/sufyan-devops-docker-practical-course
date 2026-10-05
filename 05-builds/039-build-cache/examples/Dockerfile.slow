@@ -1,0 +1,6 @@
+FROM python:3.14-slim
+WORKDIR /app
+# everything first: any change to any file invalidates the pip install below
+COPY . .
+RUN pip install --no-cache-dir -r requirements.txt
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]

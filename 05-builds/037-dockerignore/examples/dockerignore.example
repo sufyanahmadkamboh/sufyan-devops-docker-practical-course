@@ -1,0 +1,14 @@
+# .dockerignore: paths are relative to the root of the build context
+# version control and local tooling
+.git
+.vscode
+# secrets and local configuration: never in an image
+.env
+*.pem
+# dependencies and build output are installed/built inside the image
+node_modules
+# logs anywhere in the tree (a bare *.log only matches the context root)
+**/*.log
+# the build files themselves
+Dockerfile*
+.dockerignore

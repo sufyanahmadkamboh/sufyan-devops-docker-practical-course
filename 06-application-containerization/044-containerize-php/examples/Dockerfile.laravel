@@ -1,0 +1,20 @@
+# Illustration: the usual shape of a Laravel image (PHP-FPM; Nginx runs in its own container). Not built in this course.
+FROM composer:2 AS vendor
+WORKDIR /app
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
+COPY . .
+RUN composer dump-autoload --optimize --classmap-authoritative
+
+FROM php:8.5-fpm-alpine
+# the PHP extensions the application needs (database driver, opcache)
+RUN docker-php-ext-install pdo_mysql opcache \
+ && cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+WORKDIR /var/www/html
+COPY --from=vendor --chown=www-data:www-data /app ./
+# Laravel writes caches, sessions and logs here: the only writable folders
+RUN chmod -R ug+rwX storage bootstrap/cache
+USER www-data
+# configuration comes from environment variables (APP_KEY, DB_HOST, ...), never from a baked-in .env (lesson 061)
+EXPOSE 9000
+CMD ["php-fpm"]

@@ -1,0 +1,6 @@
+# build from the lab folder: docker build -f node-api/Dockerfile.fixed -t ctx-api:config .
+FROM node:24-alpine
+WORKDIR /app
+COPY node-api/package.json node-api/server.js ./
+COPY shared/config.json ./config.json
+CMD ["node", "server.js"]

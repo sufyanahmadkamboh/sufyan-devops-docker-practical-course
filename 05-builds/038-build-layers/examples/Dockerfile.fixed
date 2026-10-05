@@ -1,0 +1,5 @@
+FROM alpine:3.23
+# download, use and delete in ONE layer: the 30 MB never reach the image
+RUN head -c 30000000 /dev/urandom > /tmp/download.bin \
+ && sha256sum /tmp/download.bin > /checksum.txt \
+ && rm /tmp/download.bin

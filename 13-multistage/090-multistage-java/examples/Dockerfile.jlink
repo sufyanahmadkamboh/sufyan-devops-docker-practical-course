@@ -1,0 +1,19 @@
+# stage 1: compile, package, and find the JDK modules the jar needs
+FROM eclipse-temurin:25-jdk-alpine AS build
+WORKDIR /src
+COPY src ./src
+RUN javac -d classes src/Main.java \
+ && jar --create --file app.jar --main-class Main -C classes . \
+ && jdeps --print-module-deps --ignore-missing-deps app.jar > modules.txt
+# a custom Java runtime with only those modules
+RUN jlink --add-modules "$(cat modules.txt)" --strip-debug --no-man-pages --no-header-files \
+      --compress=zip-6 --output /jre
+
+# stage 2: plain Alpine + the custom runtime + the jar (Temurin's Alpine JDK is built for musl, like Alpine)
+FROM alpine:3.23
+RUN addgroup -S app && adduser -S -G app app
+COPY --from=build /jre /opt/jre
+COPY --from=build /src/app.jar /app/app.jar
+USER app
+EXPOSE 8080
+ENTRYPOINT ["/opt/jre/bin/java", "-XX:MaxRAMPercentage=75", "-jar", "/app/app.jar"]

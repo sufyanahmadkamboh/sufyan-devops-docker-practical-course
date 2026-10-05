@@ -1,0 +1,7 @@
+FROM golang:1.26-alpine
+WORKDIR /src
+COPY main.go ./
+RUN CGO_ENABLED=0 go build -o /usr/local/bin/go-api .
+USER nobody
+EXPOSE 8080
+CMD ["go-api"]

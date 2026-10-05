@@ -1,0 +1,11 @@
+# one stage: compile and run in the same image
+FROM node:24-alpine
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY tsconfig.json ./
+COPY src ./src
+RUN npm run build
+USER node
+EXPOSE 3000
+CMD ["node", "dist/server.js"]
