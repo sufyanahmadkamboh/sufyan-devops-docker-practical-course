@@ -35,7 +35,7 @@ docker run -d --name exam-client --network exam-front alpine:3.23 sleep 3600 > /
 # task 7: notes written into the container's writable layer
 docker run -d --name exam-notes alpine:3.23 sh -c 'mkdir -p /data && echo "remember the milk" > /data/note.txt && exec sleep 3600' > /dev/null
 # task 8: a service that needs configuration
-docker build -q -t exam-greeter:1.0 "$exam/greeter" > /dev/null
+(cd "$exam/greeter" && docker build -q -t exam-greeter:1.0 . > /dev/null)   # a path argument would not work with Docker Desktop in Git Bash
 docker run -d --name exam-greeter exam-greeter:1.0 > /dev/null
 
 echo "exam ready: ~/docker-practice/exam (13 tasks: 22-capstone/final-exam/README.md)"

@@ -56,9 +56,9 @@ docker logs exam-worker 2>&1
 ```
 
 ```text
-exam-worker: Exited (127) 4 seconds ago
-worker starting
+exam-worker: Exited (127) 6 seconds ago
 sh: pyhton: not found
+worker starting
 ```
 
 Exit code 127 is the shell's "command not found": the command is misspelled (`pyhton`), and the image has no Python at
@@ -270,6 +270,18 @@ bash ~/docker-practice/exam/check-exam.sh
 
 ```text
 PASS  task  1  inspect a container: image and host port of exam-web
+PASS  task  2  inspect an image: the entrypoint of redis:8-alpine
+PASS  task  3  why exam-worker exits: its exit code
+PASS  task  4  read the logs of exam-api: the file it cannot open
+PASS  task  5  networking: exam-client joins the network of exam-cache
+PASS  task  6  connectivity: exam-client reaches exam-cache by name
+PASS  task  7  volume: exam-notes keeps its data in the volume exam-notes-data
+PASS  task  8  environment: exam-greeter runs with GREETING set
+PASS  task  9  optimize: exam-optimized:1.0 under 30 MB and working
+PASS  task 10  privileges: exam-nonroot:1.0 runs as a non-root user
+PASS  task 11  compose: the exam stack answers on localhost:8091/visits
+PASS  task 12  health: every service of the exam stack is healthy
+PASS  task 13  registry: exam/optimized:1.0 is in the registry on localhost:5000
 score: 13/13
 ```
 

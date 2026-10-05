@@ -116,7 +116,7 @@ SERVICE    STATUS                    PORTS
 api        Up 16 seconds (healthy)   8080/tcp
 db         Up 22 seconds (healthy)   5432/tcp
 frontend   Up 22 seconds (healthy)   80/tcp, 8080/tcp
-proxy      Up 11 seconds (healthy)   0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp
+proxy      Up 10 seconds (healthy)   0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp
 ```
 
 Only the proxy publishes a port. Use the application through it:
@@ -136,11 +136,11 @@ curl -s http://localhost:8080/api/orders
 ```
 
 ```text
-{"id":1,"item":"flat white","created":"2026-10-05T09:54:36.771146Z"}
+{"id":1,"item":"flat white","created":"2026-10-05T17:21:59.471306Z"}
 
-{"id":2,"item":"cortado","created":"2026-10-05T09:54:36.815706Z"}
+{"id":2,"item":"cortado","created":"2026-10-05T17:21:59.53398Z"}
 
-[{"id":2,"item":"cortado","created":"2026-10-05T09:54:36.815706Z"},{"id":1,"item":"flat white","created":"2026-10-05T09:54:36.771146Z"}]
+[{"id":2,"item":"cortado","created":"2026-10-05T17:21:59.53398Z"},{"id":1,"item":"flat white","created":"2026-10-05T17:21:59.471306Z"}]
 ```
 
 <!-- test: contains=Cafe orders -->
@@ -245,8 +245,7 @@ docker compose exec proxy nslookup db 2>&1 | tail -2
 ```
 
 ```text
-** server can't find db.: NXDOMAIN
-
+** server can't find db: NXDOMAIN
 ```
 
 ## Step 7 · Persistence
@@ -274,10 +273,10 @@ docker stats --no-stream --format 'table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\
 
 ```text
 NAME                  CPU %     MEM USAGE / LIMIT   PIDS
-capstone-proxy-1      0.00%     11.36MiB / 64MiB    15
-capstone-api-1        0.00%     2.184MiB / 64MiB    7
-capstone-db-1         0.07%     27.34MiB / 256MiB   10
-capstone-frontend-1   0.00%     11.2MiB / 32MiB     15
+capstone-proxy-1      0.00%     11.11MiB / 64MiB    15
+capstone-api-1        0.00%     2.129MiB / 64MiB    7
+capstone-db-1         3.22%     27.55MiB / 256MiB   10
+capstone-frontend-1   0.00%     11.14MiB / 32MiB    15
 ```
 
 Every container has a memory limit (`/ 64MiB`), so one leaking service cannot take the whole host's memory. Logs
