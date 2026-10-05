@@ -55,6 +55,44 @@ docker port hidden || true
 ```
 
 ```text
+Unable to find image 'nginx:1.30-alpine' locally
+1.30-alpine: Pulling from library/nginx
+b27cf3f7c39d: Pulling fs layer
+3d85d110b167: Pulling fs layer
+e3320d02d578: Pulling fs layer
+6b4dfb2e8f8a: Pulling fs layer
+22e5a8a110ec: Pulling fs layer
+703c5424632f: Pulling fs layer
+b335b7ac3a40: Pulling fs layer
+e2de96513ba9: Pulling fs layer
+3d85d110b167: Download complete
+22e5a8a110ec: Download complete
+6b4dfb2e8f8a: Download complete
+703c5424632f: Download complete
+b335b7ac3a40: Download complete
+e3320d02d578: Download complete
+57e209258aa3: Download complete
+ee0d72338cd2: Download complete
+e2de96513ba9: Download complete
+e2de96513ba9: Pull complete
+3d85d110b167: Pull complete
+22e5a8a110ec: Pull complete
+6b4dfb2e8f8a: Pull complete
+e3320d02d578: Pull complete
+703c5424632f: Pull complete
+b335b7ac3a40: Pull complete
+b27cf3f7c39d: Download complete
+b27cf3f7c39d: Pull complete
+Digest: sha256:0985e772fb9f729e6fa0980da05fca5d9c468e870eed43071545afa9d2e27d94
+Status: Downloaded newer image for nginx:1.30-alpine
+Unable to find image 'busybox:1.37' locally
+1.37: Pulling from library/busybox
+68fe9bff2ad4: Pulling fs layer
+68fe9bff2ad4: Download complete
+68fe9bff2ad4: Pull complete
+9177639ff916: Download complete
+Digest: sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e
+Status: Downloaded newer image for busybox:1.37
 from a container: ok
 ```
 
@@ -100,9 +138,13 @@ it.
 
 **Verification.**
 
+<!-- test: contains=started -->
+```bash
+docker run -d --name random-port -P nginx:1.30-alpine > /dev/null && echo "started"
+```
+
 <!-- test: contains=Welcome to nginx; retry=5 -->
 ```bash
-docker run -d --name random-port -P nginx:1.30-alpine > /dev/null
 port=$(docker port random-port 80/tcp | head -1 | sed 's/.*://')
 echo "nginx is on host port $port"
 curl -s "http://localhost:$port" | grep -o '<title>.*</title>'

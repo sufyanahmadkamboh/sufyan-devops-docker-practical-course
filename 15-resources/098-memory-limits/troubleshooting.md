@@ -46,7 +46,7 @@ docker rm -f measure > /dev/null
 ```
 
 ```text
-MEM measure 11.48MiB / 15.35GiB
+MEM measure 11.43MiB / 15.35GiB
 ```
 
 ```bash

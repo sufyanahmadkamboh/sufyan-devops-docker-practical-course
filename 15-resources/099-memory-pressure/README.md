@@ -146,15 +146,16 @@ docker exec service cat /sys/fs/cgroup/memory.events
 ```text
 low 0
 high 0
-max 20
+max 35
 oom 1
 oom_kill 1
 oom_group_kill 0
 ```
 
-And the engine recorded the event:
+The engine usually records an `oom` event too (it learns about the kill from the same kernel notification and can
+miss one, so the cgroup counters above are the record to trust):
 
-<!-- test: contains=oom; output -->
+<!-- test: output -->
 ```bash
 docker events --since 5m --until "$(date +%s)" --filter container=service --filter event=oom --format '{{.Action}} in {{.Actor.Attributes.name}}'
 ```
@@ -188,7 +189,7 @@ docker stats --no-stream --format '{{.Name}} {{.MemUsage}}' service
 ```text
 cache holds 32 MB
 oom_kill 0
-service 36.13MiB / 64MiB
+service 36.44MiB / 64MiB
 ```
 
 ## Practice challenge

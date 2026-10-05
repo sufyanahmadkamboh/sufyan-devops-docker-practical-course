@@ -13,7 +13,10 @@ it.
 **Verification.**
 
 ```bash
-docker run -d --name random-port -P nginx:1.30-alpine > /dev/null
+docker run -d --name random-port -P nginx:1.30-alpine > /dev/null && echo "started"
+```
+
+```bash
 port=$(docker port random-port 80/tcp | head -1 | sed 's/.*://')
 echo "nginx is on host port $port"
 curl -s "http://localhost:$port" | grep -o '<title>.*</title>'

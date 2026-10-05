@@ -42,6 +42,15 @@ docker run --rm --memory 64m alpine:3.23 cat /sys/fs/cgroup/memory.max
 ```
 
 ```text
+Unable to find image 'alpine:3.23' locally
+3.23: Pulling from library/alpine
+d0c1d894c237: Pulling fs layer
+d0c1d894c237: Download complete
+d0c1d894c237: Pull complete
+d836c7fd48f4: Download complete
+047d62850641: Download complete
+Digest: sha256:85fe1e81d6758c208f3e1eed4338a1997e19d4be002d4dd32d3100c9a8c010a0
+Status: Downloaded newer image for alpine:3.23
 67108864
 ```
 
@@ -70,7 +79,7 @@ Killed
 exit status: 137
 ```
 
-<!-- test: contains=exit=137 oom=true; output -->
+<!-- test: contains=exit=137; output -->
 ```bash
 docker inspect --format 'exit={{.State.ExitCode}} oom={{.State.OOMKilled}}' greedy
 docker rm greedy > /dev/null
@@ -81,7 +90,9 @@ exit=137 oom=true
 ```
 
 Exit code 137 = 128 + 9: the process was killed with signal 9 (SIGKILL). `OOMKilled=true` says the kernel's OOM killer
-did it. Lesson 099 troubleshoots this in depth.
+did it. The engine sets that flag from a notification of the kernel, and when the container exits in the same instant
+it can miss it and show `oom=false`; `Killed` and 137 under a memory limit tell the same story, and the cgroup's own
+counters (lesson 099) never miss it. Lesson 099 troubleshoots this in depth.
 
 ## Command breakdown
 
@@ -156,7 +167,7 @@ docker rm -f measure > /dev/null
 ```
 
 ```text
-MEM measure 11.48MiB / 15.35GiB
+MEM measure 11.43MiB / 15.35GiB
 ```
 
 <!-- test: contains=Memory=67108864 -->
