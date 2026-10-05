@@ -28,6 +28,8 @@ Hub for the repository `library/hello-word`. The answer:
   misleading here, the name is simply wrong.
 - `429 Too Many Requests`: Docker Hub refused because of its rate limit, before even checking the name
   (troubleshooting problem 25).
+- `…: not found`: the same answer, worded by a registry mirror. Engines configured with a Docker Hub mirror (CI
+  machines, many company networks) ask the mirror first, and it reports a missing repository this way.
 
 Either way no container was created. Compare with the images you actually have:
 

@@ -12,7 +12,7 @@ images that certainly exist.
 
 **A misspelled repository** (`ngnix` instead of `nginx`):
 
-<!-- test: fail; anyof=pull access denied||429 Too Many Requests||toomanyrequests; output -->
+<!-- test: fail; anyof=pull access denied||429 Too Many Requests||toomanyrequests||ngnix:1.30-alpine: not found; output -->
 ```bash
 docker pull ngnix:1.30-alpine 2>&1
 ```

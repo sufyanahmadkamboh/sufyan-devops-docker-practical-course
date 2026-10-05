@@ -19,7 +19,8 @@ Error response from daemon: pull access denied for cafe-menu-api, repository doe
 
 `pull access denied … repository does not exist or may require 'docker login'`: Docker expanded the name to
 `docker.io/library/cafe-menu-api:1.0`, and Docker Hub refused it. The registry deliberately gives the same answer for
-"does not exist" and "exists but is private", so you check both:
+"does not exist" and "exists but is private", so you check both. (An engine that pulls through a registry mirror, as CI
+machines often do, reports the same problem as `docker.io/library/cafe-menu-api:1.0: not found`.)
 
 1. **The name.** Is it spelled correctly, with the right namespace? Your team's image is probably
    `docker.io/yourteam/cafe-menu-api` or on another registry (`ghcr.io/yourteam/cafe-menu-api`), not an official

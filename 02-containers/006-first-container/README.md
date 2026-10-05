@@ -125,7 +125,7 @@ echo "busybox containers: $(docker ps -aq --filter ancestor=busybox:1.37 | wc -l
 
 A typo in the image name:
 
-<!-- test: fail; anyof=pull access denied||429 Too Many Requests; output -->
+<!-- test: fail; anyof=pull access denied||429 Too Many Requests||hello-word:latest: not found; output -->
 ```bash
 docker run hello-word 2>&1
 ```
@@ -147,6 +147,8 @@ Hub for the repository `library/hello-word`. The answer:
   misleading here, the name is simply wrong.
 - `429 Too Many Requests`: Docker Hub refused because of its rate limit, before even checking the name
   (troubleshooting problem 25).
+- `…: not found`: the same answer, worded by a registry mirror. Engines configured with a Docker Hub mirror (CI
+  machines, many company networks) ask the mirror first, and it reports a missing repository this way.
 
 Either way no container was created. Compare with the images you actually have:
 

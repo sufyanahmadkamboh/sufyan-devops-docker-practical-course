@@ -142,7 +142,7 @@ curl -s http://localhost:5000/v2/node-api/tags/list && echo
 
 A new team member builds the image as `node-api:main` (no registry in the name) and pushes it:
 
-<!-- test: fail; anyof=denied||unauthorized||429 Too Many Requests||toomanyrequests; output -->
+<!-- test: fail; anyof=denied||unauthorized||insufficient_scope||429 Too Many Requests||toomanyrequests; output -->
 ```bash
 cd ~/docker-practice/lesson-136
 docker tag localhost:5000/node-api:main node-api:main
