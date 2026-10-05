@@ -146,9 +146,7 @@ def sanitize(text: str) -> str:
         short = kube.replace(str(Path.home()), "~")
         for form in {kube, kube.replace("\\", "\\\\"), short, short.replace("\\", "\\\\")}:
             text = text.replace(form, "~/.kube/config")
-    root = str(ROOT)
-    for form in {root, root.replace("\\", "/"), "/" + root[0].lower() + root[2:].replace("\\", "/")}:
-        text = text.replace(form, "~/docker-practical-course")
+    # the sandbox home first: on Windows it lives inside the course folder (tests/out/home.XXXX)
     lab_home = os.environ.get("MDRUN_HOME", "")
     if len(lab_home) > 3:
         for form in {lab_home, lab_home.replace("\\", "/"), "/" + lab_home[0].lower() + lab_home[2:].replace("\\", "/")}:
@@ -156,6 +154,9 @@ def sanitize(text: str) -> str:
     posix_home = os.environ.get("MDRUN_HOME_POSIX", "").removeprefix("posix:")
     if len(posix_home) > 3:
         text = text.replace(posix_home, "~")
+    root = str(ROOT)
+    for form in {root, root.replace("\\", "/"), "/" + root[0].lower() + root[2:].replace("\\", "/")}:
+        text = text.replace(form, "~/docker-practical-course")
     home = str(Path.home())
     for form in {home, home.replace("\\", "/"), "/" + home[0].lower() + home[2:].replace("\\", "/")}:
         if len(home) > 3:
