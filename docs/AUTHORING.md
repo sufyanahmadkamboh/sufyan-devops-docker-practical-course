@@ -78,6 +78,8 @@ Rules:
   keep it to checks.
 - Discard curl's output with a redirect, `curl -s URL > /dev/null`, never `curl -o /dev/null`: with path conversion
   off, the Windows curl of Git Bash receives the literal path `/dev/null` and fails (exit status 23).
+- Blocks run with `bash -e`: `cmd; code=$?` stops at a failing `cmd`. Capture an exit code with
+  `code=0; cmd || code=$?`.
 - Host commands must work in Git Bash, macOS and Linux: `curl`, `grep`, `sed`, `tr`, `head`, `tail`, `printf`. Avoid
   `jq`, `watch`, `timeout`, GNU-only flags; use `docker … --format` instead of parsing tables.
 - Never put real credentials in a lesson. Secrets in examples are obviously fake (`example-password-change-me`).
