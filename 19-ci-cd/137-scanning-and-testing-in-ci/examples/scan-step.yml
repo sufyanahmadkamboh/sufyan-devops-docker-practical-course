@@ -1,0 +1,10 @@
+# Add to the job of lesson 136, after building the image with "load: true" and before pushing it.
+# Trivy downloads its vulnerability database on every run; exit-code 1 fails the job on HIGH or CRITICAL findings
+# that have a fix available.
+      - name: Scan the image
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25   # v0.36.0
+        with:
+          image-ref: node-api:${{ github.sha }}
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"

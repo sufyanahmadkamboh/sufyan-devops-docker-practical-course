@@ -1,0 +1,56 @@
+# Build, test and publish the node-api image to the GitHub Container Registry (lesson 136).
+# Copy to .github/workflows/docker-image.yml in a repository that contains the files of lesson 135.
+name: docker-image
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+
+permissions:
+  contents: read
+  packages: write          # push to ghcr.io with the job's own GITHUB_TOKEN
+
+jobs:
+  image:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1          # v7.0.1
+
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      # 1 test: the test stage runs the unit tests inside the build
+      - name: Test
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc  # v7.4.0
+        with:
+          target: test
+          push: false
+
+      # tags: the commit SHA always; the version for v* tags; "main" for the main branch
+      - id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302    # v6.2.0
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/node-api
+          tags: |
+            type=sha,format=long
+            type=semver,pattern={{version}}
+            type=ref,event=branch
+
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f       # v4.6.0
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 2 build and 4 push: pull requests build but never push
+      - name: Build and push
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc  # v7.4.0
+        with:
+          target: production
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

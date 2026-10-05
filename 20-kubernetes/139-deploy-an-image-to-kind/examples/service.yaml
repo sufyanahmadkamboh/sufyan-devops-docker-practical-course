@@ -1,0 +1,11 @@
+# One stable name and address for all go-api Pods (Docker's equivalent: a network alias on a user-defined network)
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-api
+spec:
+  selector:
+    app: go-api
+  ports:
+    - port: 80                           # the Service's port
+      targetPort: 8080                   # the container's port
