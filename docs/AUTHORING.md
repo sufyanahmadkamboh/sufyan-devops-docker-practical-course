@@ -74,8 +74,12 @@ Rules:
 - Host ports: use 8080–8099 for lesson servers, 5000 for the local registry; publish to `127.0.0.1` only when a lesson
   is about that.
 - Bind mounts: `-v "$(pwd)/file:/path"`. The runner sets `MSYS_NO_PATHCONV=1` so this works in Git Bash on Windows.
-- `retry=N` reruns the **whole** block: a block with `retry` must be safe to run twice (`rm -f`, `|| true`), so
-  keep it to checks.
+- `retry=N` runs the lines before the first probe (`curl`, `wget`, …) once, then retries from that line on; a
+  block without a probe line is retried whole. Keep retried blocks to checks, and make them safe to run twice.
+- Never start a follower (`docker logs -f`, `docker events`, `docker stats`) in the background and `kill` it: `kill`
+  stops the shell wrapper, the orphaned docker process keeps the runner's output open and the test hangs. Use
+  commands that end by themselves: `docker events --until …`, `docker stats --no-stream`, `docker logs -f` on a
+  container that exits.
 - Discard curl's output with a redirect, `curl -s URL > /dev/null`, never `curl -o /dev/null`: with path conversion
   off, the Windows curl of Git Bash receives the literal path `/dev/null` and fails (exit status 23).
 - Blocks run with `bash -e`: `cmd; code=$?` stops at a failing `cmd`. Capture an exit code with

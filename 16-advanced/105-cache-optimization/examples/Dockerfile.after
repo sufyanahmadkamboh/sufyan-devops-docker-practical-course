@@ -1,0 +1,9 @@
+FROM python:3.14-slim
+WORKDIR /app
+# 1. the dependency list alone: this layer changes only when requirements.txt changes
+COPY requirements.txt .
+# 2. a cache mount keeps pip's download cache between builds (it is not part of the image)
+RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
+# 3. the code last: it changes most often, and only this layer is rebuilt
+COPY . .
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]

@@ -1,0 +1,9 @@
+FROM python:3.14-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
+COPY . .
+# values that change on every build come last: they invalidate only this final, tiny layer
+ARG BUILD_TIME
+LABEL org.opencontainers.image.created="${BUILD_TIME}"
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]

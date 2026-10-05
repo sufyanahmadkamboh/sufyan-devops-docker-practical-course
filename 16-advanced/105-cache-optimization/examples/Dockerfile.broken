@@ -1,0 +1,9 @@
+FROM python:3.14-slim
+# build metadata, added "at the top, where it is easy to find"
+ARG BUILD_TIME
+RUN echo "built at ${BUILD_TIME}" > /build-info.txt
+WORKDIR /app
+COPY requirements.txt .
+RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
+COPY . .
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
