@@ -155,7 +155,7 @@ A 21-video series (5 h 27 min) follows the course: one video per module, the 25 
 capstone. Each lesson becomes a short conversation between a senior and a junior engineer over the lesson's diagram, its
 real commands and outputs, the mistake made on purpose and the fix. Every video exists in two versions with identical
 pictures: full (narration, music, sound effects) and silent. The videos are generated from the lessons by
-[video/build.py](video/build.py); titles, descriptions, chapters and captions are in [video/youtube](video/youtube),
+[video/build.py](video/build.py); it also writes the titles, descriptions, chapters and captions (kept locally, not in the repository),
 and every audio asset is listed in [video/AUDIO-LICENSES.md](video/AUDIO-LICENSES.md).
 
 ## Docker, CI/CD and Kubernetes
