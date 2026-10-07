@@ -1,6 +1,0 @@
-0:00 Lesson 040 · Containerizing a Node.js application
-2:22 Lesson 041 · Containerizing a Python application
-4:24 Lesson 042 · Containerizing a Go application
-6:25 Lesson 043 · Containerizing a Java application
-8:56 Lesson 044 · Containerizing a PHP application
-11:14 Lesson 045 · Comparing the stacks

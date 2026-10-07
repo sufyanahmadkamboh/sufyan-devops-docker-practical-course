@@ -1,5 +1,0 @@
-0:00 Lesson 075 · What is a registry?
-2:09 Lesson 076 · Docker Hub
-4:42 Lesson 077 · Image naming
-7:34 Lesson 078 · Private registries
-10:11 Lesson 079 · GitHub Container Registry

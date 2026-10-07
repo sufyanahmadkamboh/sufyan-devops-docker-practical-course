@@ -1,1 +1,0 @@
-Capstone · A production-style container stack | Docker Practical Course

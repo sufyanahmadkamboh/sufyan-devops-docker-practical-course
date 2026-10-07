@@ -1,5 +1,0 @@
-0:00 Lesson 035 · docker build
-2:41 Lesson 036 · The build context
-5:41 Lesson 037 · .dockerignore
-8:09 Lesson 038 · Build layers
-10:13 Lesson 039 · The build cache

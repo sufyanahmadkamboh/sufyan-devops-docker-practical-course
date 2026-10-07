@@ -1,5 +1,0 @@
-0:00 Lesson 087 · Why multi-stage builds?
-1:56 Lesson 088 · Multi-stage builds for Node.js
-4:08 Lesson 089 · Multi-stage builds for Go
-6:12 Lesson 090 · Multi-stage builds for Java
-8:04 Lesson 091 · Measuring image size

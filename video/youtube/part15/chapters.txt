@@ -1,3 +1,0 @@
-0:00 Lesson 097 · CPU limits
-2:07 Lesson 098 · Memory limits
-5:04 Lesson 099 · Memory pressure and OOM kills

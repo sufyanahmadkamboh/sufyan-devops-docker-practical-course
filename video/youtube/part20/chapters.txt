@@ -1,3 +1,0 @@
-0:00 Lesson 138 · From Docker to Kubernetes
-2:22 Lesson 139 · Deploy an image to kind
-4:23 Lesson 140 · Kubernetes for Docker users

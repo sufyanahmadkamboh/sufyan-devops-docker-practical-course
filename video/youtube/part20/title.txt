@@ -1,1 +1,0 @@
-Module 20 · Docker and Kubernetes | Docker Practical Course
